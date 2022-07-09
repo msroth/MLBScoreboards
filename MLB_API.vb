@@ -1,6 +1,7 @@
 ﻿
 
 
+Imports System.Net
 Imports Newtonsoft.Json.Linq
 
 Public Class MLB_API
@@ -10,14 +11,14 @@ Public Class MLB_API
     Dim API_TEAMS_URL As String = API_BASE_URL + "/v1/teams?sportId=1&activeStatus=ACTIVE"
     Dim API_SCHEDULE_URL As String = API_BASE_URL + "/v1/schedule?sportId=1&date={0}"
 
-    Dim apiClient As New System.Net.WebClient()
+    'Dim apiClient As System.Net.WebClient() = New System.Net.WebClient()
 
     Function getData(url)
-        Dim result As String = apiClient.DownloadString(url)
+        Dim result As String = ""
+        Using client As New WebClient()
+            result = client.DownloadString(url)
+        End Using
         Dim json As JObject = JObject.Parse(result)
-
-        ' https://stackoverflow.com/questions/21676708
-
         Return json
     End Function
 

@@ -24,65 +24,68 @@ Public Class ScoreboardData
         Return DB
     End Function
 
-    Public Sub loadCurrentGameDataIntoDB(liveData, boxData, gameDate, gamePk)
+    Public Sub loadCurrentGameDataIntoDB(liveData, boxData, gameDate, gameTime, gamePk)
+        Me.DB.loadCurrentGameDataIntoDB(liveData, boxData, gameDate, gameTime, gamePk)
 
-        ' TODO - move to Database becuase it uses SQL
+        '    ' TODO - move to Database becuase it uses SQL
 
-        ' get team ids
-        Dim awayId As String = boxData.SelectToken("teams.away.team.id")
-        Dim homeId As String = boxData.SelectToken("teams.home.team.id")
+        '    ' get team ids
+        '    Dim awayId As String = boxData.SelectToken("teams.away.team.id")
+        '    Dim homeId As String = boxData.SelectToken("teams.home.team.id")
 
-        ' drop any data currently in table
-        Dim sql As String = "DELETE FROM current_game"
-        Me.DB.runNonQuery(sql)
+        '    ' drop any data currently in table
+        '    Dim sql As String = "DELETE FROM current_game"
+        '    Me.DB.runNonQuery(sql)
 
-        ' get away team data
-        sql = String.Format("SELECT * from teams where id='{0}';", awayId)
-        Dim awayData As DataTable = Me.DB.runQuery(sql)
+        '    ' get away team data
+        '    sql = String.Format("SELECT * from teams where id='{0}';", awayId)
+        '    Dim awayData As DataTable = Me.DB.runQuery(sql)
 
-        ' get home team data
-        sql = String.Format("SELECT * from teams where id='{0}';", homeId)
-        Dim homeData As DataTable = Me.DB.runQuery(sql)
+        '    ' get home team data
+        '    sql = String.Format("SELECT * from teams where id='{0}';", homeId)
+        '    Dim homeData As DataTable = Me.DB.runQuery(sql)
 
-        ' insert data into database
-        sql = String.Format("INSERT INTO current_game (gamePk, home_abbrev, away_abbrev, home_name, away_name, game_date) VALUES ({0}, '{1}', '{2}', '{3}', '{4}', '{5}');",
-                            gamePk, homeData.Rows(0).Field(Of String)(1), awayData.Rows(0).Field(Of String)(1), homeData.Rows(0).Field(Of String)(3),
-                            awayData.Rows(0).Field(Of String)(3), gameDate)
-        Me.DB.runNonQuery(sql)
+        '    ' insert data into database
+        '    sql = String.Format("INSERT INTO current_game (gamePk, home_abbrev, away_abbrev, home_name, away_name, game_date) VALUES ({0}, '{1}', '{2}', '{3}', '{4}', '{5}');",
+        '                        gamePk, homeData.Rows(0).Field(Of String)(1), awayData.Rows(0).Field(Of String)(1), homeData.Rows(0).Field(Of String)(3),
+        '                        awayData.Rows(0).Field(Of String)(3), gameDate)
+        '    Me.DB.runNonQuery(sql)
 
     End Sub
 
-    Public Sub loadTeamsDataintoDB()
-
-        ' TODO - move to Database becuase it uses SQL
-
+    Public Sub loadTeamsDataIntoDB()
         ' get team data from API
         Dim data As JObject = Me.API.returnTeamsData()
-        Dim teams As JArray = data.SelectToken("teams")
+        DB.loadTeamsDataIntoDB(data)
 
-        For Each team As JObject In teams
-            Dim teamId As String = team.SelectToken("id").ToString()
-            Dim teamFullName As String = team.SelectToken("name")
-            Dim teamName As String = team.SelectToken("teamName")
-            Dim teamAbbrev As String = team.SelectToken("abbreviation")
+        '' get team data from API
+        'Dim data As JObject = Me.API.returnTeamsData()
+        'Dim teams As JArray = data.SelectToken("teams")
 
-            ' create SQL insert string
-            Dim sql As String = String.Format("INSERT INTO teams (id, abbrev, name, full_name) VALUES ({0}, '{1}', '{2}', '{3}');", teamId, teamAbbrev, teamName, teamFullName)
+        'For Each team As JObject In teams
+        '    Dim teamId As String = team.SelectToken("id").ToString()
+        '    Dim teamFullName As String = team.SelectToken("name")
+        '    Dim teamName As String = team.SelectToken("teamName")
+        '    Dim teamAbbrev As String = team.SelectToken("abbreviation")
 
-            ' insert into database
-            Me.DB.runNonQuery(sql)
+        '    ' create SQL insert string
+        '    Dim sql As String = String.Format("INSERT INTO teams (id, abbrev, name, full_name) VALUES ({0}, '{1}', '{2}', '{3}');", teamId, teamAbbrev, teamName, teamFullName)
 
-        Next
+        '    ' insert into database
+        '    Me.DB.runNonQuery(sql)
+
+        'Next
 
     End Sub
 
     Public Function returnAllTeamNames() As DataTable
 
-        ' TODO - move to Database becuase it uses SQL
+        '    ' TODO - move to Database becuase it uses SQL
 
-        Dim sql As String = "SELECT * FROM teams ORDER BY full_name"
-        Dim dt As DataTable = Me.DB.runQuery(sql)
-        Return dt
+        '    Dim sql As String = "SELECT * FROM teams ORDER BY full_name"
+        '    Dim dt As DataTable = Me.DB.runQuery(sql)
+        '    Return dt
+        Return DB.returnAllTeamNames()
     End Function
 
     Public Function findGamePk(teamId, gameDate) As Integer
@@ -158,6 +161,15 @@ Public Class ScoreboardData
     Public Function getLastPlayDescription() As String
         Dim lastPlayData As JObject = Me.getLastPlayData()
         Dim desc As String = lastPlayData.SelectToken("result.description")
+        Dim playInning As String = lastPlayData.SelectToken("about.inning")
+        Dim playInningHalf As String = lastPlayData.SelectToken("about.halfInning")
+        Dim currentInning As String = getCurrentInningNumber()
+        Dim currentInningHalf As String = getCurrentInningHalf()
+        desc = String.Format("Last play: {0}", desc)
+        If Not (playInning.Equals(currentInning)) Or Not (playInningHalf.ToUpper().Equals(currentInningHalf.ToUpper())) Then
+            desc = String.Format("{0} {1}: {2}", playInningHalf.ToUpper(), playInning, desc)
+        End If
+
         Return desc
     End Function
 
@@ -179,7 +191,12 @@ Public Class ScoreboardData
         Return inningHalf
     End Function
 
+    Public Sub insertPlayerDataIntoDB(playerData As JObject, team As String)
+        DB.insertPlayerDataIntoDB(playerData, team)
+    End Sub
 
-
+    Public Function updateTeamRoster(team As String) As DataTable
+        Return DB.returnTeamRoster(team)
+    End Function
 
 End Class
