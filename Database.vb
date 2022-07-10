@@ -112,38 +112,23 @@ Public Class Database
         Return abbr
     End Function
 
-    Public Sub insertPlayerDataIntoDB(playerData As JObject, team As String)
+    Public Sub insertPlayerDataIntoDB(id As String, teamAbbr As String, fullName As String, position As String, jerseyNumber As String)
 
-        Dim teamAbbr = returnTeamAbbr(team)
-
-        For Each player In playerData
-
-            Dim id As String = player.Value.Item("person").Item("id")
-            Dim fullName As String = player.Value.Item("person").Item("fullName")
-            fullName = fullName.Replace("'", "")
-            Dim lastName As String = fullName.Split(" ")(1)
-            Dim jerseyNum As String = player.Value.Item("jeresyNumber")
-            Dim position = player.Value.Item("position").Item("name")
-
-            Dim sql As String = String.Format("INSERT INTO players (id, team_abbr, full_name, last_name, position, jersey_num) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}');", id, teamAbbr, fullName, lastName, position, jerseyNum)
-            Me.runNonQuery(Sql)
-
-        Next
-
+        fullName = fullName.Replace("'", "")
+        Dim lastName As String = fullName.Split(" ")(1)
+        Dim sql As String = String.Format("INSERT INTO players (id, team_abbr, full_name, last_name, position, jersey_num) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}');", id, teamAbbr, fullName, lastName, position, jerseyNumber)
+        Me.runNonQuery(sql)
     End Sub
 
     Public Function returnTeamRoster(team As String) As DataTable
-        Dim sql As String = ""
-        Dim teamAbbr = ""
-        If team.Equals("home") Then
-            teamAbbr = returnTeamAbbr("home")
-            sql = String.Format("SELECT jersey_num, last_name, position FROM players WHERE team_abbr = '{0}' ORDER BY last_name;", teamAbbr)
-        Else
-            teamAbbr = returnTeamAbbr("away")
-            sql = String.Format("SELECT jersey_num, last_name, position FROM players WHERE team_abbr = '{0}' ORDER BY last_name;", teamAbbr)
-        End If
+        Dim teamAbbr = returnTeamAbbr(team)
+        Dim sql As String = String.Format("SELECT jersey_num as Num, last_name as Name, position as Position FROM players WHERE team_abbr = '{0}' ORDER BY last_name;", teamAbbr)
         Dim dt As DataTable = Me.runQuery(sql)
         Return dt
     End Function
 
+    Public Sub clearPlayersTable()
+        Dim sql As String = "DELETE FROM players;"
+        Me.runNonQuery(sql)
+    End Sub
 End Class

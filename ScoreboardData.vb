@@ -191,12 +191,5 @@ Public Class ScoreboardData
         Return inningHalf
     End Function
 
-    Public Sub insertPlayerDataIntoDB(playerData As JObject, team As String)
-        DB.insertPlayerDataIntoDB(playerData, team)
-    End Sub
-
-    Public Function updateTeamRoster(team As String) As DataTable
-        Return DB.returnTeamRoster(team)
-    End Function
 
 End Class

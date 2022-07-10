@@ -101,6 +101,8 @@ Public Class MLBScoreboard
         End With
         Me.cbxTeam.SelectedIndex = 0
 
+        ' stop the timer refreshing the current scoreboard
+        Timer1.Stop()
 
     End Sub
 
@@ -207,7 +209,6 @@ Public Class MLBScoreboard
 
         Else
             txtCommentary.Enabled = False
-            txbPitch.Enabled = False
             dgvAwayRoster.Enabled = False
             dgvHomeRoster.Enabled = False
         End If
@@ -264,8 +265,6 @@ Public Class MLBScoreboard
         If dtInnings.Columns.Contains("E") Then
             dtInnings.Columns.Remove("E")
         End If
-
-
 
         ' add team names with records
         Dim awayWins As String = Me.SBData.getLiveData().SelectToken("gameData.teams.away.record.wins")
@@ -347,6 +346,7 @@ Public Class MLBScoreboard
         Me.dtInnings.Rows(1).Item("H") = lineScore.SelectToken("teams.home.hits").ToString
         Me.dtInnings.Rows(1).Item("E") = lineScore.SelectToken("teams.home.errors").ToString
 
+        dgvInnings.ClearSelection()
 
 
     End Sub
@@ -405,10 +405,69 @@ Public Class MLBScoreboard
     End Sub
 
     Private Sub loadTeamRosters()
-        Dim awayTeamPlayers As JObject = SBData.getBoxScoreData().SelectToken("teams.away.players")
-        Dim homeTeamPlayers As JObject = SBData.getBoxScoreData().SelectToken("teams.home.players")
-        SBData.getDB().insertPlayerDataIntoDB(awayTeamPlayers, "away")
-        SBData.getDB().insertPlayerDataIntoDB(homeTeamPlayers, "home")
+
+        ' clear roster table before update
+        Me.SBData.getDB.clearPlayersTable()
+
+        ' get active batters and pitchers for away team
+        Dim playerIds As List(Of String) = New List(Of String)
+        Dim teamAbbr = SBData.getDB().returnTeamAbbr("away")
+        For Each id As String In SBData.getBoxScoreData().SelectToken("teams.away.batters")
+            playerIds.Add(id)
+        Next
+        'For Each id As String In SBData.getBoxScoreData().SelectToken("teams.away.pitchers")
+        '    playerIds.Add(id)
+        'Next
+
+        ' get player data and add to database
+        For Each id As String In playerIds
+            Dim jerseyNumber As String = ""
+            Dim fullName As String = ""
+            Dim position As String = ""
+            Dim lastName As String = ""
+
+            For Each player As JProperty In SBData.getBoxScoreData().SelectToken("teams.away.players")
+                If player.Value.Item("person").Item("id").ToString().Equals(id) Then
+                    jerseyNumber = player.Value.Item("jerseyNumber")
+                    fullName = player.Value.Item("person").Item("fullName")
+                    position = player.Value.Item("position").Item("name")
+                    SBData.getDB().insertPlayerDataIntoDB(player.Value.Item("person").Item("id").ToString(),
+                                                          teamAbbr, fullName, position, jerseyNumber)
+
+                    Exit For
+                End If
+            Next
+        Next
+
+        ' get active batters and pitchers for home team
+        playerIds.Clear()
+        teamAbbr = SBData.getDB().returnTeamAbbr("home")
+        For Each id As String In SBData.getBoxScoreData().SelectToken("teams.home.batters")
+            playerIds.Add(id)
+        Next
+        'For Each id As String In SBData.getBoxScoreData().SelectToken("teams.home.pitchers")
+        '    playerIds.Add(id)
+        'Next
+
+        ' get player data and add to database
+        For Each id As String In playerIds
+            Dim jerseyNumber As String = ""
+            Dim fullName As String = ""
+            Dim position As String = ""
+            Dim lastName As String = ""
+
+            For Each player As JProperty In SBData.getBoxScoreData().SelectToken("teams.home.players")
+                If player.Value.Item("person").Item("id").ToString().Equals(id) Then
+                    jerseyNumber = player.Value.Item("jerseyNumber")
+                    fullName = player.Value.Item("person").Item("fullName")
+                    position = player.Value.Item("position").Item("name")
+                    SBData.getDB().insertPlayerDataIntoDB(player.Value.Item("person").Item("id").ToString(),
+                                                          teamAbbr, fullName, position, jerseyNumber)
+
+                    Exit For
+                End If
+            Next
+        Next
 
     End Sub
 
@@ -418,8 +477,11 @@ Public Class MLBScoreboard
         Dim homeTeamAbbr As String = SBData.getDB().returnTeamAbbr("home")
         lblAwayRoster.Text = awayTeamAbbr + " Roster"
         lblHomeRoster.Text = homeTeamAbbr + " Roster"
-        dgvAwayRoster.DataSource = SBData.getDB().returnTeamRoster("home")
-        dgvHomeRoster.DataSource = SBData.getDB().returnTeamRoster("away")
+        dgvAwayRoster.DataSource = SBData.getDB().returnTeamRoster("away")
+        dgvHomeRoster.DataSource = SBData.getDB().returnTeamRoster("home")
+        dgvAwayRoster.ClearSelection()
+        dgvHomeRoster.ClearSelection()
+
     End Sub
 
     Private Sub updatePitcherBatterMatchup()
@@ -475,7 +537,8 @@ Public Class MLBScoreboard
         Next
 
         Dim matchup As String = String.Format("Pitcher: {0} {1} - Batter: {2} {3}", pitcherName, pitcherStats, batterName, batterStats)
-        txbMatchup.Text = matchup
+        ' txbMatchup.Text = matchup
+        lblMatchup.Text = matchup
     End Sub
 
     Private Sub updateLastPitchDescription()
@@ -496,11 +559,12 @@ Public Class MLBScoreboard
         If pitchType = String.Empty Then
             desc = String.Empty
         Else
-            desc = String.Format("Pitch #{0}: {1} - {4}.  (Start speed {2}mph, End speed {3}mph)", pitchNum, pitchType, startSpeed, endSpeed, pitchCall.ToUpper
+            desc = String.Format("Pitch #{0}: {1} - {4}.  (Start {2}mph, End {3}mph)", pitchNum, pitchType, startSpeed, endSpeed, pitchCall.ToUpper
                                  )
         End If
 
-        Me.txbPitch.Text = desc
+        'Me.txbPitch.Text = desc
+        Me.lblLastPitch.Text = desc
 
     End Sub
 

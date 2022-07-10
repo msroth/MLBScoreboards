@@ -23,6 +23,7 @@ Partial Class MLBScoreboard
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
+        Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.StatusStrip1 = New System.Windows.Forms.StatusStrip()
         Me.ToolStripStatusLabel1 = New System.Windows.Forms.ToolStripStatusLabel()
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
@@ -37,9 +38,7 @@ Partial Class MLBScoreboard
         Me.lblGameTitle = New System.Windows.Forms.Label()
         Me.imgDiamond = New System.Windows.Forms.PictureBox()
         Me.txtCommentary = New System.Windows.Forms.TextBox()
-        Me.txbPitch = New System.Windows.Forms.TextBox()
-        Me.Label2 = New System.Windows.Forms.Label()
-        Me.Label3 = New System.Windows.Forms.Label()
+        Me.lblLastPitch = New System.Windows.Forms.Label()
         Me.lblBalls = New System.Windows.Forms.Label()
         Me.lblStrikes = New System.Windows.Forms.Label()
         Me.lblOuts = New System.Windows.Forms.Label()
@@ -49,7 +48,6 @@ Partial Class MLBScoreboard
         Me.lblAwayRoster = New System.Windows.Forms.Label()
         Me.lblHomeRoster = New System.Windows.Forms.Label()
         Me.lblMatchup = New System.Windows.Forms.Label()
-        Me.txbMatchup = New System.Windows.Forms.TextBox()
         Me.StatusStrip1.SuspendLayout()
         Me.MenuStrip1.SuspendLayout()
         CType(Me.dgvInnings, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -65,7 +63,7 @@ Partial Class MLBScoreboard
         Me.StatusStrip1.Location = New System.Drawing.Point(0, 510)
         Me.StatusStrip1.Name = "StatusStrip1"
         Me.StatusStrip1.Padding = New System.Windows.Forms.Padding(1, 0, 16, 0)
-        Me.StatusStrip1.Size = New System.Drawing.Size(1417, 22)
+        Me.StatusStrip1.Size = New System.Drawing.Size(1336, 22)
         Me.StatusStrip1.TabIndex = 0
         Me.StatusStrip1.Text = "StatusStrip1"
         '
@@ -82,7 +80,7 @@ Partial Class MLBScoreboard
         Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
         Me.MenuStrip1.Name = "MenuStrip1"
         Me.MenuStrip1.Padding = New System.Windows.Forms.Padding(7, 3, 0, 3)
-        Me.MenuStrip1.Size = New System.Drawing.Size(1417, 30)
+        Me.MenuStrip1.Size = New System.Drawing.Size(1336, 30)
         Me.MenuStrip1.TabIndex = 2
         Me.MenuStrip1.Text = "MenuStrip1"
         '
@@ -143,10 +141,18 @@ Partial Class MLBScoreboard
         Me.dgvInnings.BackgroundColor = System.Drawing.Color.Green
         Me.dgvInnings.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.dgvInnings.CausesValidation = False
+        DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle1.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+        DataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.dgvInnings.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle1
         Me.dgvInnings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvInnings.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
         Me.dgvInnings.Enabled = False
-        Me.dgvInnings.Location = New System.Drawing.Point(13, 129)
+        Me.dgvInnings.Location = New System.Drawing.Point(13, 128)
         Me.dgvInnings.MultiSelect = False
         Me.dgvInnings.Name = "dgvInnings"
         Me.dgvInnings.ReadOnly = True
@@ -154,10 +160,7 @@ Partial Class MLBScoreboard
         Me.dgvInnings.RowHeadersWidth = 51
         Me.dgvInnings.RowTemplate.Height = 29
         Me.dgvInnings.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal
-        Me.dgvInnings.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect
-        Me.dgvInnings.ShowCellToolTips = False
-        Me.dgvInnings.ShowEditingIcon = False
-        Me.dgvInnings.Size = New System.Drawing.Size(823, 120)
+        Me.dgvInnings.Size = New System.Drawing.Size(720, 120)
         Me.dgvInnings.TabIndex = 6
         '
         'team
@@ -194,41 +197,26 @@ Partial Class MLBScoreboard
         '
         'txtCommentary
         '
-        Me.txtCommentary.Location = New System.Drawing.Point(224, 347)
+        Me.txtCommentary.BackColor = System.Drawing.Color.Green
+        Me.txtCommentary.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.txtCommentary.ForeColor = System.Drawing.SystemColors.ControlLightLight
+        Me.txtCommentary.Location = New System.Drawing.Point(227, 331)
         Me.txtCommentary.Multiline = True
         Me.txtCommentary.Name = "txtCommentary"
         Me.txtCommentary.ReadOnly = True
-        Me.txtCommentary.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.txtCommentary.Size = New System.Drawing.Size(612, 82)
+        Me.txtCommentary.Size = New System.Drawing.Size(509, 109)
         Me.txtCommentary.TabIndex = 12
+        Me.txtCommentary.Text = "Last Play"
         '
-        'txbPitch
+        'lblLastPitch
         '
-        Me.txbPitch.Location = New System.Drawing.Point(224, 463)
-        Me.txbPitch.Name = "txbPitch"
-        Me.txbPitch.ReadOnly = True
-        Me.txbPitch.Size = New System.Drawing.Size(612, 27)
-        Me.txbPitch.TabIndex = 13
-        '
-        'Label2
-        '
-        Me.Label2.AutoSize = True
-        Me.Label2.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.Label2.Location = New System.Drawing.Point(224, 324)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(125, 20)
-        Me.Label2.TabIndex = 14
-        Me.Label2.Text = "Play Commentary"
-        '
-        'Label3
-        '
-        Me.Label3.AutoSize = True
-        Me.Label3.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.Label3.Location = New System.Drawing.Point(221, 440)
-        Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(71, 20)
-        Me.Label3.TabIndex = 15
-        Me.Label3.Text = "Last Pitch"
+        Me.lblLastPitch.AutoSize = True
+        Me.lblLastPitch.ForeColor = System.Drawing.SystemColors.ControlLightLight
+        Me.lblLastPitch.Location = New System.Drawing.Point(227, 461)
+        Me.lblLastPitch.Name = "lblLastPitch"
+        Me.lblLastPitch.Size = New System.Drawing.Size(71, 20)
+        Me.lblLastPitch.TabIndex = 15
+        Me.lblLastPitch.Text = "Last Pitch"
         '
         'lblBalls
         '
@@ -269,37 +257,43 @@ Partial Class MLBScoreboard
         '
         Me.dgvAwayRoster.AllowUserToAddRows = False
         Me.dgvAwayRoster.AllowUserToDeleteRows = False
+        Me.dgvAwayRoster.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
+        Me.dgvAwayRoster.BackgroundColor = System.Drawing.Color.Green
         Me.dgvAwayRoster.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvAwayRoster.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
-        Me.dgvAwayRoster.Location = New System.Drawing.Point(860, 129)
+        Me.dgvAwayRoster.Location = New System.Drawing.Point(779, 82)
+        Me.dgvAwayRoster.MultiSelect = False
         Me.dgvAwayRoster.Name = "dgvAwayRoster"
         Me.dgvAwayRoster.ReadOnly = True
         Me.dgvAwayRoster.RowHeadersVisible = False
         Me.dgvAwayRoster.RowHeadersWidth = 51
         Me.dgvAwayRoster.RowTemplate.Height = 29
-        Me.dgvAwayRoster.Size = New System.Drawing.Size(256, 346)
+        Me.dgvAwayRoster.Size = New System.Drawing.Size(256, 410)
         Me.dgvAwayRoster.TabIndex = 21
         '
         'dgvHomeRoster
         '
         Me.dgvHomeRoster.AllowUserToAddRows = False
         Me.dgvHomeRoster.AllowUserToDeleteRows = False
+        Me.dgvHomeRoster.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
+        Me.dgvHomeRoster.BackgroundColor = System.Drawing.Color.Green
         Me.dgvHomeRoster.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvHomeRoster.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
-        Me.dgvHomeRoster.Location = New System.Drawing.Point(1138, 128)
+        Me.dgvHomeRoster.Location = New System.Drawing.Point(1057, 81)
+        Me.dgvHomeRoster.MultiSelect = False
         Me.dgvHomeRoster.Name = "dgvHomeRoster"
         Me.dgvHomeRoster.ReadOnly = True
         Me.dgvHomeRoster.RowHeadersVisible = False
         Me.dgvHomeRoster.RowHeadersWidth = 51
         Me.dgvHomeRoster.RowTemplate.Height = 29
-        Me.dgvHomeRoster.Size = New System.Drawing.Size(256, 346)
+        Me.dgvHomeRoster.Size = New System.Drawing.Size(256, 410)
         Me.dgvHomeRoster.TabIndex = 22
         '
         'lblAwayRoster
         '
         Me.lblAwayRoster.AutoSize = True
         Me.lblAwayRoster.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.lblAwayRoster.Location = New System.Drawing.Point(862, 96)
+        Me.lblAwayRoster.Location = New System.Drawing.Point(781, 49)
         Me.lblAwayRoster.Name = "lblAwayRoster"
         Me.lblAwayRoster.Size = New System.Drawing.Size(91, 20)
         Me.lblAwayRoster.TabIndex = 23
@@ -309,7 +303,7 @@ Partial Class MLBScoreboard
         '
         Me.lblHomeRoster.AutoSize = True
         Me.lblHomeRoster.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.lblHomeRoster.Location = New System.Drawing.Point(1138, 97)
+        Me.lblHomeRoster.Location = New System.Drawing.Point(1057, 50)
         Me.lblHomeRoster.Name = "lblHomeRoster"
         Me.lblHomeRoster.Size = New System.Drawing.Size(96, 20)
         Me.lblHomeRoster.TabIndex = 24
@@ -325,21 +319,13 @@ Partial Class MLBScoreboard
         Me.lblMatchup.TabIndex = 25
         Me.lblMatchup.Text = "Pitcher - Batter Matchup"
         '
-        'txbMatchup
-        '
-        Me.txbMatchup.Location = New System.Drawing.Point(227, 294)
-        Me.txbMatchup.Name = "txbMatchup"
-        Me.txbMatchup.Size = New System.Drawing.Size(609, 27)
-        Me.txbMatchup.TabIndex = 26
-        '
         'MLBScoreboard
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.Green
         Me.CausesValidation = False
-        Me.ClientSize = New System.Drawing.Size(1417, 532)
-        Me.Controls.Add(Me.txbMatchup)
+        Me.ClientSize = New System.Drawing.Size(1336, 532)
         Me.Controls.Add(Me.lblMatchup)
         Me.Controls.Add(Me.lblHomeRoster)
         Me.Controls.Add(Me.lblAwayRoster)
@@ -348,9 +334,7 @@ Partial Class MLBScoreboard
         Me.Controls.Add(Me.lblOuts)
         Me.Controls.Add(Me.lblStrikes)
         Me.Controls.Add(Me.lblBalls)
-        Me.Controls.Add(Me.Label3)
-        Me.Controls.Add(Me.Label2)
-        Me.Controls.Add(Me.txbPitch)
+        Me.Controls.Add(Me.lblLastPitch)
         Me.Controls.Add(Me.txtCommentary)
         Me.Controls.Add(Me.imgDiamond)
         Me.Controls.Add(Me.lblGameTitle)
@@ -390,9 +374,7 @@ Partial Class MLBScoreboard
     Friend WithEvents lblGameTitle As Label
     Friend WithEvents imgDiamond As PictureBox
     Friend WithEvents txtCommentary As TextBox
-    Friend WithEvents txbPitch As TextBox
-    Friend WithEvents Label2 As Label
-    Friend WithEvents Label3 As Label
+    Friend WithEvents lblLastPitch As Label
     Friend WithEvents lblBalls As Label
     Friend WithEvents lblStrikes As Label
     Friend WithEvents lblOuts As Label
@@ -403,5 +385,4 @@ Partial Class MLBScoreboard
     Friend WithEvents lblAwayRoster As Label
     Friend WithEvents lblHomeRoster As Label
     Friend WithEvents lblMatchup As Label
-    Friend WithEvents txbMatchup As TextBox
 End Class
