@@ -27,30 +27,6 @@ Public Class ScoreboardData
     Public Sub loadCurrentGameDataIntoDB(liveData, boxData, gameDate, gameTime, gamePk)
         Me.DB.loadCurrentGameDataIntoDB(liveData, boxData, gameDate, gameTime, gamePk)
 
-        '    ' TODO - move to Database becuase it uses SQL
-
-        '    ' get team ids
-        '    Dim awayId As String = boxData.SelectToken("teams.away.team.id")
-        '    Dim homeId As String = boxData.SelectToken("teams.home.team.id")
-
-        '    ' drop any data currently in table
-        '    Dim sql As String = "DELETE FROM current_game"
-        '    Me.DB.runNonQuery(sql)
-
-        '    ' get away team data
-        '    sql = String.Format("SELECT * from teams where id='{0}';", awayId)
-        '    Dim awayData As DataTable = Me.DB.runQuery(sql)
-
-        '    ' get home team data
-        '    sql = String.Format("SELECT * from teams where id='{0}';", homeId)
-        '    Dim homeData As DataTable = Me.DB.runQuery(sql)
-
-        '    ' insert data into database
-        '    sql = String.Format("INSERT INTO current_game (gamePk, home_abbrev, away_abbrev, home_name, away_name, game_date) VALUES ({0}, '{1}', '{2}', '{3}', '{4}', '{5}');",
-        '                        gamePk, homeData.Rows(0).Field(Of String)(1), awayData.Rows(0).Field(Of String)(1), homeData.Rows(0).Field(Of String)(3),
-        '                        awayData.Rows(0).Field(Of String)(3), gameDate)
-        '    Me.DB.runNonQuery(sql)
-
     End Sub
 
     Public Sub loadTeamsDataIntoDB()
@@ -58,33 +34,10 @@ Public Class ScoreboardData
         Dim data As JObject = Me.API.returnTeamsData()
         DB.loadTeamsDataIntoDB(data)
 
-        '' get team data from API
-        'Dim data As JObject = Me.API.returnTeamsData()
-        'Dim teams As JArray = data.SelectToken("teams")
-
-        'For Each team As JObject In teams
-        '    Dim teamId As String = team.SelectToken("id").ToString()
-        '    Dim teamFullName As String = team.SelectToken("name")
-        '    Dim teamName As String = team.SelectToken("teamName")
-        '    Dim teamAbbrev As String = team.SelectToken("abbreviation")
-
-        '    ' create SQL insert string
-        '    Dim sql As String = String.Format("INSERT INTO teams (id, abbrev, name, full_name) VALUES ({0}, '{1}', '{2}', '{3}');", teamId, teamAbbrev, teamName, teamFullName)
-
-        '    ' insert into database
-        '    Me.DB.runNonQuery(sql)
-
-        'Next
-
     End Sub
 
     Public Function returnAllTeamNames() As DataTable
 
-        '    ' TODO - move to Database becuase it uses SQL
-
-        '    Dim sql As String = "SELECT * FROM teams ORDER BY full_name"
-        '    Dim dt As DataTable = Me.DB.runQuery(sql)
-        '    Return dt
         Return DB.returnAllTeamNames()
     End Function
 
@@ -132,10 +85,13 @@ Public Class ScoreboardData
     Public Function getBoxScoreData() As JObject
         Dim data As JObject = Me.liveData.SelectToken("liveData")
         Dim boxData As JObject = data.SelectToken("boxscore")
-        Return boxdata
+        Return boxData
     End Function
 
     Public Function getCurrentGameData() As DataTable
+
+        ' TODO - move to Database
+
         Dim sql As String = "SELECT * FROM current_game"
         Dim dt As DataTable = Me.DB.runQuery(sql)
         Return dt
@@ -153,36 +109,44 @@ Public Class ScoreboardData
     End Function
 
     Public Function getPlayData(playIdx As Integer) As JObject
+        If playIdx < 0 Then
+            Return Nothing
+        End If
+
         Dim allPlayData As JArray = Me.liveData.SelectToken("liveData.plays.allPlays")
         Dim playData = allPlayData(playIdx)
         Return playData
     End Function
 
     Public Function getLastPlayDescription() As String
-        Dim lastPlayData As JObject = Me.getLastPlayData()
-        Dim desc As String = lastPlayData.SelectToken("result.description")
-        Dim playInning As String = lastPlayData.SelectToken("about.inning")
-        Dim playInningHalf As String = lastPlayData.SelectToken("about.halfInning")
-        Dim currentInning As String = getCurrentInningNumber()
-        Dim currentInningHalf As String = getCurrentInningHalf()
-        desc = String.Format("Last play: {0}", desc)
-        If Not (playInning.Equals(currentInning)) Or Not (playInningHalf.ToUpper().Equals(currentInningHalf.ToUpper())) Then
-            desc = String.Format("{0} {1}: {2}", playInningHalf.ToUpper(), playInning, desc)
-        End If
+        Try
+            Dim lastPlayData As JObject = Me.getLastPlayData()
+            Dim desc As String = lastPlayData.SelectToken("result.description")
+            Dim playInning As String = lastPlayData.SelectToken("about.inning")
+            Dim playInningHalf As String = lastPlayData.SelectToken("about.halfInning")
+            Dim currentInning As String = getCurrentInningNumber()
+            Dim currentInningHalf As String = getCurrentInningHalf()
+            desc = String.Format("Last play: {0}", desc)
+            If Not (playInning.Equals(currentInning)) Or Not (playInningHalf.ToUpper().Equals(currentInningHalf.ToUpper())) Then
+                desc = String.Format("{0} {1}: {2}", playInningHalf.ToUpper(), playInning, desc)
+            End If
+            Return desc
+        Catch ex As Exception
+            Return Nothing
+        End Try
 
-        Return desc
     End Function
 
     Public Function getGameStatus() As String
         Dim gameData As JObject = Me.getLiveData()
         Dim gameStatus As String = gameData.SelectToken("gameData.status.detailedState")
-        Return gameStatus
+        Return gameStatus.ToUpper
     End Function
 
     Public Function getCurrentInningHalf() As String
         Dim gameData As JObject = Me.getLiveData()
         Dim inningHalf As String = gameData.SelectToken("liveData.linescore.inningHalf")
-        Return inningHalf
+        Return inningHalf.ToUpper
     End Function
 
     Public Function getCurrentInningNumber() As String
@@ -191,5 +155,238 @@ Public Class ScoreboardData
         Return inningHalf
     End Function
 
+    Public Function getPlayerTeamAbbr(playerId As Integer) As String
+        Dim team As String = String.Empty
+        Dim dt As DataTable = DB.returnPlayerTeamAbbr(playerId)
+        If dt.Rows.Count > 0 Then
+            team = dt.Rows(0).Item(0).ToString
+        End If
+        Return team
+    End Function
+
+    Public Function getHomeTeamAbbr() As String
+        Dim team As String = String.Empty
+        Dim dt As DataTable = DB.returnHomeTeamAbbr()
+        If dt.Rows.Count > 0 Then
+            team = dt.Rows(0).Item(0).ToString
+        End If
+        Return team
+    End Function
+
+    Public Function getAwayTeamAbbr() As String
+        Dim team As String = String.Empty
+        Dim dt As DataTable = DB.returnAwayTeamAbbr()
+        If dt.Rows.Count > 0 Then
+            team = dt.Rows(0).Item(0).ToString
+        End If
+        Return team
+    End Function
+
+    Public Function getHomeTeamName() As String
+        Dim team As String = String.Empty
+        Dim dt As DataTable = DB.returnHomeTeamName()
+        If dt.Rows.Count > 0 Then
+            team = dt.Rows(0).Item(0).ToString
+        End If
+        Return team
+    End Function
+
+    Public Function getAwayTeamName() As String
+        Dim team As String = String.Empty
+        Dim dt As DataTable = DB.returnAwayTeamName()
+        If dt.Rows.Count > 0 Then
+            team = dt.Rows(0).Item(0).ToString
+        End If
+        Return team
+    End Function
+
+    Public Function getPitchingStats(pitcherId, team) As String
+        Dim playData As JObject = getCurrentPlayData()
+        pitcherId = "ID" + pitcherId.ToString
+
+        Dim pitcherStats As String = String.Empty
+
+        Dim playerData As JObject
+        If team = Me.getAwayTeamAbbr() Then
+            playerData = getBoxScoreData().SelectToken("teams.away.players")
+        Else
+            playerData = getBoxScoreData().SelectToken("teams.home.players")
+        End If
+
+        For Each player In playerData
+            If player.Key = pitcherId Then
+                Dim wins As String = player.Value.Item("seasonStats").Item("pitching").Item("wins")
+                Dim losses As String = player.Value.Item("seasonStats").Item("pitching").Item("losses")
+                Dim era As String = player.Value.Item("seasonStats").Item("pitching").Item("era")
+                pitcherStats = String.Format(" ({0}-{1}, {2} ERA)", wins, losses, era)
+            End If
+        Next
+        Return pitcherStats
+    End Function
+
+    Public Function getBatterStats(batterId, team) As String
+        Dim playData As JObject = getCurrentPlayData()
+        batterId = "ID" + batterId
+
+        Dim batterStats As String = String.Empty
+
+        Dim playerData As JObject
+        If team = "away" Then
+            playerData = getBoxScoreData().SelectToken("teams.away.players")
+        Else
+            playerData = getBoxScoreData().SelectToken("teams.home.players")
+        End If
+
+        For Each player In playerData
+            If player.Key = batterId Then
+                Dim hits As String = player.Value.Item("stats").Item("batting").Item("hits")
+                Dim atBats As String = player.Value.Item("stats").Item("batting").Item("atBats")
+                Dim avg As String = player.Value.Item("seasonStats").Item("batting").Item("avg")
+                batterStats = String.Format(" ({0}-{1}, {2} AVG)", hits, atBats, avg)
+            End If
+        Next
+
+        Return batterStats
+    End Function
+
+    Sub LoadAllGamesData(gameDate As String)
+
+        DB.ClearAllGamesData()
+
+        Dim schedule As JObject = Me.API.returnScheduleData(gameDate)
+        Dim gameDates As JArray = schedule.SelectToken("dates")
+
+        For Each gDate As JObject In gameDates
+            Dim games As JArray = gDate.SelectToken("games")
+
+            For Each game As JObject In games
+                Dim gamePk As String = game.SelectToken("gamePk")
+
+                Dim awayId As String = game.SelectToken("teams.away.team.id")
+                Dim homeId As String = game.SelectToken("teams.home.team.id")
+
+                ' get abbrevs
+                Dim dt As DataTable = DB.returnTeamAbbrevFromId(awayId)
+                Dim awayName As String = dt.Rows(0).Item(0)
+                dt = DB.returnTeamAbbrevFromId(homeId)
+                Dim homeName As String = dt.Rows(0).Item(0)
+
+                ' get liveData for each game
+                Dim liveData As JObject = Me.API.returnLiveFeedData(gamePk)
+
+                ' get status
+                Dim gameStatus As String = liveData.SelectToken("gameData.status.detailedState")
+                gameStatus = gameStatus.ToUpper
+
+                Dim inning As String = ""
+                Dim inningHalf As String = ""
+                Dim awayScore As String = ""
+                Dim homeScore As String = ""
+
+                If gameStatus = "IN PROGRESS" Or gameStatus = "FINAL" Or gameStatus = "COMPLETE" Or gameStatus = "GAME OVER" Then
+                    Dim lineScoreData As JObject = liveData.SelectToken("liveData.linescore")
+                    inning = lineScoreData.SelectToken("currentInning")
+                    inningHalf = lineScoreData.SelectToken("inningHalf")
+                    awayScore = lineScoreData.SelectToken("teams.away.runs")
+                    homeScore = lineScoreData.SelectToken("teams.home.runs")
+                End If
+
+                If gameStatus.ToUpper = "SCHEDULED" Or gameStatus = "WARMUP" Or gameStatus = "PRE-GAME" Then
+                    ' noop
+                End If
+
+                ' insert into database
+                Me.DB.InsertAllGamesData(gamePk, awayName, awayScore, homeName, homeScore, gameStatus.ToUpper, inning, inningHalf.ToUpper)
+            Next
+        Next
+    End Sub
+
+    Function GetAllGamesData() As DataTable
+        Dim dt As DataTable = DB.returnAllGamesData()
+        Dim dtGames As New DataTable()
+
+        ' add columns to new datatable
+        dtGames.Columns.Add(New DataColumn("Id"))
+        dtGames.Columns.Add(New DataColumn("Away"))
+        dtGames.Columns.Add(New DataColumn("Score"))
+        dtGames.Columns.Add(New DataColumn("Home"))
+        dtGames.Columns.Add(New DataColumn("Status"))
+        dtGames.Columns.Add(New DataColumn("Inning"))
+
+        For Each row As DataRow In dt.Rows
+            ' add row to new datatable
+            Dim dr As DataRow = dtGames.NewRow
+            dr(0) = row.Item("id").ToString
+            dr(1) = row.Item("away_abbrev").ToString
+            dr(3) = row.Item("home_abbrev").ToString
+            dr(2) = row.Item("away_score").ToString + " - " + row.Item("home_score").ToString
+            dr(4) = row.Item("status").ToString
+
+            Dim status As String = row.Item("status").ToString.ToUpper
+            If status = "FINAL" Or status = "COMPLETE" Or status = "GAME OVER" Then
+                If Convert.ToUInt32(row.Item("inning").ToString) > 9 Then
+                    dr(5) = row.Item("inning").ToString
+                Else
+                    dr(5) = ""
+                End If
+            ElseIf status = "SCHEDULED" Or status = "WARMUP" Or status = "PRE-GAME" Or status.StartsWith("DELAYED") Or status = "POSTPONED" Then
+                dr(5) = ""
+            Else
+                dr(5) = row.Item("inning_half").ToString + " " + row.Item("inning").ToString
+            End If
+            dtGames.Rows.Add(dr)
+        Next
+
+        Return dtGames
+    End Function
+
+    Function getTeamLineup(teamAbbr As String) As DataTable
+        Dim dt As DataTable = DB.returnTeamLineup(teamAbbr)
+        Return dt
+    End Function
+
+    Function getCurrentBatterId() As String
+        Dim playData As JObject = getCurrentPlayData()
+        Dim batterId As String = playData.SelectToken("matchup.batter.id").ToString
+        Return batterId
+    End Function
+
+    Function getCurrentPitcherId() As String
+        Dim playData As JObject = getCurrentPlayData()
+        Dim pitcherId As String = playData.SelectToken("matchup.pitcher.id").ToString
+        Return pitcherId
+    End Function
+
+    Function getCurrentInningState() As String
+        Dim gameData As JObject = Me.getLiveData()
+        Dim inningState As String = gameData.SelectToken("liveData.linescore.inningState")
+        Return inningState.ToUpper
+    End Function
+
+    Function getLastOutBatterId() As String
+
+        Dim lastInning As Integer = Me.getCurrentInningNumber() - 2 'zero-indexed
+        If lastInning < 0 Then
+            lastInning = 0
+        End If
+
+        Dim liveData As JObject = Me.getLiveData()
+        Dim jsonPath As String
+        Dim allPlayData As JObject = liveData.SelectToken("liveData.plays")
+        'Dim allPlayDataByInning As JArray = liveData.SelectToken("liveData.plays.playsByInning")
+
+        If Me.getCurrentInningState = "END" Then
+            jsonPath = "liveData.plays.playsByInning[" + lastInning.ToString + "].top"
+        Else
+            jsonPath = "liveData.plays.playsByInning[" + lastInning.ToString + "].bottom"
+        End If
+        Dim data = liveData.SelectToken(jsonPath)
+        Dim lastPlayIndex = data(data.Count - 1)
+        jsonPath = "allPlays[" + lastPlayIndex.ToString + "].matchup.batter.id"
+
+        Dim lastBatterId As String = allPlayData.SelectToken(jsonPath)
+
+        Return lastBatterId
+    End Function
 
 End Class

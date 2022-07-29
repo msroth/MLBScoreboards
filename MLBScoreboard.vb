@@ -6,12 +6,10 @@ Public Class MLBScoreboard
     Dim SBData As ScoreboardData = New ScoreboardData()
     Dim gamePk As Integer = 0
     Dim dtInnings As DataTable = New DataTable("Innings")
-    Dim dtRHE As DataTable = New DataTable("RHE")
-    Dim dtAwayRoster As DataTable
-    Dim dtHomeRoster As DataTable
+    Dim dtAllGames As DataTable
 
 
-    Private Sub QuitToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles QuitToolStripMenuItem1.Click
+    Private Sub QuitToolStripMenuItem1_Click(sender As Object, e As EventArgs)
         Application.Exit()
     End Sub
 
@@ -20,35 +18,39 @@ Public Class MLBScoreboard
         frmAbout.ShowDialog()
     End Sub
 
-    Private Sub setupRHEDataTable()
-        'Me.dtRHE = New DataTable("RHE")
-
-        Dim columnR As DataColumn = New DataColumn()
-        columnR.DataType = System.Type.GetType("System.String")
-        columnR.ColumnName = "R"
-        Me.dtRHE.Columns.Add(columnR)
-
-        Dim columnH As DataColumn = New DataColumn()
-        columnH.DataType = System.Type.GetType("System.String")
-        columnH.ColumnName = "H"
-        Me.dtRHE.Columns.Add(columnH)
-
-        Dim columnE As DataColumn = New DataColumn()
-        columnE.DataType = System.Type.GetType("System.String")
-        columnE.ColumnName = "E"
-        Me.dtRHE.Columns.Add(columnE)
-
-        Me.dtRHE.Rows.Add()
-        Me.dtRHE.Rows.Add()
-
-    End Sub
-
     Private Sub setupInningsDataTable()
-        ' setup Innings datatable
+        ' clear datatable
+        If dtInnings.Columns.Count > 0 Then
+            For i As Integer = 0 To dtInnings.Columns.Count
+                dtInnings.Columns.Remove(i)
+            Next
+        End If
 
+        If dtInnings.Rows.Count > 0 Then
+            For i As Integer = 0 To dtInnings.Rows.Count
+                Dim dr As DataRow = dtInnings.Rows(i)
+                dtInnings.Rows.Remove(dr)
+            Next
+        End If
+
+        ' clear grid
+        If Me.dgvInnings.Columns.Count > 0 Then
+            For i As Integer = 0 To dgvInnings.Rows.Count
+                dgvInnings.Columns.Remove(i)
+            Next
+        End If
+
+        If Me.dgvInnings.Rows.Count > 0 Then
+            For i As Integer = 0 To dgvInnings.Rows.Count
+                Dim dr As DataGridViewRow = dgvInnings.Rows(i)
+                dgvInnings.Rows.Remove(dr)
+            Next
+        End If
+
+        ' setup new table
         Dim column = New DataColumn()
         column.DataType = System.Type.GetType("System.String")
-        column.ColumnName = ""
+        column.ColumnName = " "
         Me.dtInnings.Columns.Add(column)
 
         ' add first 9 innings
@@ -60,6 +62,7 @@ Public Class MLBScoreboard
         Next
 
         ' add RHE columns
+        ' TODO - make headers and col values bold
         column = New DataColumn
         column.ColumnName = "R"
         dtInnings.Columns.Add(column)
@@ -74,108 +77,126 @@ Public Class MLBScoreboard
         Me.dtInnings.Rows.Add()
         Me.dtInnings.Rows.Add()
 
+        'setup new grid
+        dgvInnings.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
+
     End Sub
     Private Sub MLBScoreboard_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-
-        Me.setupRHEDataTable()
         Me.setupInningsDataTable()
 
         ' set tables as datasource for grid views
         Me.dgvInnings.DataSource = Me.dtInnings
-        Me.dgvAwayRoster.DataSource = Me.dtAwayRoster
-        Me.dgvHomeRoster.DataSource = Me.dtHomeRoster
+        'Me.dgvAwayRoster.DataSource = Me.dtAwayRoster
+        'Me.dgvHomeRoster.DataSource = Me.dtHomeRoster
+        Me.dgvGames.DataSource = Me.dtAllGames
 
         Me.dgvInnings.ClearSelection()
         Me.dgvAwayRoster.ClearSelection()
         Me.dgvHomeRoster.ClearSelection()
+        Me.dgvGames.ClearSelection()
 
         ' load teams into database
         SBData.loadTeamsDataIntoDB()
 
-        ' load teams from database into CBX control
-        Dim dt As DataTable = SBData.returnAllTeamNames()
-        With Me.cbxTeam
-            .DisplayMember = "full_name"
-            .ValueMember = "id"
-            .DataSource = dt
-        End With
-        Me.cbxTeam.SelectedIndex = 0
+        ' force event to load games for today
+        Me.calDatePicker_CloseUp(Nothing, Nothing)
 
-        ' stop the timer refreshing the current scoreboard
-        Timer1.Stop()
+        ' update schedule every 15 sec
+        UpdateTimer.Interval = 15000  '15 sec
+        UpdateTimer.Start()
 
     End Sub
 
-    Private Sub btnFind_Click(sender As Object, e As EventArgs) Handles btnFind.Click
-        Dim teamId As String = Me.cbxTeam.SelectedValue.ToString
-        Dim teamName As String = Me.cbxTeam.Items(Me.cbxTeam.SelectedIndex)(3).ToString
-        Dim gameDate As String = Me.calDatePicker.Value.ToString("MM/dd/yyyy")
-
-        ' stop the timer refreshing the current scoreboard
-        Timer1.Stop()
-
-        ' get game data
-        Me.gamePk = Me.SBData.findGamePk(teamId, gameDate)
-
-        If Me.gamePk = 0 Then
-            MsgBox(String.Format("{0} has no scheduled games {1}.", teamName, gameDate))
-        Else
-            ' run the scoreboard
-            Me.runScoreboard()
-            Timer1.Interval = 15000  ' 15 sec
-            Timer1.Start()
-        End If
+    Private Sub ResetScreenControls()
+        lblAwayLineup.Text = "Away Roster"
+        lblAwayLineup.Visible = True
+        lblHomeLineup.Text = "Home Roster"
+        lblHomeLineup.Visible = True
+        lblBalls.Text = "Balls: 0"
+        lblBalls.Visible = True
+        lblStrikes.Text = "Strikes: 0"
+        lblStrikes.Text = True
+        lblOuts.Text = "Outs: 0"
+        lblOuts.Visible = True
+        lblGameTitle.Text = "Away @ Home - mm/dd/yyyy (gamePk)"
+        txbLastPitch.Text = "Last Pitch"
+        txbLastPitch.Visible = True
+        lblMatchup.Text = "Match up"
+        lblMatchup.Visible = True
+        imgDiamond.Image = My.Resources.diamond
+        tbxCommentary.Text = ""
+        tbxCommentary.Visible = True
+        dgvAwayRoster.DataSource = Nothing
+        dgvHomeRoster.DataSource = Nothing
+        Me.gamePk = 0
     End Sub
-
-    'Private Sub setGameStatus()
-    '    Dim gameStatus As String = Me.SBData.getLiveData().SelectToken("gameData.status.detailedState")
-    '    Me.lblStatus.Text = gameStatus
-    'End Sub
 
     Private Sub setGameTitle()
         Dim result As DataTable = Me.SBData.getCurrentGameData()
         Dim gameStatus As String = Me.SBData.getLiveData().SelectToken("gameData.status.detailedState")
-        Me.lblGameTitle.Text = String.Format("{0} @ {1} - {2} {3} (Game: {4}) - {5}", result.Rows(0).Field(Of String)(4),
+        Me.lblGameTitle.Text = String.Format("{0} @ {1} - {2} {3}", result.Rows(0).Field(Of String)(4),
                                              result.Rows(0).Field(Of String)(3), result.Rows(0).Field(Of String)(5),
-                                             result.Rows(0).Field(Of String)(6), Me.gamePk, gameStatus.ToUpper)
+                                             result.Rows(0).Field(Of String)(6))
+        Me.lblGamePk.Text = "Game Id: " + gamePk.ToString
+        Me.lblStatus.Text = "Game Status: " + gameStatus
     End Sub
 
     Private Sub updateLastPlayCommentary()
         Dim play = Me.SBData.getLastPlayDescription()
-        Me.txtCommentary.Text = play
+        Me.tbxCommentary.Text = play
     End Sub
 
-    Private Sub runScoreboard()
+    Private Sub RunScoreboard()
 
         ' get game date
         Dim gameDate As String = Me.calDatePicker.Value.ToString("MM/dd/yyyy")
 
-        ' update status bar
-        Me.ToolStripStatusLabel1.Text = "Updating data ... "
+        Me.Cursor = Cursors.WaitCursor
 
-        ' get live data
-        Me.SBData.refreshLiveData(gamePk)
+        ' load all game data for date and update grid
+        SBData.LoadAllGamesData(gameDate)
+        Me.LoadAllGamesDataGrid()
+
+        Me.Cursor = Cursors.Default
+
+        ' update status bar
+        Me.ToolStripStatusLabel1.Text = "Data updated " + Date.Now
+
+        ' update game data?
+        If Me.gamePk > 0 Then
+            Me.RunGame()
+        End If
+
+    End Sub
+
+    Sub RunGame()
+
+        If Me.gamePk = 0 Then
+            Return
+        End If
+
+        ' get live data using gamepk
+        Me.Cursor = Cursors.WaitCursor
+        SBData.refreshLiveData(Me.gamePk)
+
+        Dim liveData As JObject = SBData.getLiveData()
+
+        ' get game date
+        Dim gameDate As String = Me.calDatePicker.Value.ToString("MM/dd/yyyy")
 
         ' get game time
-        Dim gameTime As String = Me.SBData.getLiveData().SelectToken("gameData.datetime.time").ToString + Me.SBData.getLiveData().SelectToken("gameData.datetime.ampm").ToString
+        Dim gameTime As String = liveData.SelectToken("gameData.datetime.time").ToString + liveData.SelectToken("gameData.datetime.ampm").ToString
 
         ' load current game data into database
-        Me.SBData.loadCurrentGameDataIntoDB(Me.SBData.getLiveData(), Me.SBData.getBoxScoreData(), gameDate, gameTime, Me.gamePk)
+        Me.SBData.loadCurrentGameDataIntoDB(liveData, Me.SBData.getBoxScoreData(), gameDate, gameTime, Me.gamePk)
 
-        ' update status bar
-        Me.ToolStripStatusLabel1.Text = "Updated " + Date.Now
+        Me.Cursor = Cursors.Default
 
         ' update game label
         Me.setGameTitle()
 
-        ' update game status
-        ' Me.setGameStatus()
-
         'update innings datatable
         Me.updateInnings()
-
-        ' update runs, hits, errors datatable
-        Me.updateRHE()
 
         ' clear inning label
         dtInnings.Columns(0).ColumnName = " "
@@ -183,14 +204,71 @@ Public Class MLBScoreboard
         ' load team rosters
         Me.loadTeamRosters()
 
-        If Me.SBData.getGameStatus().ToUpper() = "IN PROGRESS" Then
+        Dim status As String = SBData.getGameStatus().ToUpper()
 
-            ' update inning
-            Dim inningLabel As String = SBData.getCurrentInningHalf() + " " + SBData.getCurrentInningNumber()
+        If status = "SCHEDULED" Or status = "WARMUP" Or status = "PRE-GAME" Or status.StartsWith("DELAYED") Or status = "POSTPONED" Then
+            lblMatchup.Text = updatePitcherMatchup()
+            txbLastPitch.Visible = False
+            tbxCommentary.Visible = False
+            dgvAwayRoster.Visible = False
+            dgvHomeRoster.Visible = False
+            lblAwayLineup.Visible = False
+            lblHomeLineup.Visible = False
+        End If
+
+        If status = "FINAL" Or status = "COMPLETE" Or status = "GAME OVER" Then
+
+            lblMatchup.Text = updateWinnerLosserPitchers()
+
+            ' turn off unused controls
+            txbLastPitch.Visible = False
+            tbxCommentary.Visible = False
+            lblBalls.Visible = False
+            lblStrikes.Visible = False
+            lblOuts.Visible = False
+            imgDiamond.Visible = False
+            dgvAwayRoster.Visible = False
+            dgvHomeRoster.Visible = False
+            lblAwayLineup.Visible = False
+            lblHomeLineup.Visible = False
+
+            ' fill X in unplayed bottom of last inning
+            Dim v = dtInnings.Rows(1).Item(dtInnings.Columns.Count - 4).ToString
+            If dtInnings.Rows(1).Item(dtInnings.Columns.Count - 4).ToString = " " Then
+                dtInnings.Rows(1).Item(dtInnings.Columns.Count - 4) = "X"
+            End If
+
+            dgvInnings.ClearSelection()
+        End If
+
+        If status = "IN PROGRESS" Or status.Contains("MANAGER") Or status.Contains("OFFICIAL") Then
+
+            txbLastPitch.Visible = True
+            tbxCommentary.Visible = True
+            lblBalls.Visible = True
+            lblStrikes.Visible = True
+            lblOuts.Visible = True
+            imgDiamond.Visible = True
+            dgvAwayRoster.Visible = True
+            dgvHomeRoster.Visible = True
+            lblAwayLineup.Visible = True
+            lblHomeLineup.Visible = True
+
+            ' update inning label in inning table
+            Dim inningLabel As String
+            If SBData.getCurrentInningState() = "MIDDLE" Then
+                inningLabel = SBData.getCurrentInningState() + " " + SBData.getCurrentInningNumber()
+            Else
+                inningLabel = SBData.getCurrentInningHalf() + " " + SBData.getCurrentInningNumber()
+            End If
             dtInnings.Columns(0).ColumnName = inningLabel
+            HighlightCurrentInning()
 
             ' update Balls, Strikes, Outs
             Me.updateBSO()
+
+            ' update team rosters
+            Me.updateTeamLineups()
 
             ' update pitcher-batter matchup
             Me.updatePitcherBatterMatchup()
@@ -198,105 +276,144 @@ Public Class MLBScoreboard
             ' update last play
             Me.updateLastPlayCommentary()
 
-            ' TODO update last pitch data
+            ' update last pitch data
             Me.updateLastPitchDescription()
 
             'update base runners image
             Me.updateBaseRunners()
 
-            ' update team rosters
-            Me.updateTeamRosters()
+            ' if mid inning or end inning show due ups
+            If SBData.getCurrentInningState() = "END" Or SBData.getCurrentInningState() = "MIDDLE" Then
+                Dim dueUpBatterInfo(3) As String
+                Dim dueUpBatterNames(3) As String
+                Dim grid As DataGridView
 
-        Else
-            txtCommentary.Enabled = False
-            dgvAwayRoster.Enabled = False
-            dgvHomeRoster.Enabled = False
+                Dim lastBatterId = SBData.getLastOutBatterId()
+                Dim dueUpIds As List(Of String) = Me.getDueUpIds(lastBatterId)
+                Dim team As String
+
+                For i As Integer = 0 To dueUpIds.Count - 1
+                    If SBData.getCurrentInningState() = "END" Then
+                        grid = dgvAwayRoster
+                        team = "away"
+                    Else
+                        grid = dgvHomeRoster
+                        team = "home"
+                    End If
+
+                    For Each row As DataGridViewRow In grid.Rows
+                        If dueUpIds(i) = row.Cells("id").Value.ToString Then
+                            dueUpBatterNames(i) = row.Cells("Name").Value.ToString
+                            Exit For
+                        End If
+                    Next
+
+                    dueUpBatterInfo(i) = String.Format("  {0} {1}", dueUpBatterNames(i), SBData.getBatterStats(dueUpIds(i), team))
+                Next
+
+                Dim dueUps As String = vbCr + vbCr + "Due up:" + vbCr
+                For Each batter As String In dueUpBatterInfo
+                    dueUps += batter + vbCr
+                Next
+
+                Me.tbxCommentary.Text += dueUps
+            End If
+
         End If
 
     End Sub
 
-    Private Sub updateRHE()
+    Function getDueUpIds(lastBatterId As String) As List(Of String)
+        Dim ids As List(Of String) = New List(Of String)
+        Dim startIdx As Integer
+        Dim grid As DataGridView
 
-        ' clear all data
-        'For Each row As DataRow In Me.dtRHE.Rows
-        '    For Each col As DataColumn In Me.dtRHE.Columns
-        '        row(col) = ""
-        '    Next
-        'Next
+        'Trace.WriteLine($"lastBatterId={lastBatterId}")
 
-        Dim lineScore As JObject = Me.SBData.getLineScoreData()
+        If SBData.getCurrentInningState() = "END" Then
+            grid = dgvAwayRoster
+        Else
+            grid = dgvHomeRoster
+        End If
 
-        ' Get R - H - E for away team
-        Me.dtRHE.Rows(0).Item("R") = lineScore.SelectToken("teams.away.runs")
-        Me.dtRHE.Rows(0).Item("H") = lineScore.SelectToken("teams.away.hits")
-        Me.dtRHE.Rows(0).Item("E") = lineScore.SelectToken("teams.away.errors")
+        ' find last batter in lineup
+        For Each row As DataGridViewRow In grid.Rows
+            If row.Cells("id").Value.ToString.Equals(lastBatterId) Then
+                startIdx = row.Index
+                'Trace.WriteLine($"startIdx={startIdx}")
+                Exit For
+            End If
+        Next
 
-        ' Get R - H - E for home team
-        Me.dtRHE.Rows(1).Item("R") = lineScore.SelectToken("teams.home.runs")
-        Me.dtRHE.Rows(1).Item("H") = lineScore.SelectToken("teams.home.hits")
-        Me.dtRHE.Rows(1).Item("E") = lineScore.SelectToken("teams.home.errors")
+        ' next batter in lineup - skip pitchers
+        'startIdx += 1
+        'If startIdx >= grid.RowCount Then
+        ' startIdx = startIdx - grid.RowCount
+        'End If
 
-    End Sub
+        ' get next two batter ids - skip pitchers
+        Dim idx As Integer = startIdx + 1
+        While ids.Count < 3
+            If idx >= grid.RowCount Then
+                idx = idx - grid.RowCount
+            End If
+            'Trace.WriteLine($"idx={idx}")
+            If Not grid.Rows(idx).Cells(3).Value.ToString.ToUpper = "PITCHER" Then
+                ids.Add(grid.Rows(idx).Cells("id").Value.ToString)
+                'Trace.WriteLine($"id={grid.Rows(idx).Cells("id").Value.ToString}")
+                'Trace.WriteLine($"id={grid.Rows(idx).Cells("Name").Value.ToString}")
+            End If
+            idx += 1
+        End While
+
+        Return ids
+    End Function
 
     Private Sub updateBSO()
         Dim playData = Me.SBData.getCurrentPlayData()
         Me.lblBalls.Text = String.Format("Balls: {0}", playData.SelectToken("count.balls"))
         Me.lblStrikes.Text = String.Format("Strikes: {0}", playData.SelectToken("count.strikes"))
         Me.lblOuts.Text = String.Format("Outs: {0}", playData.SelectToken("count.outs"))
-
     End Sub
+
     Private Sub updateInnings()
 
-        ' clear all data (might be from a different game if new team selected)
-        For Each row As DataRow In Me.dtInnings.Rows
-            For Each col As DataColumn In Me.dtInnings.Columns
-                row(col) = ""
-            Next
-        Next
+        ' clears grid and data
+        dtInnings = New DataTable("Innings")
+        dgvInnings.DataSource = dtInnings
 
-        If dtInnings.Columns.Contains("R") Then
-            dtInnings.Columns.Remove("R")
-        End If
+        ' add rows for away and home lines
+        dtInnings.Rows.Add()
+        dtInnings.Rows.Add()
 
-        If dtInnings.Columns.Contains("H") Then
-            dtInnings.Columns.Remove("H")
-        End If
+        ' add column for team name and record
+        Dim col As DataColumn = New DataColumn()
+        col.ColumnName = ""
+        dtInnings.Columns.Add(col)
 
-        If dtInnings.Columns.Contains("E") Then
-            dtInnings.Columns.Remove("E")
-        End If
-
-        ' add team names with records
         Dim awayWins As String = Me.SBData.getLiveData().SelectToken("gameData.teams.away.record.wins")
         Dim awayLoses As String = Me.SBData.getLiveData().SelectToken("gameData.teams.away.record.losses")
         Dim awayAbbrev As String = Me.SBData.getLiveData().SelectToken("gameData.teams.away.abbreviation")
         Dim awayNameAndRecord As String = String.Format("{0} ({1}-{2})", awayAbbrev, awayWins, awayLoses)
-        Me.dtInnings.Rows(0).Item(0) = awayNameAndRecord
+        dtInnings.Rows(0).Item(0) = awayNameAndRecord
 
         Dim homeWins As String = Me.SBData.getLiveData().SelectToken("gameData.teams.home.record.wins")
         Dim homeLoses As String = Me.SBData.getLiveData().SelectToken("gameData.teams.home.record.losses")
         Dim homeAbbrev As String = Me.SBData.getLiveData().SelectToken("gameData.teams.home.abbreviation")
         Dim homeNameAndRecord As String = String.Format("{0} ({1}-{2})", homeAbbrev, homeWins, homeLoses)
-        Me.dtInnings.Rows(1).Item(0) = homeNameAndRecord
+        dtInnings.Rows(1).Item(0) = homeNameAndRecord
 
         ' fill innings
         Dim lineScore As JObject = Me.SBData.getLineScoreData
         Dim innings As JArray = lineScore.SelectToken("innings")
-
-        'if innings > 9, add columns to datatable before proceeding
-        ' Test:  Nats 7/4/22
-        If (innings.Count > dtInnings.Columns.Count - 1) Then    ' minus one for team name column
-            Dim i As Integer = 1
-            While innings.Count >= dtInnings.Columns.Count
-                Dim dc = New DataColumn
-                dc.ColumnName = (9 + i).ToString
-                dtInnings.Columns.Add(dc)
-                i = i + 1
-            End While
-        End If
-
-        ' fill inning data
+        Dim inningCount As Int32 = 0
         For Each inning As JObject In innings
+
+            ' create a column for inning
+            col = New DataColumn()
+            col.ColumnName = inning.SelectToken("num")
+            dtInnings.Columns.Add(col)
+            inningCount += 1
 
             ' away data
             Dim runs As String = inning.SelectToken("away.runs")
@@ -305,51 +422,93 @@ Public Class MLBScoreboard
             End If
             Me.dtInnings.Rows(0).Item(Integer.Parse(inning.SelectToken("num"))) = runs
 
-            ' Get R - H - E for away team
-            'Me.dtInnings.Rows(0).Item("R") = lineScore.SelectToken("teams.away.runs")
-            'Me.dtInnings.Rows(0).Item("H") = lineScore.SelectToken("teams.away.hits")
-            'Me.dtInnings.Rows(0).Item("E") = lineScore.SelectToken("teams.away.errors")
-
             ' home data
             runs = inning.SelectToken("home.runs")
             If runs Is Nothing Then
                 runs = " "
             End If
             Me.dtInnings.Rows(1).Item(Integer.Parse(inning.SelectToken("num"))) = runs
-
-            ' Get R - H - E for home team
-            'Me.dtInnings.Rows(1).Item("R") = lineScore.SelectToken("teams.home.runs")
-            'Me.dtInnings.Rows(1).Item("H") = lineScore.SelectToken("teams.home.hits")
-            'Me.dtInnings.Rows(1).Item("E") = lineScore.SelectToken("teams.home.errors")
         Next
 
-        Dim columnR As DataColumn = New DataColumn()
-        columnR.DataType = System.Type.GetType("System.String")
-        columnR.ColumnName = "R"
-        Me.dtInnings.Columns.Add(columnR)
+        ' fill in remaining empty columns for unplayed innings
+        If inningCount < 9 Then
+            For i As Int32 = inningCount + 1 To 9
+                col = New DataColumn()
+                col.ColumnName = i
+                dtInnings.Columns.Add(col)
+            Next
+        End If
 
-        Dim columnH As DataColumn = New DataColumn()
-        columnH.DataType = System.Type.GetType("System.String")
-        columnH.ColumnName = "H"
-        Me.dtInnings.Columns.Add(columnH)
+        ' create R-H-E coluumns
+        Dim RHE() As String = {"R", "H", "E"}
+        For Each stat As String In RHE
+            col = New DataColumn()
+            col.ColumnName = stat
+            dtInnings.Columns.Add(col)
+        Next
 
-        Dim columnE As DataColumn = New DataColumn()
-        columnE.DataType = System.Type.GetType("System.String")
-        columnE.ColumnName = "E"
-        Me.dtInnings.Columns.Add(columnE)
+        ' fill R-H-E columns
+        Dim status As String = SBData.getGameStatus().ToUpper
+        If status = "IN PROGRESS" Or status = "FINAL" Or status = "COMPLETE" Or status = "GAME OVER" Or status.Contains("MANAGER") Or status.Contains("OFFICIAL") Then
+            Me.dtInnings.Rows(0).Item("R") = lineScore.SelectToken("teams.away.runs").ToString
+            Me.dtInnings.Rows(0).Item("H") = lineScore.SelectToken("teams.away.hits").ToString
+            Me.dtInnings.Rows(0).Item("E") = lineScore.SelectToken("teams.away.errors").ToString
 
-        Me.dtInnings.Rows(0).Item("R") = lineScore.SelectToken("teams.away.runs").ToString
-        Me.dtInnings.Rows(0).Item("H") = lineScore.SelectToken("teams.away.hits").ToString
-        Me.dtInnings.Rows(0).Item("E") = lineScore.SelectToken("teams.away.errors").ToString
+            Me.dtInnings.Rows(1).Item("R") = lineScore.SelectToken("teams.home.runs").ToString
+            Me.dtInnings.Rows(1).Item("H") = lineScore.SelectToken("teams.home.hits").ToString
+            Me.dtInnings.Rows(1).Item("E") = lineScore.SelectToken("teams.home.errors").ToString
+        End If
 
-        Me.dtInnings.Rows(1).Item("R") = lineScore.SelectToken("teams.home.runs").ToString
-        Me.dtInnings.Rows(1).Item("H") = lineScore.SelectToken("teams.home.hits").ToString
-        Me.dtInnings.Rows(1).Item("E") = lineScore.SelectToken("teams.home.errors").ToString
-
+        ' patch up the grid view
         dgvInnings.ClearSelection()
-
+        dgvInnings.ColumnHeadersDefaultCellStyle.Font = New Font(dgvInnings.DefaultFont, FontStyle.Bold)
 
     End Sub
+
+    Private Function updateWinnerLosserPitchers() As String
+        Dim liveData As JObject = SBData.getLiveData
+        Dim winnerName = liveData.SelectToken("liveData.decisions.winner.fullName")
+        Dim loserName = liveData.SelectToken("liveData.decisions.loser.fullName")
+        Dim winnerId = liveData.SelectToken("liveData.decisions.winner.id")
+        Dim loserId = liveData.SelectToken("liveData.decisions.loser.id")
+
+        ' find win and lose team 
+        Dim winTeam As String = SBData.getPlayerTeamAbbr(Convert.ToUInt32(winnerId))
+        Dim loseTeam As String = SBData.getPlayerTeamAbbr(Convert.ToUInt32(loserId))
+
+        If winTeam = SBData.getHomeTeamAbbr() Then
+            winTeam = SBData.getHomeTeamAbbr()
+            loseTeam = SBData.getAwayTeamAbbr()
+        Else
+            winTeam = SBData.getAwayTeamAbbr()
+            loseTeam = SBData.getHomeTeamAbbr()
+        End If
+
+        ' get pitchers wins, loses, And ERA
+        Dim winnerStats As String = SBData.getPitchingStats(winnerId, winTeam)
+        Dim loserStats As String = SBData.getPitchingStats(loserId, loseTeam)
+
+        Dim winLoseLine = String.Format("Winner: {0} {1}, Loser: {2} {3}", winnerName, winnerStats, loserName, loserStats)
+        Return winLoseLine
+    End Function
+
+    Private Function updatePitcherMatchup() As String
+        Dim matchup As String = ""
+
+        Dim livedata As JObject = SBData.getLiveData()
+        Dim awayPitcherName As String = livedata.SelectToken("gameData.probablePitchers.away.fullName")
+        Dim awayPitcherId As String = livedata.SelectToken("gameData.probablePitchers.away.id")
+        Dim homePitcherName As String = livedata.SelectToken("gameData.probablePitchers.home.fullName")
+        Dim homePitcherId As String = livedata.SelectToken("gameData.probablePitchers.home.id")
+
+        Dim awayPitchingStats As String = SBData.getPitchingStats(awayPitcherId, SBData.getAwayTeamAbbr())
+        Dim homePitchingStats As String = SBData.getPitchingStats(homePitcherId, SBData.getHomeTeamAbbr())
+
+        matchup = String.Format("{0} {1} vs. {2} {3}", awayPitcherName, awayPitchingStats, homePitcherName, homePitchingStats)
+        Return matchup
+
+    End Function
+
 
     Private Sub updateBaseRunners()
         Dim lineData As JObject = Me.SBData.getLineScoreData()
@@ -400,24 +559,20 @@ Public Class MLBScoreboard
 
     End Sub
 
-    Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
-        Me.runScoreboard()
-    End Sub
 
     Private Sub loadTeamRosters()
+
+        ' TODO - should be moved to SBData
 
         ' clear roster table before update
         Me.SBData.getDB.clearPlayersTable()
 
         ' get active batters and pitchers for away team
         Dim playerIds As List(Of String) = New List(Of String)
-        Dim teamAbbr = SBData.getDB().returnTeamAbbr("away")
+        Dim awayTeamAbbr = SBData.getAwayTeamAbbr()
         For Each id As String In SBData.getBoxScoreData().SelectToken("teams.away.batters")
             playerIds.Add(id)
         Next
-        'For Each id As String In SBData.getBoxScoreData().SelectToken("teams.away.pitchers")
-        '    playerIds.Add(id)
-        'Next
 
         ' get player data and add to database
         For Each id As String In playerIds
@@ -432,7 +587,7 @@ Public Class MLBScoreboard
                     fullName = player.Value.Item("person").Item("fullName")
                     position = player.Value.Item("position").Item("name")
                     SBData.getDB().insertPlayerDataIntoDB(player.Value.Item("person").Item("id").ToString(),
-                                                          teamAbbr, fullName, position, jerseyNumber)
+                                                          awayTeamAbbr, fullName, position, jerseyNumber)
 
                     Exit For
                 End If
@@ -441,13 +596,10 @@ Public Class MLBScoreboard
 
         ' get active batters and pitchers for home team
         playerIds.Clear()
-        teamAbbr = SBData.getDB().returnTeamAbbr("home")
+        Dim homeTeamAbbr = SBData.getHomeTeamAbbr()
         For Each id As String In SBData.getBoxScoreData().SelectToken("teams.home.batters")
             playerIds.Add(id)
         Next
-        'For Each id As String In SBData.getBoxScoreData().SelectToken("teams.home.pitchers")
-        '    playerIds.Add(id)
-        'Next
 
         ' get player data and add to database
         For Each id As String In playerIds
@@ -462,7 +614,7 @@ Public Class MLBScoreboard
                     fullName = player.Value.Item("person").Item("fullName")
                     position = player.Value.Item("position").Item("name")
                     SBData.getDB().insertPlayerDataIntoDB(player.Value.Item("person").Item("id").ToString(),
-                                                          teamAbbr, fullName, position, jerseyNumber)
+                                                          homeTeamAbbr, fullName, position, jerseyNumber)
 
                     Exit For
                 End If
@@ -471,14 +623,20 @@ Public Class MLBScoreboard
 
     End Sub
 
-    Private Sub updateTeamRosters()
+    Private Sub updateTeamLineups()
 
-        Dim awayTeamAbbr As String = SBData.getDB().returnTeamAbbr("away")
-        Dim homeTeamAbbr As String = SBData.getDB().returnTeamAbbr("home")
-        lblAwayRoster.Text = awayTeamAbbr + " Roster"
-        lblHomeRoster.Text = homeTeamAbbr + " Roster"
-        dgvAwayRoster.DataSource = SBData.getDB().returnTeamRoster("away")
-        dgvHomeRoster.DataSource = SBData.getDB().returnTeamRoster("home")
+        Dim awayTeamAbbr As String = SBData.getAwayTeamAbbr()
+        Dim homeTeamAbbr As String = SBData.getHomeTeamAbbr()
+        Dim awayTeamName As String = SBData.getAwayTeamName()
+        Dim homeTeamName As String = SBData.getHomeTeamName()
+        lblAwayLineup.Text = awayTeamName + " Lineup"
+        lblHomeLineup.Text = homeTeamName + " Lineup"
+        dgvAwayRoster.DataSource = SBData.getTeamLineup(awayTeamAbbr)
+        dgvHomeRoster.DataSource = SBData.getTeamLineup(homeTeamAbbr)
+        dgvAwayRoster.Columns("id").Visible = False
+        dgvHomeRoster.Columns("id").Visible = False
+        dgvAwayRoster.ColumnHeadersDefaultCellStyle.Font = New Font(dgvAwayRoster.DefaultFont, FontStyle.Bold)
+        dgvHomeRoster.ColumnHeadersDefaultCellStyle.Font = New Font(dgvHomeRoster.DefaultFont, FontStyle.Bold)
         dgvAwayRoster.ClearSelection()
         dgvHomeRoster.ClearSelection()
 
@@ -486,59 +644,61 @@ Public Class MLBScoreboard
 
     Private Sub updatePitcherBatterMatchup()
         Dim playData As JObject = SBData.getCurrentPlayData()
-        Dim pitcherId As String = "ID" + playData.SelectToken("matchup.pitcher.id").ToString
-        Dim batterId As String = "ID" + playData.SelectToken("matchup.batter.id").ToString
 
+        ' get current pitcher and batter
+        Dim pitcherId As String = playData.SelectToken("matchup.pitcher.id").ToString
+        Dim batterId As String = playData.SelectToken("matchup.batter.id").ToString
         Dim pitcherName As String = playData.SelectToken("matchup.pitcher.fullName")
         Dim batterName As String = playData.SelectToken("matchup.batter.fullName")
 
+        ' get stats
         Dim pitcherStats As String = String.Empty
         Dim batterStats As String = String.Empty
 
-        Dim awayTeamPlayers As JObject = SBData.getBoxScoreData().SelectToken("teams.away.players")
-        Dim homeTeamPlayers As JObject = SBData.getBoxScoreData().SelectToken("teams.home.players")
+        If SBData.getCurrentInningHalf() = "TOP" Then
+            pitcherStats = SBData.getPitchingStats(pitcherId, "home")
+            batterStats = SBData.getBatterStats(batterId, "away")
+        Else
+            pitcherStats = SBData.getPitchingStats(pitcherId, "away")
+            batterStats = SBData.getBatterStats(batterId, "home")
+        End If
 
-
-        For Each player In awayTeamPlayers
-            If player.Key = pitcherId Then
-                Dim wins As String = player.Value.Item("seasonStats").Item("pitching").Item("wins")
-                Dim losses As String = player.Value.Item("seasonStats").Item("pitching").Item("losses")
-                Dim era As String = player.Value.Item("seasonStats").Item("pitching").Item("era")
-                pitcherStats = String.Format(" ({0}-{1}, {2} ERA)", wins, losses, era)
-            End If
-
-            If player.Key = batterId Then
-                Dim hits As String = player.Value.Item("stats").Item("batting").Item("hits")
-                Dim atBats As String = player.Value.Item("stats").Item("batting").Item("atBats")
-                Dim avg As String = player.Value.Item("seasonStats").Item("batting").Item("avg")
-                batterStats = String.Format(" ({0}-{1}, {2} AVG)", hits, atBats, avg)
-            End If
-        Next
-
-
-        For Each player In homeTeamPlayers
-            If pitcherStats = String.Empty Then
-                If player.Key = pitcherId Then
-                    Dim wins As String = player.Value.Item("seasonStats").Item("pitching").Item("wins")
-                    Dim losses As String = player.Value.Item("seasonStats").Item("pitching").Item("losses")
-                    Dim era As String = player.Value.Item("seasonStats").Item("pitching").Item("era")
-                    pitcherStats = String.Format(" ({0}-{1}, {2} ERA)", wins, losses, era)
-                End If
-            End If
-
-            If batterStats = String.Empty Then
-                If player.Key = batterId Then
-                    Dim hits As String = player.Value.Item("stats").Item("batting").Item("hits")
-                    Dim atBats As String = player.Value.Item("stats").Item("batting").Item("atBats")
-                    Dim avg As String = player.Value.Item("seasonStats").Item("batting").Item("avg")
-                    batterStats = String.Format(" ({0}-{1}, {2} AVG)", hits, atBats, avg)
-                End If
-            End If
-        Next
-
+        ' update GUI
         Dim matchup As String = String.Format("Pitcher: {0} {1} - Batter: {2} {3}", pitcherName, pitcherStats, batterName, batterStats)
-        ' txbMatchup.Text = matchup
         lblMatchup.Text = matchup
+
+        ' highlight pitcher and batter in lineup
+        'HighlightPitcherBatterInLineup(pitcherId, batterId)
+
+    End Sub
+
+    Sub HighlightPitcherBatterInLineup(pitcherId As String, batterId As String)
+        'dgvAwayRoster.ClearSelection()
+        'dgvHomeRoster.ClearSelection()
+
+        'For Each row As DataGridViewRow In dgvAwayRoster.Rows
+        '    If pitcherId = row.Cells(0).Value.ToString Or batterId = row.Cells(0).Value.ToString Then
+        '        row.DefaultCellStyle.BackColor = Color.LightBlue
+        '        row.Selected = True
+        '    Else
+        '        row.DefaultCellStyle.BackColor = Color.Empty
+        '    End If
+        'Next
+
+        'For Each row As DataGridViewRow In dgvHomeRoster.Rows
+        '    If pitcherId = row.Cells(0).Value.ToString Or batterId = row.Cells(0).Value.ToString Then
+        '        row.DefaultCellStyle.BackColor = Color.LightBlue
+        '        row.Selected = True
+        '    Else
+        '        row.DefaultCellStyle.BackColor = Color.Empty
+        '    End If
+        'Next
+        dgvAwayRoster.ClearSelection()
+        dgvHomeRoster.ClearSelection()
+        dgvAwayRoster.Refresh()
+        dgvHomeRoster.Refresh()
+
+
     End Sub
 
     Private Sub updateLastPitchDescription()
@@ -559,14 +719,131 @@ Public Class MLBScoreboard
         If pitchType = String.Empty Then
             desc = String.Empty
         Else
-            desc = String.Format("Pitch #{0}: {1} - {4}.  (Start {2}mph, End {3}mph)", pitchNum, pitchType, startSpeed, endSpeed, pitchCall.ToUpper
-                                 )
+            desc = String.Format("Pitch #{0}: {1} - {4}  (Start {2}mph, End {3}mph)", pitchNum, pitchType, startSpeed, endSpeed, pitchCall)
         End If
 
-        'Me.txbPitch.Text = desc
-        Me.lblLastPitch.Text = desc
+        Me.txbLastPitch.Text = desc
+    End Sub
+
+    Sub HighlightCurrentInning()
+        Dim row As Integer
+        Dim inning As Integer = Convert.ToInt32(SBData.getCurrentInningNumber())
+        Dim inningHalf As String = SBData.getCurrentInningHalf().ToUpper
+
+        If inningHalf = "TOP" Then
+            row = 0
+        Else
+            row = 1
+        End If
+
+        ' TODO - better color?
+        dgvInnings.Rows(row).Cells(inning).Style.BackColor = Color.LightBlue
 
     End Sub
 
+    Private Sub QuitToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles FileToolStripMenuItem.Click
+        Application.Exit()
+    End Sub
 
+    Private Sub LoadAllGamesDataGrid()
+        'Dim gameDate As String = Me.calDatePicker.Value.ToString("MM/dd/yyyy")
+
+        Dim dt As DataTable = SBData.GetAllGamesData()
+        dgvGames.DataSource = dt
+        dgvGames.Columns("id").Visible = False
+        dgvGames.ClearSelection()
+        dgvGames.ColumnHeadersDefaultCellStyle.Font = New Font(dgvGames.DefaultFont, FontStyle.Bold)
+
+
+    End Sub
+
+    Private Sub dgvGames_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvGames.CellClick, dgvGames.CellContentDoubleClick, dgvGames.CellContentClick
+
+        ' bail if header row clicked
+        If e.RowIndex < 0 Then
+            Return
+        End If
+
+        ' get the gamePk for the clicked row
+        Dim id As String = dgvGames.Rows(e.RowIndex).Cells(0).Value.ToString
+        Me.gamePk = Convert.ToUInt32(id)
+
+        ' force repaint which should highlight current selected game
+        dgvGames.ClearSelection()
+        dgvGames.InvalidateRow(e.RowIndex)
+
+        ' run the selected game
+        Me.RunGame()
+    End Sub
+
+    Private Sub calDatePicker_CloseUp(sender As Object, e As EventArgs) Handles calDatePicker.CloseUp
+        Me.ResetScreenControls()
+        Me.RunScoreboard()
+    End Sub
+
+    Private Sub UpdateTimer_Tick(sender As Object, e As EventArgs) Handles UpdateTimer.Tick
+        Me.RunScoreboard()
+    End Sub
+
+
+
+    Private Sub dgvGames_CellPainting(sender As Object, e As DataGridViewCellPaintingEventArgs) Handles dgvGames.CellPainting
+        ' if no current game selected, bail out
+        If Me.gamePk = 0 Then
+            Return
+        End If
+
+        ' color each cell of each row according to whether the game is running or not
+        For Each row As DataGridViewRow In dgvGames.Rows
+            Dim id As Integer = Convert.ToInt32(row.Cells(0).Value.ToString)
+            If id = Me.gamePk Then
+                row.DefaultCellStyle.BackColor = Color.LightBlue
+            Else
+                row.DefaultCellStyle.BackColor = Color.White
+            End If
+        Next
+    End Sub
+
+    Private Sub dgvAwayRoster_CellPainting(sender As Object, e As DataGridViewCellPaintingEventArgs) Handles dgvAwayRoster.CellPainting
+        Dim pitcherId As String = SBData.getCurrentPitcherId()
+        Dim batterId As String = SBData.getCurrentBatterId()
+
+        For Each row As DataGridViewRow In dgvAwayRoster.Rows
+            If pitcherId = row.Cells(0).Value.ToString Or batterId = row.Cells(0).Value.ToString Then
+                EnsureRowVisible(dgvAwayRoster, row.Index)
+                row.DefaultCellStyle.BackColor = Color.LightBlue
+            Else
+                row.DefaultCellStyle.BackColor = Color.White
+            End If
+        Next
+
+    End Sub
+
+    Private Sub dgvHomeRoster_CellPainting(sender As Object, e As DataGridViewCellPaintingEventArgs) Handles dgvHomeRoster.CellPainting
+        Dim pitcherId As String = SBData.getCurrentPitcherId()
+        Dim batterId As String = SBData.getCurrentBatterId()
+
+        For Each row As DataGridViewRow In dgvHomeRoster.Rows
+            If pitcherId = row.Cells(0).Value.ToString Or batterId = row.Cells(0).Value.ToString Then
+                EnsureRowVisible(dgvHomeRoster, row.Index)
+                row.DefaultCellStyle.BackColor = Color.LightBlue
+            Else
+                row.DefaultCellStyle.BackColor = Color.White
+            End If
+        Next
+
+    End Sub
+
+    Private Sub EnsureRowVisible(view As DataGridView, rowIdx As Integer)
+        If rowIdx >= 0 And rowIdx < view.RowCount Then
+            Dim countVisible As Integer = view.DisplayedRowCount(False)
+            Dim firstVisible As Integer = view.FirstDisplayedScrollingRowIndex
+            If rowIdx < firstVisible Then
+                view.FirstDisplayedScrollingRowIndex = rowIdx
+            ElseIf rowIdx >= firstVisible + countVisible Then
+                view.FirstDisplayedScrollingRowIndex = rowIdx - countVisible + 1
+            End If
+        End If
+
+    End Sub
 End Class
