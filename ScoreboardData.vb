@@ -36,10 +36,9 @@ Public Class ScoreboardData
 
     End Sub
 
-    Public Function returnAllTeamNames() As DataTable
-
-        Return DB.returnAllTeamNames()
-    End Function
+    'Public Function returnAllTeamNames() As DataTable
+    'Return DB.returnAllTeamNames()
+    'End Function
 
     Public Function findGamePk(teamId, gameDate) As Integer
         Dim gamePk As Integer = 0
@@ -86,6 +85,11 @@ Public Class ScoreboardData
         Dim data As JObject = Me.liveData.SelectToken("liveData")
         Dim boxData As JObject = data.SelectToken("boxscore")
         Return boxData
+    End Function
+
+    Public Function getGameData() As JObject
+        Dim data As JObject = Me.liveData.SelectToken("gameData")
+        Return data
     End Function
 
     Public Function getCurrentGameData() As DataTable
@@ -389,4 +393,43 @@ Public Class ScoreboardData
         Return lastBatterId
     End Function
 
+    Public Function getProperties() As Properties
+        Dim props As Properties = New Properties()
+        Return props
+    End Function
+    Public Function getValueFromConfig(key As String, defaultValue As String) As Integer
+        Dim props As Properties = New Properties()
+        Dim value = props.GetProperty(key, defaultValue)
+        Return value
+    End Function
+
+    Public Sub addValueToConfig(key As String, value As String)
+        Dim props As Properties = New Properties()
+        props.Add(key, value)
+    End Sub
+
+    Public Sub writeConfig()
+        Dim props As Properties = New Properties()
+        props.Write()
+    End Sub
+
+    Public Function getUpdateSecsFromConfig() As String
+        Dim secs As String = getValueFromConfig("timer", "15")
+        Dim seconds As Integer = Convert.ToInt32(secs)
+        Return seconds * 1000
+    End Function
+
+    Public Function getAllTeamAbbrevs() As DataTable
+        Dim dt As DataTable = DB.returnAllTeamAbbrevs()
+        Return dt
+    End Function
+
+    Public Function getVenueWeather() As String
+        Dim gameData As JObject = getGameData()
+        Dim temp As String = gameData.SelectToken("weather.temp")
+        Dim conditions As String = gameData.SelectToken("weather.condition")
+        Dim wind As String = gameData.SelectToken("weather.wind")
+        'Return $"Weather: {temp}°F, {conditions}, wind {wind}"
+        Return $"Weather: {temp}°F, {conditions}"
+    End Function
 End Class

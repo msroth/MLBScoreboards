@@ -12,6 +12,7 @@ Public Class MLB_API
     Dim API_SCHEDULE_URL As String = API_BASE_URL + "/v1/schedule?sportId=1&date={0}"
 
     'Dim apiClient As System.Net.WebClient() = New System.Net.WebClient()
+    ' TODO - make async
 
     Function getData(url)
         Dim result As String = ""
@@ -35,4 +36,5 @@ Public Class MLB_API
     Function returnTeamsData()
         Return getData(API_TEAMS_URL)
     End Function
+
 End Class

@@ -9,8 +9,8 @@ Public Class Database
     Public Sub New()
 
         ' create connections
-        Me.conn = New SQLiteConnection("Data Source=:memory:;Version=3;")
-        'Me.conn = New SQLiteConnection("Data Source=scoreboard.db;Version=3;")
+        'Me.conn = New SQLiteConnection("Data Source=:memory:;Version=3;")
+        Me.conn = New SQLiteConnection("Data Source=scoreboard.db;Version=3;")
         Me.conn.Open()
 
         ' create tables
@@ -20,8 +20,8 @@ Public Class Database
         sql = "CREATE TABLE IF NOT EXISTS current_game(gamePk INTEGER, home_abbrev TEXT, away_abbrev TEXT, home_name TEXT, away_name TEXT, game_date TEXT, game_time TEXT);"
         Me.runNonQuery(sql)
 
-        sql = "CREATE TABLE IF NOT EXISTS status(current_inning INTEGER, inning_half TEXT, inning_state TEXT, game_status TEXT);"
-        Me.runNonQuery(sql)
+        'sql = "CREATE TABLE IF NOT EXISTS status(current_inning INTEGER, inning_half TEXT, inning_state TEXT, game_status TEXT);"
+        'Me.runNonQuery(sql)
 
         sql = "CREATE TABLE IF NOT EXISTS players(id INTEGER, team_abbrev TEXT, full_name TEXT, last_name TEXT, position TEXT, jersey_num TEXT);"
         Me.runNonQuery(sql)
@@ -96,7 +96,13 @@ Public Class Database
     End Sub
 
     Public Function returnAllTeamNames() As DataTable
-        Dim sql As String = "SELECT * FROM teams ORDER BY full_name"
+        Dim sql As String = "SELECT DISTINCT full_name FROM teams ORDER BY full_name"
+        Dim dt As DataTable = Me.runQuery(sql)
+        Return dt
+    End Function
+
+    Public Function returnAllTeamAbbrevs() As DataTable
+        Dim sql As String = "SELECT DISTINCT abbrev FROM teams ORDER BY abbrev"
         Dim dt As DataTable = Me.runQuery(sql)
         Return dt
     End Function

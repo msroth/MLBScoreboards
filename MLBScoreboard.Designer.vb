@@ -33,6 +33,10 @@ Partial Class MLBScoreboard
         Me.ToolStripStatusLabel1 = New System.Windows.Forms.ToolStripStatusLabel()
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.FileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ConfigureToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.QuitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ViewToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.PitcherStatsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AboutToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
         Me.calDatePicker = New System.Windows.Forms.DateTimePicker()
         Me.dgvInnings = New System.Windows.Forms.DataGridView()
@@ -48,11 +52,13 @@ Partial Class MLBScoreboard
         Me.lblAwayLineup = New System.Windows.Forms.Label()
         Me.lblHomeLineup = New System.Windows.Forms.Label()
         Me.lblMatchup = New System.Windows.Forms.Label()
-        Me.txbLastPitch = New System.Windows.Forms.TextBox()
         Me.dgvGames = New System.Windows.Forms.DataGridView()
         Me.lblGamePk = New System.Windows.Forms.Label()
         Me.lblStatus = New System.Windows.Forms.Label()
         Me.tbxCommentary = New System.Windows.Forms.RichTextBox()
+        Me.lblWeather = New System.Windows.Forms.Label()
+        Me.imgAwayLogo = New System.Windows.Forms.PictureBox()
+        Me.imgHomeLogo = New System.Windows.Forms.PictureBox()
         Me.StatusStrip1.SuspendLayout()
         Me.MenuStrip1.SuspendLayout()
         CType(Me.dgvInnings, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -60,13 +66,15 @@ Partial Class MLBScoreboard
         CType(Me.dgvAwayRoster, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgvHomeRoster, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgvGames, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.imgAwayLogo, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.imgHomeLogo, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'StatusStrip1
         '
         Me.StatusStrip1.ImageScalingSize = New System.Drawing.Size(20, 20)
         Me.StatusStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripStatusLabel1})
-        Me.StatusStrip1.Location = New System.Drawing.Point(0, 603)
+        Me.StatusStrip1.Location = New System.Drawing.Point(0, 667)
         Me.StatusStrip1.Name = "StatusStrip1"
         Me.StatusStrip1.Padding = New System.Windows.Forms.Padding(1, 0, 16, 0)
         Me.StatusStrip1.Size = New System.Drawing.Size(1765, 22)
@@ -82,7 +90,7 @@ Partial Class MLBScoreboard
         'MenuStrip1
         '
         Me.MenuStrip1.ImageScalingSize = New System.Drawing.Size(20, 20)
-        Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem, Me.AboutToolStripMenuItem1})
+        Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem, Me.ViewToolStripMenuItem, Me.AboutToolStripMenuItem1})
         Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
         Me.MenuStrip1.Name = "MenuStrip1"
         Me.MenuStrip1.Padding = New System.Windows.Forms.Padding(7, 3, 0, 3)
@@ -92,9 +100,35 @@ Partial Class MLBScoreboard
         '
         'FileToolStripMenuItem
         '
+        Me.FileToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ConfigureToolStripMenuItem, Me.QuitToolStripMenuItem})
         Me.FileToolStripMenuItem.Name = "FileToolStripMenuItem"
-        Me.FileToolStripMenuItem.Size = New System.Drawing.Size(51, 24)
-        Me.FileToolStripMenuItem.Text = "Quit"
+        Me.FileToolStripMenuItem.Size = New System.Drawing.Size(46, 24)
+        Me.FileToolStripMenuItem.Text = "File"
+        '
+        'ConfigureToolStripMenuItem
+        '
+        Me.ConfigureToolStripMenuItem.Name = "ConfigureToolStripMenuItem"
+        Me.ConfigureToolStripMenuItem.Size = New System.Drawing.Size(157, 26)
+        Me.ConfigureToolStripMenuItem.Text = "Configure"
+        '
+        'QuitToolStripMenuItem
+        '
+        Me.QuitToolStripMenuItem.Name = "QuitToolStripMenuItem"
+        Me.QuitToolStripMenuItem.Size = New System.Drawing.Size(157, 26)
+        Me.QuitToolStripMenuItem.Text = "Quit"
+        '
+        'ViewToolStripMenuItem
+        '
+        Me.ViewToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.PitcherStatsToolStripMenuItem})
+        Me.ViewToolStripMenuItem.Name = "ViewToolStripMenuItem"
+        Me.ViewToolStripMenuItem.Size = New System.Drawing.Size(55, 24)
+        Me.ViewToolStripMenuItem.Text = "View"
+        '
+        'PitcherStatsToolStripMenuItem
+        '
+        Me.PitcherStatsToolStripMenuItem.Name = "PitcherStatsToolStripMenuItem"
+        Me.PitcherStatsToolStripMenuItem.Size = New System.Drawing.Size(224, 26)
+        Me.PitcherStatsToolStripMenuItem.Text = "Pitcher Stats"
         '
         'AboutToolStripMenuItem1
         '
@@ -105,10 +139,11 @@ Partial Class MLBScoreboard
         'calDatePicker
         '
         Me.calDatePicker.CustomFormat = """MM/dd/yyyy"""
+        Me.calDatePicker.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
         Me.calDatePicker.Location = New System.Drawing.Point(12, 45)
         Me.calDatePicker.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.calDatePicker.Name = "calDatePicker"
-        Me.calDatePicker.Size = New System.Drawing.Size(248, 27)
+        Me.calDatePicker.Size = New System.Drawing.Size(435, 27)
         Me.calDatePicker.TabIndex = 4
         '
         'dgvInnings
@@ -139,7 +174,7 @@ Partial Class MLBScoreboard
         Me.dgvInnings.DefaultCellStyle = DataGridViewCellStyle2
         Me.dgvInnings.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
         Me.dgvInnings.Enabled = False
-        Me.dgvInnings.Location = New System.Drawing.Point(464, 148)
+        Me.dgvInnings.Location = New System.Drawing.Point(474, 246)
         Me.dgvInnings.MultiSelect = False
         Me.dgvInnings.Name = "dgvInnings"
         Me.dgvInnings.ReadOnly = True
@@ -168,7 +203,7 @@ Partial Class MLBScoreboard
         Me.lblGameTitle.AutoSize = True
         Me.lblGameTitle.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.lblGameTitle.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.lblGameTitle.Location = New System.Drawing.Point(464, 52)
+        Me.lblGameTitle.Location = New System.Drawing.Point(474, 59)
         Me.lblGameTitle.Name = "lblGameTitle"
         Me.lblGameTitle.Size = New System.Drawing.Size(249, 20)
         Me.lblGameTitle.TabIndex = 8
@@ -176,11 +211,11 @@ Partial Class MLBScoreboard
         '
         'imgDiamond
         '
-        Me.imgDiamond.ErrorImage = Nothing
+        Me.imgDiamond.ErrorImage = Global.MLBScoreBoard.My.Resources.Resources.diamond
         Me.imgDiamond.Image = Global.MLBScoreBoard.My.Resources.Resources.diamond
         Me.imgDiamond.ImageLocation = ""
         Me.imgDiamond.InitialImage = Global.MLBScoreBoard.My.Resources.Resources.diamond
-        Me.imgDiamond.Location = New System.Drawing.Point(464, 316)
+        Me.imgDiamond.Location = New System.Drawing.Point(474, 448)
         Me.imgDiamond.Name = "imgDiamond"
         Me.imgDiamond.Size = New System.Drawing.Size(190, 190)
         Me.imgDiamond.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage
@@ -194,7 +229,7 @@ Partial Class MLBScoreboard
         Me.lblBalls.AutoSize = True
         Me.lblBalls.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.lblBalls.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.lblBalls.Location = New System.Drawing.Point(668, 318)
+        Me.lblBalls.Location = New System.Drawing.Point(678, 450)
         Me.lblBalls.Name = "lblBalls"
         Me.lblBalls.Size = New System.Drawing.Size(74, 20)
         Me.lblBalls.TabIndex = 18
@@ -205,7 +240,7 @@ Partial Class MLBScoreboard
         Me.lblStrikes.AutoSize = True
         Me.lblStrikes.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.lblStrikes.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.lblStrikes.Location = New System.Drawing.Point(668, 338)
+        Me.lblStrikes.Location = New System.Drawing.Point(678, 470)
         Me.lblStrikes.Name = "lblStrikes"
         Me.lblStrikes.Size = New System.Drawing.Size(90, 20)
         Me.lblStrikes.TabIndex = 19
@@ -216,7 +251,7 @@ Partial Class MLBScoreboard
         Me.lblOuts.AutoSize = True
         Me.lblOuts.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.lblOuts.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.lblOuts.Location = New System.Drawing.Point(668, 358)
+        Me.lblOuts.Location = New System.Drawing.Point(678, 490)
         Me.lblOuts.Name = "lblOuts"
         Me.lblOuts.Size = New System.Drawing.Size(71, 20)
         Me.lblOuts.TabIndex = 20
@@ -244,7 +279,7 @@ Partial Class MLBScoreboard
         DataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
         Me.dgvAwayRoster.DefaultCellStyle = DataGridViewCellStyle3
         Me.dgvAwayRoster.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
-        Me.dgvAwayRoster.Location = New System.Drawing.Point(1217, 92)
+        Me.dgvAwayRoster.Location = New System.Drawing.Point(1219, 112)
         Me.dgvAwayRoster.MultiSelect = False
         Me.dgvAwayRoster.Name = "dgvAwayRoster"
         Me.dgvAwayRoster.ReadOnly = True
@@ -256,7 +291,7 @@ Partial Class MLBScoreboard
         Me.dgvAwayRoster.ShowCellToolTips = False
         Me.dgvAwayRoster.ShowEditingIcon = False
         Me.dgvAwayRoster.ShowRowErrors = False
-        Me.dgvAwayRoster.Size = New System.Drawing.Size(256, 442)
+        Me.dgvAwayRoster.Size = New System.Drawing.Size(256, 526)
         Me.dgvAwayRoster.TabIndex = 21
         '
         'dgvHomeRoster
@@ -276,7 +311,7 @@ Partial Class MLBScoreboard
         DataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
         Me.dgvHomeRoster.DefaultCellStyle = DataGridViewCellStyle4
         Me.dgvHomeRoster.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
-        Me.dgvHomeRoster.Location = New System.Drawing.Point(1490, 92)
+        Me.dgvHomeRoster.Location = New System.Drawing.Point(1490, 112)
         Me.dgvHomeRoster.MultiSelect = False
         Me.dgvHomeRoster.Name = "dgvHomeRoster"
         Me.dgvHomeRoster.ReadOnly = True
@@ -288,7 +323,7 @@ Partial Class MLBScoreboard
         Me.dgvHomeRoster.ShowCellToolTips = False
         Me.dgvHomeRoster.ShowEditingIcon = False
         Me.dgvHomeRoster.ShowRowErrors = False
-        Me.dgvHomeRoster.Size = New System.Drawing.Size(256, 442)
+        Me.dgvHomeRoster.Size = New System.Drawing.Size(256, 526)
         Me.dgvHomeRoster.TabIndex = 22
         '
         'lblAwayLineup
@@ -296,7 +331,7 @@ Partial Class MLBScoreboard
         Me.lblAwayLineup.AutoSize = True
         Me.lblAwayLineup.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.lblAwayLineup.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.lblAwayLineup.Location = New System.Drawing.Point(1219, 59)
+        Me.lblAwayLineup.Location = New System.Drawing.Point(1219, 78)
         Me.lblAwayLineup.Name = "lblAwayLineup"
         Me.lblAwayLineup.Size = New System.Drawing.Size(99, 20)
         Me.lblAwayLineup.TabIndex = 23
@@ -307,7 +342,7 @@ Partial Class MLBScoreboard
         Me.lblHomeLineup.AutoSize = True
         Me.lblHomeLineup.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.lblHomeLineup.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.lblHomeLineup.Location = New System.Drawing.Point(1490, 59)
+        Me.lblHomeLineup.Location = New System.Drawing.Point(1490, 78)
         Me.lblHomeLineup.Name = "lblHomeLineup"
         Me.lblHomeLineup.Size = New System.Drawing.Size(102, 20)
         Me.lblHomeLineup.TabIndex = 24
@@ -318,24 +353,11 @@ Partial Class MLBScoreboard
         Me.lblMatchup.AutoSize = True
         Me.lblMatchup.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.lblMatchup.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.lblMatchup.Location = New System.Drawing.Point(464, 283)
+        Me.lblMatchup.Location = New System.Drawing.Point(474, 400)
         Me.lblMatchup.Name = "lblMatchup"
         Me.lblMatchup.Size = New System.Drawing.Size(80, 20)
         Me.lblMatchup.TabIndex = 25
         Me.lblMatchup.Text = "Matchup"
-        '
-        'txbLastPitch
-        '
-        Me.txbLastPitch.BackColor = System.Drawing.Color.Green
-        Me.txbLastPitch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txbLastPitch.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
-        Me.txbLastPitch.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.txbLastPitch.Location = New System.Drawing.Point(464, 515)
-        Me.txbLastPitch.Multiline = True
-        Me.txbLastPitch.Name = "txbLastPitch"
-        Me.txbLastPitch.Size = New System.Drawing.Size(720, 85)
-        Me.txbLastPitch.TabIndex = 26
-        Me.txbLastPitch.Text = "Last Pitch"
         '
         'dgvGames
         '
@@ -364,7 +386,7 @@ Partial Class MLBScoreboard
         DataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
         Me.dgvGames.DefaultCellStyle = DataGridViewCellStyle6
         Me.dgvGames.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
-        Me.dgvGames.Location = New System.Drawing.Point(12, 92)
+        Me.dgvGames.Location = New System.Drawing.Point(12, 112)
         Me.dgvGames.MultiSelect = False
         Me.dgvGames.Name = "dgvGames"
         Me.dgvGames.ReadOnly = True
@@ -377,7 +399,7 @@ Partial Class MLBScoreboard
         Me.dgvGames.ShowCellToolTips = False
         Me.dgvGames.ShowEditingIcon = False
         Me.dgvGames.ShowRowErrors = False
-        Me.dgvGames.Size = New System.Drawing.Size(435, 496)
+        Me.dgvGames.Size = New System.Drawing.Size(435, 526)
         Me.dgvGames.TabIndex = 27
         Me.dgvGames.VirtualMode = True
         '
@@ -386,7 +408,7 @@ Partial Class MLBScoreboard
         Me.lblGamePk.AutoSize = True
         Me.lblGamePk.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.lblGamePk.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.lblGamePk.Location = New System.Drawing.Point(464, 82)
+        Me.lblGamePk.Location = New System.Drawing.Point(649, 112)
         Me.lblGamePk.Name = "lblGamePk"
         Me.lblGamePk.Size = New System.Drawing.Size(83, 20)
         Me.lblGamePk.TabIndex = 28
@@ -397,7 +419,7 @@ Partial Class MLBScoreboard
         Me.lblStatus.AutoSize = True
         Me.lblStatus.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.lblStatus.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.lblStatus.Location = New System.Drawing.Point(464, 111)
+        Me.lblStatus.Location = New System.Drawing.Point(650, 143)
         Me.lblStatus.Name = "lblStatus"
         Me.lblStatus.Size = New System.Drawing.Size(118, 20)
         Me.lblStatus.TabIndex = 29
@@ -406,11 +428,46 @@ Partial Class MLBScoreboard
         'tbxCommentary
         '
         Me.tbxCommentary.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        Me.tbxCommentary.Location = New System.Drawing.Point(771, 315)
+        Me.tbxCommentary.Location = New System.Drawing.Point(781, 447)
         Me.tbxCommentary.Name = "tbxCommentary"
         Me.tbxCommentary.Size = New System.Drawing.Size(413, 191)
         Me.tbxCommentary.TabIndex = 30
         Me.tbxCommentary.Text = "Play Commentary"
+        '
+        'lblWeather
+        '
+        Me.lblWeather.AutoSize = True
+        Me.lblWeather.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
+        Me.lblWeather.ForeColor = System.Drawing.SystemColors.ControlLightLight
+        Me.lblWeather.Location = New System.Drawing.Point(653, 177)
+        Me.lblWeather.Name = "lblWeather"
+        Me.lblWeather.Size = New System.Drawing.Size(79, 20)
+        Me.lblWeather.TabIndex = 31
+        Me.lblWeather.Text = "Weather"
+        '
+        'imgAwayLogo
+        '
+        Me.imgAwayLogo.ErrorImage = Global.MLBScoreBoard.My.Resources.Resources.MLB
+        Me.imgAwayLogo.Image = Global.MLBScoreBoard.My.Resources.Resources.MLB
+        Me.imgAwayLogo.InitialImage = Global.MLBScoreBoard.My.Resources.Resources.MLB
+        Me.imgAwayLogo.Location = New System.Drawing.Point(474, 112)
+        Me.imgAwayLogo.Name = "imgAwayLogo"
+        Me.imgAwayLogo.Size = New System.Drawing.Size(155, 96)
+        Me.imgAwayLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage
+        Me.imgAwayLogo.TabIndex = 32
+        Me.imgAwayLogo.TabStop = False
+        '
+        'imgHomeLogo
+        '
+        Me.imgHomeLogo.ErrorImage = Global.MLBScoreBoard.My.Resources.Resources.MLB
+        Me.imgHomeLogo.Image = Global.MLBScoreBoard.My.Resources.Resources.MLB
+        Me.imgHomeLogo.InitialImage = Global.MLBScoreBoard.My.Resources.Resources.MLB
+        Me.imgHomeLogo.Location = New System.Drawing.Point(1039, 112)
+        Me.imgHomeLogo.Name = "imgHomeLogo"
+        Me.imgHomeLogo.Size = New System.Drawing.Size(155, 96)
+        Me.imgHomeLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage
+        Me.imgHomeLogo.TabIndex = 33
+        Me.imgHomeLogo.TabStop = False
         '
         'MLBScoreboard
         '
@@ -418,12 +475,14 @@ Partial Class MLBScoreboard
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.Green
         Me.CausesValidation = False
-        Me.ClientSize = New System.Drawing.Size(1765, 625)
+        Me.ClientSize = New System.Drawing.Size(1765, 689)
+        Me.Controls.Add(Me.imgHomeLogo)
+        Me.Controls.Add(Me.imgAwayLogo)
+        Me.Controls.Add(Me.lblWeather)
         Me.Controls.Add(Me.tbxCommentary)
         Me.Controls.Add(Me.lblStatus)
         Me.Controls.Add(Me.lblGamePk)
         Me.Controls.Add(Me.dgvGames)
-        Me.Controls.Add(Me.txbLastPitch)
         Me.Controls.Add(Me.lblMatchup)
         Me.Controls.Add(Me.lblHomeLineup)
         Me.Controls.Add(Me.lblAwayLineup)
@@ -451,6 +510,8 @@ Partial Class MLBScoreboard
         CType(Me.dgvAwayRoster, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.dgvHomeRoster, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.dgvGames, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.imgAwayLogo, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.imgHomeLogo, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -474,10 +535,16 @@ Partial Class MLBScoreboard
     Friend WithEvents lblAwayLineup As Label
     Friend WithEvents lblHomeLineup As Label
     Friend WithEvents lblMatchup As Label
-    Friend WithEvents txbLastPitch As TextBox
     Friend WithEvents dgvGames As DataGridView
     Friend WithEvents UpdateTimer As Timer
     Friend WithEvents lblGamePk As Label
     Friend WithEvents lblStatus As Label
     Friend WithEvents tbxCommentary As RichTextBox
+    Friend WithEvents QuitToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents ConfigureToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents lblWeather As Label
+    Friend WithEvents ViewToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents PitcherStatsToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents imgAwayLogo As PictureBox
+    Friend WithEvents imgHomeLogo As PictureBox
 End Class

@@ -9,14 +9,6 @@ Public Class MLBScoreboard
     Dim dtAllGames As DataTable
 
 
-    Private Sub QuitToolStripMenuItem1_Click(sender As Object, e As EventArgs)
-        Application.Exit()
-    End Sub
-
-    Private Sub AboutToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles AboutToolStripMenuItem1.Click
-        Dim frmAbout = AboutBox1
-        frmAbout.ShowDialog()
-    End Sub
 
     Private Sub setupInningsDataTable()
         ' clear datatable
@@ -62,7 +54,6 @@ Public Class MLBScoreboard
         Next
 
         ' add RHE columns
-        ' TODO - make headers and col values bold
         column = New DataColumn
         column.ColumnName = "R"
         dtInnings.Columns.Add(column)
@@ -82,12 +73,12 @@ Public Class MLBScoreboard
 
     End Sub
     Private Sub MLBScoreboard_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
+        ' setup inning table with empty innings
         Me.setupInningsDataTable()
 
         ' set tables as datasource for grid views
         Me.dgvInnings.DataSource = Me.dtInnings
-        'Me.dgvAwayRoster.DataSource = Me.dtAwayRoster
-        'Me.dgvHomeRoster.DataSource = Me.dtHomeRoster
         Me.dgvGames.DataSource = Me.dtAllGames
 
         Me.dgvInnings.ClearSelection()
@@ -101,17 +92,27 @@ Public Class MLBScoreboard
         ' force event to load games for today
         Me.calDatePicker_CloseUp(Nothing, Nothing)
 
-        ' update schedule every 15 sec
-        UpdateTimer.Interval = 15000  '15 sec
-        UpdateTimer.Start()
+        ' set time for every 15 sec or as configured
+        Dim Props As Properties = SBData.getProperties()
+        Dim UpdateSeconds As Integer = Convert.ToInt32(Props.GetProperty(Props.TIMER_KEY, "15"))
+        SetTimerInterval(UpdateSeconds)
+
+        ' if a favorite team specified, find gamePk and load it
+        If Me.gamePk = 0 Then
+            Dim FaveTeam As String = Props.GetProperty(Props.FAVORITE_TEAM_KEY)
+            If Not FaveTeam = String.Empty Then
+                Me.gamePk = findTeamGamePk(FaveTeam)
+                RunScoreboard()
+            End If
+        End If
 
     End Sub
 
     Private Sub ResetScreenControls()
         lblAwayLineup.Text = "Away Roster"
-        lblAwayLineup.Visible = True
+        lblAwayLineup.Visible = False
         lblHomeLineup.Text = "Home Roster"
-        lblHomeLineup.Visible = True
+        lblHomeLineup.Visible = False
         lblBalls.Text = "Balls: 0"
         lblBalls.Visible = True
         lblStrikes.Text = "Strikes: 0"
@@ -119,15 +120,16 @@ Public Class MLBScoreboard
         lblOuts.Text = "Outs: 0"
         lblOuts.Visible = True
         lblGameTitle.Text = "Away @ Home - mm/dd/yyyy (gamePk)"
-        txbLastPitch.Text = "Last Pitch"
-        txbLastPitch.Visible = True
         lblMatchup.Text = "Match up"
         lblMatchup.Visible = True
         imgDiamond.Image = My.Resources.diamond
+        imgAwayLogo.Image = My.Resources.MLB
+        imgHomeLogo.Image = My.Resources.MLB
         tbxCommentary.Text = ""
-        tbxCommentary.Visible = True
+        tbxCommentary.Visible = False
         dgvAwayRoster.DataSource = Nothing
         dgvHomeRoster.DataSource = Nothing
+        lblWeather.Text = "Weather"
         Me.gamePk = 0
     End Sub
 
@@ -141,9 +143,15 @@ Public Class MLBScoreboard
         Me.lblStatus.Text = "Game Status: " + gameStatus
     End Sub
 
-    Private Sub updateLastPlayCommentary()
+    Private Sub updatePlayCommentary()
+        Dim pitch = Me.updateLastPitchDescription()
         Dim play = Me.SBData.getLastPlayDescription()
-        Me.tbxCommentary.Text = play
+        If pitch = String.Empty Then
+            Me.tbxCommentary.Text = play
+        Else
+            Me.tbxCommentary.Text = pitch + vbCr + vbCr + play
+        End If
+
     End Sub
 
     Private Sub RunScoreboard()
@@ -201,19 +209,22 @@ Public Class MLBScoreboard
         ' clear inning label
         dtInnings.Columns(0).ColumnName = " "
 
-        ' load team rosters
-        Me.loadTeamRosters()
+        ' update team logos
+        Me.loadTeamLogos()
+
+        ' load weather
+        Me.lblWeather.Text = SBData.getVenueWeather()
 
         Dim status As String = SBData.getGameStatus().ToUpper()
 
         If status = "SCHEDULED" Or status = "WARMUP" Or status = "PRE-GAME" Or status.StartsWith("DELAYED") Or status = "POSTPONED" Then
             lblMatchup.Text = updatePitcherMatchup()
-            txbLastPitch.Visible = False
             tbxCommentary.Visible = False
             dgvAwayRoster.Visible = False
             dgvHomeRoster.Visible = False
             lblAwayLineup.Visible = False
             lblHomeLineup.Visible = False
+            lblWeather.Visible = True
         End If
 
         If status = "FINAL" Or status = "COMPLETE" Or status = "GAME OVER" Then
@@ -221,7 +232,6 @@ Public Class MLBScoreboard
             lblMatchup.Text = updateWinnerLosserPitchers()
 
             ' turn off unused controls
-            txbLastPitch.Visible = False
             tbxCommentary.Visible = False
             lblBalls.Visible = False
             lblStrikes.Visible = False
@@ -231,6 +241,7 @@ Public Class MLBScoreboard
             dgvHomeRoster.Visible = False
             lblAwayLineup.Visible = False
             lblHomeLineup.Visible = False
+            lblWeather.Visible = False
 
             ' fill X in unplayed bottom of last inning
             Dim v = dtInnings.Rows(1).Item(dtInnings.Columns.Count - 4).ToString
@@ -243,7 +254,6 @@ Public Class MLBScoreboard
 
         If status = "IN PROGRESS" Or status.Contains("MANAGER") Or status.Contains("OFFICIAL") Then
 
-            txbLastPitch.Visible = True
             tbxCommentary.Visible = True
             lblBalls.Visible = True
             lblStrikes.Visible = True
@@ -253,6 +263,7 @@ Public Class MLBScoreboard
             dgvHomeRoster.Visible = True
             lblAwayLineup.Visible = True
             lblHomeLineup.Visible = True
+            lblWeather.Visible = True
 
             ' update inning label in inning table
             Dim inningLabel As String
@@ -274,13 +285,19 @@ Public Class MLBScoreboard
             Me.updatePitcherBatterMatchup()
 
             ' update last play
-            Me.updateLastPlayCommentary()
+            Me.updatePlayCommentary()
 
             ' update last pitch data
             Me.updateLastPitchDescription()
 
             'update base runners image
             Me.updateBaseRunners()
+
+            ' load weather
+            'Me.lblWeather.Text = SBData.getVenueWeather()
+
+            ' load team rosters
+            Me.loadTeamRosters()
 
             ' if mid inning or end inning show due ups
             If SBData.getCurrentInningState() = "END" Or SBData.getCurrentInningState() = "MIDDLE" Then
@@ -323,6 +340,18 @@ Public Class MLBScoreboard
 
     End Sub
 
+    Private Sub loadTeamLogos()
+
+
+        Dim awayTeam As String = SBData.getAwayTeamAbbr()
+        Dim homeTeam As String = SBData.getHomeTeamAbbr()
+        Dim awayImg = My.Resources.ResourceManager().GetObject(awayTeam)
+        Dim homeImg = My.Resources.ResourceManager().GetObject(homeTeam)
+        Me.imgAwayLogo.Image = awayImg
+        Me.imgHomeLogo.Image = homeImg
+
+
+    End Sub
     Function getDueUpIds(lastBatterId As String) As List(Of String)
         Dim ids As List(Of String) = New List(Of String)
         Dim startIdx As Integer
@@ -553,6 +582,10 @@ Public Class MLBScoreboard
             Me.imgDiamond.Image = My.Resources.diamond2_3
         End If
 
+        If first = True And second = False And third = True Then
+            Me.imgDiamond.Image = My.Resources.diamond1_3
+        End If
+
         If first = True And second = True And third = True Then
             Me.imgDiamond.Image = My.Resources.diamond1_2_3
         End If
@@ -656,11 +689,11 @@ Public Class MLBScoreboard
         Dim batterStats As String = String.Empty
 
         If SBData.getCurrentInningHalf() = "TOP" Then
-            pitcherStats = SBData.getPitchingStats(pitcherId, "home")
-            batterStats = SBData.getBatterStats(batterId, "away")
+            pitcherStats = SBData.getPitchingStats(pitcherId, SBData.getHomeTeamAbbr())
+            batterStats = SBData.getBatterStats(batterId, SBData.getAwayTeamAbbr())
         Else
-            pitcherStats = SBData.getPitchingStats(pitcherId, "away")
-            batterStats = SBData.getBatterStats(batterId, "home")
+            pitcherStats = SBData.getPitchingStats(pitcherId, SBData.getAwayTeamAbbr())
+            batterStats = SBData.getBatterStats(batterId, SBData.getHomeTeamAbbr())
         End If
 
         ' update GUI
@@ -701,12 +734,22 @@ Public Class MLBScoreboard
 
     End Sub
 
-    Private Sub updateLastPitchDescription()
+    Private Function findTeamGamePk(teamAbbrev As String) As Integer
+        Dim dt As DataTable = dgvGames.DataSource
+        For Each row As DataRow In dt.Rows
+            If row("Away") = teamAbbrev Or row("Home") = teamAbbrev Then
+                Return row("id")
+            End If
+        Next
+        Return 0
+    End Function
+
+    Private Function updateLastPitchDescription() As String
         Dim currentPlayData As JObject = SBData.getCurrentPlayData()
         Dim playEvents As JArray = currentPlayData.SelectToken("playEvents")
         Dim lastEventIdx As Int32 = playEvents.Count - 1
         If lastEventIdx < 0 Then
-            Return
+            Return String.Empty
         End If
         Dim pitchResults = playEvents.Item(lastEventIdx)
         Dim pitchType = pitchResults.SelectToken("details.type.description")
@@ -718,12 +761,14 @@ Public Class MLBScoreboard
         Dim desc As String
         If pitchType = String.Empty Then
             desc = String.Empty
+        ElseIf startSpeed = "" Then
+            desc = String.Format("{0}", pitchCall)
         Else
             desc = String.Format("Pitch #{0}: {1} - {4}  (Start {2}mph, End {3}mph)", pitchNum, pitchType, startSpeed, endSpeed, pitchCall)
         End If
 
-        Me.txbLastPitch.Text = desc
-    End Sub
+        Return desc
+    End Function
 
     Sub HighlightCurrentInning()
         Dim row As Integer
@@ -741,7 +786,7 @@ Public Class MLBScoreboard
 
     End Sub
 
-    Private Sub QuitToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles FileToolStripMenuItem.Click
+    Private Sub QuitToolStripMenuItem_Click(sender As Object, e As EventArgs)
         Application.Exit()
     End Sub
 
@@ -844,6 +889,37 @@ Public Class MLBScoreboard
                 view.FirstDisplayedScrollingRowIndex = rowIdx - countVisible + 1
             End If
         End If
+
+    End Sub
+
+    Private Sub QuitToolStripMenuItem_Click_1(sender As Object, e As EventArgs) Handles QuitToolStripMenuItem.Click
+        Application.Exit()
+    End Sub
+
+    Private Sub ConfigureToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ConfigureToolStripMenuItem.Click
+        Dim frmConfig = New Configure
+        frmConfig.Show()
+        SetTimerInterval(Convert.ToInt32(SBData.getProperties.GetProperty(SBData.getProperties.TIMER_KEY)))
+    End Sub
+
+    Private Sub AboutToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AboutToolStripMenuItem1.Click
+        Dim frmAbout = AboutBox
+        frmAbout.ShowDialog()
+    End Sub
+
+    Private Sub SetTimerInterval(interval As Integer)
+        UpdateTimer.Stop()
+        UpdateTimer.Interval = interval * 1000
+        UpdateTimer.Start()
+        Trace.WriteLine($"timer interval set to {interval}")
+    End Sub
+
+    Private Sub PitcherStatsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles PitcherStatsToolStripMenuItem.Click
+
+
+        ' get pitcher stats
+        ' boxscore.teams.away.players.ID.stats.pitching
+
 
     End Sub
 End Class
