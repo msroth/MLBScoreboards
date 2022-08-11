@@ -29,9 +29,24 @@ Public Class ScoreboardData
 
     End Sub
 
+    Public Function LoadTeamsData() As List(Of Team)
+        Dim Teams As List(Of Team) = New List(Of Team)
+        Dim Data As JObject = API.ReturnAllTeamsData()
+        Dim TeamsData As JArray = Data.SelectToken("teams")
+
+        For Each Team As JObject In TeamsData
+            Dim teamId As String = Team.SelectToken("id").ToString()
+            Dim oTeam As Team = New Team(Convert.ToInt32(teamId))
+            Teams.Add(oTeam)
+            'Trace.WriteLine(oTeam.ToString())
+        Next
+        Return Teams
+    End Function
+
+
     Public Sub loadTeamsDataIntoDB()
         ' get team data from API
-        Dim data As JObject = Me.API.returnTeamsData()
+        Dim data As JObject = Me.API.ReturnAllTeamsData()
         DB.loadTeamsDataIntoDB(data)
 
     End Sub
@@ -42,7 +57,7 @@ Public Class ScoreboardData
 
     Public Function findGamePk(teamId, gameDate) As Integer
         Dim gamePk As Integer = 0
-        Dim schedule As JObject = Me.API.returnScheduleData(gameDate)
+        Dim schedule As JObject = Me.API.ReturnScheduleData(gameDate)
         Dim gameDates As JArray = schedule.SelectToken("dates")
 
         For Each gDate As JObject In gameDates
@@ -64,7 +79,7 @@ Public Class ScoreboardData
     End Function
 
     Public Function refreshLiveData(gamePk) As JObject
-        Me.liveData = Me.API.returnLiveFeedData(gamePk)
+        Me.liveData = Me.API.ReturnLiveFeedData(gamePk)
 
         ' TODO update database data
 
@@ -168,40 +183,111 @@ Public Class ScoreboardData
         Return team
     End Function
 
-    Public Function getHomeTeamAbbr() As String
-        Dim team As String = String.Empty
-        Dim dt As DataTable = DB.returnHomeTeamAbbr()
-        If dt.Rows.Count > 0 Then
-            team = dt.Rows(0).Item(0).ToString
-        End If
-        Return team
+    'Public Function getHomeTeamAbbr() As String
+    '    Dim team As String = String.Empty
+    '    Dim dt As DataTable = DB.returnHomeTeamAbbr()
+    '    If dt.Rows.Count > 0 Then
+    '        team = dt.Rows(0).Item(0).ToString
+    '    End If
+    '    Return team
+    'End Function
+
+    'Public Function getAwayTeamAbbr() As String
+    '    Dim team As String = String.Empty
+    '    Dim dt As DataTable = DB.returnAwayTeamAbbr()
+    '    If dt.Rows.Count > 0 Then
+    '        team = dt.Rows(0).Item(0).ToString
+    '    End If
+    '    Return team
+    'End Function
+
+    Public Function GetHomeTeamId() As String
+        Dim data As JObject = getBoxScoreData()
+        Dim id As String = data.SelectToken("teams.home.team.id")
+        Return id
     End Function
 
-    Public Function getAwayTeamAbbr() As String
-        Dim team As String = String.Empty
-        Dim dt As DataTable = DB.returnAwayTeamAbbr()
-        If dt.Rows.Count > 0 Then
-            team = dt.Rows(0).Item(0).ToString
-        End If
-        Return team
+    Public Function GetHomeTeamFullName() As String
+        Dim TeamData As Dictionary(Of String, String) = GetTeamData(GetHomeTeamId())
+        Return TeamData("fullname")
     End Function
 
-    Public Function getHomeTeamName() As String
-        Dim team As String = String.Empty
-        Dim dt As DataTable = DB.returnHomeTeamName()
-        If dt.Rows.Count > 0 Then
-            team = dt.Rows(0).Item(0).ToString
-        End If
-        Return team
+    Public Function GetHomeTeamShortName() As String
+        Dim TeamData As Dictionary(Of String, String) = GetTeamData(GetHomeTeamId())
+        Return TeamData("shortname")
     End Function
 
-    Public Function getAwayTeamName() As String
-        Dim team As String = String.Empty
-        Dim dt As DataTable = DB.returnAwayTeamName()
-        If dt.Rows.Count > 0 Then
-            team = dt.Rows(0).Item(0).ToString
+    Public Function GetHomeTeamAbbr() As String
+        Dim TeamData As Dictionary(Of String, String) = GetTeamData(GetHomeTeamId())
+        Return TeamData("abbr")
+    End Function
+
+    Public Function GetTeamData(TeamId As String) As Dictionary(Of String, String)
+        Dim TeamData As Dictionary(Of String, String) = New Dictionary(Of String, String)
+        Dim data As JObject = Me.API.ReturnAllTeamsData()
+        Dim teams As JArray = data.SelectToken("teams")
+
+        For Each team As JObject In teams
+            If TeamId.Equals(team.SelectToken("id").ToString()) Then
+                TeamData.Add("id", team.SelectToken("id").ToString())
+                TeamData.Add("fullname", team.SelectToken("name"))
+                TeamData.Add("shortname", team.SelectToken("teamName"))
+                TeamData.Add("abbr", team.SelectToken("abbreviation"))
+                Exit For
+            End If
+        Next
+        Return TeamData
+    End Function
+
+    Public Function GetAwayTeamId() As String
+        Dim data As JObject = getBoxScoreData()
+        Dim id As String = data.SelectToken("teams.away.team.id")
+        Return id
+    End Function
+
+    Public Function GetAwayTeamFullName() As String
+        Dim TeamData As Dictionary(Of String, String) = GetTeamData(GetAwayTeamId())
+        Return TeamData("fullname")
+    End Function
+
+    Public Function GetAwayTeamShortName() As String
+        Dim TeamData As Dictionary(Of String, String) = GetTeamData(GetAwayTeamId())
+        Return TeamData("shortname")
+    End Function
+
+    Public Function GetAwayTeamAbbr() As String
+        Dim TeamData As Dictionary(Of String, String) = GetTeamData(GetAwayTeamId())
+        Return TeamData("abbr")
+    End Function
+
+    'Public Function getHomeTeamName() As String
+    '    Dim team As String = String.Empty
+    '    Dim dt As DataTable = DB.returnHomeTeamName()
+    '    If dt.Rows.Count > 0 Then
+    '        team = dt.Rows(0).Item(0).ToString
+    '    End If
+    '    Return team
+    'End Function
+
+    'Public Function getAwayTeamName() As String
+    '    Dim team As String = String.Empty
+    '    Dim dt As DataTable = DB.returnAwayTeamName()
+    '    If dt.Rows.Count > 0 Then
+    '        team = dt.Rows(0).Item(0).ToString
+    '    End If
+    '    Return team
+    'End Function
+
+    Public Function IsAwayTeamWinner() As Boolean
+        Dim lineData As JObject = getLineScoreData()
+        Dim homeRuns As String = lineData.SelectToken("teams.home.runs")
+        Dim awayRuns As String = lineData.SelectToken("teams.away.runs")
+
+        If Convert.ToInt32(awayRuns) > Convert.ToInt32(homeRuns) Then
+            Return True
+        Else
+            Return False
         End If
-        Return team
     End Function
 
     Public Function getPitchingStats(pitcherId, team) As String
@@ -253,11 +339,9 @@ Public Class ScoreboardData
         Return batterStats
     End Function
 
-    Sub LoadAllGamesData(gameDate As String)
-
-        DB.ClearAllGamesData()
-
-        Dim schedule As JObject = Me.API.returnScheduleData(gameDate)
+    Function LoadAllGamesData(gameDate As String) As List(Of Game)
+        Dim ListOfGames As List(Of Game) = New List(Of Game)
+        Dim schedule As JObject = Me.API.ReturnScheduleData(gameDate)
         Dim gameDates As JArray = schedule.SelectToken("dates")
 
         For Each gDate As JObject In gameDates
@@ -265,45 +349,64 @@ Public Class ScoreboardData
 
             For Each game As JObject In games
                 Dim gamePk As String = game.SelectToken("gamePk")
-
-                Dim awayId As String = game.SelectToken("teams.away.team.id")
-                Dim homeId As String = game.SelectToken("teams.home.team.id")
-
-                ' get abbrevs
-                Dim dt As DataTable = DB.returnTeamAbbrevFromId(awayId)
-                Dim awayName As String = dt.Rows(0).Item(0)
-                dt = DB.returnTeamAbbrevFromId(homeId)
-                Dim homeName As String = dt.Rows(0).Item(0)
-
-                ' get liveData for each game
-                Dim liveData As JObject = Me.API.returnLiveFeedData(gamePk)
-
-                ' get status
-                Dim gameStatus As String = liveData.SelectToken("gameData.status.detailedState")
-                gameStatus = gameStatus.ToUpper
-
-                Dim inning As String = ""
-                Dim inningHalf As String = ""
-                Dim awayScore As String = ""
-                Dim homeScore As String = ""
-
-                If gameStatus = "IN PROGRESS" Or gameStatus = "FINAL" Or gameStatus = "COMPLETE" Or gameStatus = "GAME OVER" Then
-                    Dim lineScoreData As JObject = liveData.SelectToken("liveData.linescore")
-                    inning = lineScoreData.SelectToken("currentInning")
-                    inningHalf = lineScoreData.SelectToken("inningHalf")
-                    awayScore = lineScoreData.SelectToken("teams.away.runs")
-                    homeScore = lineScoreData.SelectToken("teams.home.runs")
-                End If
-
-                If gameStatus.ToUpper = "SCHEDULED" Or gameStatus = "WARMUP" Or gameStatus = "PRE-GAME" Then
-                    ' noop
-                End If
-
-                ' insert into database
-                Me.DB.InsertAllGamesData(gamePk, awayName, awayScore, homeName, homeScore, gameStatus.ToUpper, inning, inningHalf.ToUpper)
+                Dim oGame As Game = New Game(gamePk)
+                ListOfGames.Add(oGame)
             Next
         Next
-    End Sub
+        Return ListOfGames
+    End Function
+
+    'Sub LoadAllGamesData(gameDate As String)
+
+    '    DB.ClearAllGamesData()
+
+    '    Dim schedule As JObject = Me.API.ReturnScheduleData(gameDate)
+    '    Dim gameDates As JArray = schedule.SelectToken("dates")
+
+    '    For Each gDate As JObject In gameDates
+    '        Dim games As JArray = gDate.SelectToken("games")
+
+    '        For Each game As JObject In games
+    '            Dim gamePk As String = game.SelectToken("gamePk")
+
+    '            Dim awayId As String = game.SelectToken("teams.away.team.id")
+    '            Dim homeId As String = game.SelectToken("teams.home.team.id")
+
+    '            ' get abbrevs
+    '            Dim dt As DataTable = DB.returnTeamAbbrevFromId(awayId)
+    '            Dim awayName As String = dt.Rows(0).Item(0)
+    '            dt = DB.returnTeamAbbrevFromId(homeId)
+    '            Dim homeName As String = dt.Rows(0).Item(0)
+
+    '            ' get liveData for each game
+    '            Dim liveData As JObject = Me.API.ReturnLiveFeedData(gamePk)
+
+    '            ' get status
+    '            Dim gameStatus As String = liveData.SelectToken("gameData.status.detailedState")
+    '            gameStatus = gameStatus.ToUpper
+
+    '            Dim inning As String = ""
+    '            Dim inningHalf As String = ""
+    '            Dim awayScore As String = ""
+    '            Dim homeScore As String = ""
+
+    '            If gameStatus = "IN PROGRESS" Or gameStatus = "FINAL" Or gameStatus = "COMPLETE" Or gameStatus = "GAME OVER" Then
+    '                Dim lineScoreData As JObject = liveData.SelectToken("liveData.linescore")
+    '                inning = lineScoreData.SelectToken("currentInning")
+    '                inningHalf = lineScoreData.SelectToken("inningHalf")
+    '                awayScore = lineScoreData.SelectToken("teams.away.runs")
+    '                homeScore = lineScoreData.SelectToken("teams.home.runs")
+    '            End If
+
+    '            If gameStatus.ToUpper = "SCHEDULED" Or gameStatus = "WARMUP" Or gameStatus = "PRE-GAME" Then
+    '                ' noop
+    '            End If
+
+    '            ' insert into database
+    '            Me.DB.InsertAllGamesData(gamePk, awayName, awayScore, homeName, homeScore, gameStatus.ToUpper, inning, inningHalf.ToUpper)
+    '        Next
+    '    Next
+    'End Sub
 
     Function GetAllGamesData() As DataTable
         Dim dt As DataTable = DB.returnAllGamesData()
@@ -428,8 +531,13 @@ Public Class ScoreboardData
         Dim gameData As JObject = getGameData()
         Dim temp As String = gameData.SelectToken("weather.temp")
         Dim conditions As String = gameData.SelectToken("weather.condition")
-        Dim wind As String = gameData.SelectToken("weather.wind")
+        'Dim wind As String = gameData.SelectToken("weather.wind")
         'Return $"Weather: {temp}°F, {conditions}, wind {wind}"
-        Return $"Weather: {temp}°F, {conditions}"
+        If temp Is Nothing Or conditions Is Nothing Then
+            Return ""
+        Else
+            Return $"Weather: {temp}°F, {conditions}"
+        End If
+
     End Function
 End Class

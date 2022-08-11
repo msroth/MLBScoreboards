@@ -8,7 +8,10 @@ Public Class Team
     Private mAbbr As String
     Private mShortName As String
     Private mFullName As String
-    Private mLineup As DataTable = New DataTable("LineUp")
+    Private mWins As String
+    Private mLoses As String
+    'Private mLineup As DataTable = New DataTable("LineUp")
+    Private mLineup As List(Of Player) = New List(Of Player)
     Private mAPI As MLB_API = New MLB_API()
     Private mSBData As ScoreboardData = New ScoreboardData()
 
@@ -37,19 +40,35 @@ Public Class Team
         End Get
     End Property
 
-    Public ReadOnly Property Lineup() As DataTable
+    Public ReadOnly Property Wins() As String
+        Get
+            Return Me.mWins
+        End Get
+    End Property
+
+    Public ReadOnly Property Loses() As String
+        Get
+            Return Me.mLoses
+        End Get
+    End Property
+
+    'Public ReadOnly Property Lineup() As DataTable
+    '    Get
+    '        Return Me.mLineup
+    '    End Get
+    'End Property
+
+    Public ReadOnly Property Lineup() As List(Of Player)
         Get
             Return Me.mLineup
         End Get
     End Property
 
-
-
     Public Sub New(TeamId As Integer)
         Me.mId = TeamId
 
         ' needs to load all other data from API and JSON data
-        Dim Data As JObject = mAPI.returnAllTeamsData()
+        Dim Data As JObject = mAPI.ReturnAllTeamsData()
         Dim TeamsData As JArray = Data.SelectToken("teams")
 
         For Each Team As JObject In TeamsData
@@ -59,7 +78,7 @@ Public Class Team
                 Me.mShortName = Team.SelectToken("teamName")
                 Me.mAbbr = Team.SelectToken("abbreviation")
 
-                File.WriteAllText($"c:\\temp\\{mAbbr}-teamdata.json", TeamsData.ToString())
+                File.WriteAllText($"c:\\temp\\{mAbbr}-teamdata.json", Team.ToString())
 
                 Exit For
             End If
@@ -67,17 +86,33 @@ Public Class Team
 
     End Sub
 
+    'Public Function GetPlayerData(Id As String) As DataRow
+    '    For Each row As DataRow In mLineup.Rows()
+    '        If row("Id") = Id Then
+    '            Return row
+    '        End If
+    '    Next
+    '    Return Nothing
+    'End Function
+
+    Public Function GetPlayerData(Id As String) As Player
+        For Each Player In mLineup
+            If Player.Id() = Id Then
+                Return Player
+            End If
+        Next
+        Return Nothing
+    End Function
+
     Public Sub LoadLineupData(gamePk As Integer)
         If (gamePk = 0) Then
             Return
         End If
 
-        Dim Data As JObject = mAPI.returnLiveFeedData(gamePk)
+        Dim Data As JObject = mAPI.ReturnLiveFeedData(gamePk)
         Dim LiveData As JObject = Data.SelectToken("liveData")
         Dim LineData As JObject = LiveData.SelectToken("linescore")
         Dim BoxData As JObject = LiveData.SelectToken("boxscore")
-
-
 
         ' determine if team is away or home
         Dim AwayOrHome As String
@@ -91,45 +126,36 @@ Public Class Team
         End If
 
         ' clear roster table before update
-        'mLineup.Clear()
-        mLineup.Reset()
+        'mLineup.Reset()
+        mLineup.Clear()
 
-        ' setup columns in datatable
-        'If Not mLineup.Columns().Contains("Id") Then
-        mLineup.Columns.Add("Id")
-        'End If
-
-        'If Not mLineup.Columns().Contains("Num") Then
-        mLineup.Columns.Add("Num")
-        'End If
-
-        'If Not mLineup.Columns().Contains("Name") Then
-        mLineup.Columns.Add("Name")
-        'End If
-
-        'If Not mLineup.Columns().Contains("Position") Then
-        mLineup.Columns.Add("Position")
-        'End If
-
+        '' setup columns in datatable
+        'mLineup.Columns.Add("Id")
+        'mLineup.Columns.Add("Num")
+        'mLineup.Columns.Add("Name")
+        'mLineup.Columns.Add("Position")
 
         ' get active batters and pitchers
         Dim PlayerIds As List(Of String) = New List(Of String)
         For Each Id As String In BoxData.SelectToken($"teams.{AwayOrHome}.batters")
-            Dim row As DataRow = mLineup.NewRow()
-            row(0) = Id
+            mLineup.Add(New Player(Id))
 
-            For Each Player As JProperty In BoxData.SelectToken($"teams.{AwayOrHome}.players")
-                If Player.Value.Item("person").Item("id").ToString().Equals(Id) Then
-                    row(1) = Player.Value.Item("jerseyNumber")
-                    row(2) = Player.Value.Item("person").Item("fullName")
-                    row(3) = Player.Value.Item("position").Item("name")
+            '    Dim row As DataRow = mLineup.NewRow()
+            '    row("Id") = Id
 
-                    mLineup.Rows.Add(row)
-                    Exit For
-                End If
-            Next
+            '    For Each Player As JProperty In BoxData.SelectToken($"teams.{AwayOrHome}.players")
+            '        If Player.Value.Item("person").Item("id").ToString().Equals(Id) Then
+            '            row("Num") = Player.Value.Item("jerseyNumber")
+            '            row("Name") = Player.Value.Item("person").Item("fullName")
+            '            row("Position") = Player.Value.Item("position").Item("name")
+
+            '            mLineup.Rows.Add(row)
+            '            Exit For
+            '        End If
+            '    Next
         Next
     End Sub
+
 
     Public Function ToString() As String
         Dim sb As StringBuilder = New StringBuilder()
@@ -143,15 +169,28 @@ Public Class Team
         sb.Append(vbCr)
 
         ' flatten line up
-        If mLineup.Rows.Count > 0 Then
-            For Each row As DataRow In mLineup.Rows
-                sb.Append(row(0).ToString())
-                sb.Append(vbTab)
-                sb.Append(row(1).ToString())
-                sb.Append(vbTab)
-                sb.Append(row(2).ToString())
-                sb.Append(vbTab)
-                sb.Append(row(3).ToString())
+        'If mLineup.Rows.Count > 0 Then
+        '    For Each row As DataRow In mLineup.Rows
+        '        sb.Append(row(0).ToString())
+        '        sb.Append(vbTab)
+        '        sb.Append(row(1).ToString())
+        '        sb.Append(vbTab)
+        '        sb.Append(row(2).ToString())
+        '        sb.Append(vbTab)
+        '        sb.Append(row(3).ToString())
+        '        sb.Append(vbCr)
+        '    Next
+        'End If
+
+        If mLineup.Count > 0 Then
+            For Each Player In mLineup
+                sb.Append(Player.Id())
+                sb.Append(vbCr)
+                sb.Append(Player.Name())
+                sb.Append(vbCr)
+                sb.Append(Player.Number())
+                sb.Append(vbCr)
+                sb.Append(Player.Position())
                 sb.Append(vbCr)
             Next
         End If
@@ -159,6 +198,22 @@ Public Class Team
         Return sb.ToString()
     End Function
 
+    Function GetLinup() As DataTable
+        Dim dt As DataTable = New DataTable("Lineup")
+        dt.Columns.Add("Id")
+        dt.Columns.Add("Num")
+        dt.Columns.Add("Name")
+        dt.Columns.Add("Position")
 
+        For Each player As Player In mLineup
+            Dim row As DataRow = dt.NewRow()
+            row("Id") = player.Id()
+            row("Num") = player.Number()
+            row("name") = player.Name()
+            row("Position") = player.Position()
+            dt.Rows.Add(row)
+        Next
+        Return dt
+    End Function
 
 End Class

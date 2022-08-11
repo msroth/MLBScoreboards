@@ -11,12 +11,17 @@ Public Class Game
     Private mGameDateTime As String
     Private mVenueWeather As String
     Private mGameStatus As String
+    Private mAwaySchedPitcherId As String
+    Private mHomeSchedPitcherId As String
     Private mAwayRuns As Integer
     Private mHomeRuns As Integer
     Private mWinningTeam As Team
     Private mLosingTeam As Team
     Private mWinningPitcherId As String
     Private mLosingPitcherId As String
+    Private mCurrentInning As Integer
+    Private mCurrentInningHalf As String
+    Private mCurrentInningState As String
 
     Private mAPI As MLB_API = New MLB_API()
 
@@ -57,6 +62,18 @@ Public Class Game
         End Get
     End Property
 
+    Public ReadOnly Property AwayScheduledPitcherId() As String
+        Get
+            Return Me.mAwaySchedPitcherId
+        End Get
+    End Property
+
+    Public ReadOnly Property HomeScheduledPitcherId() As String
+        Get
+            Return Me.mHomeSchedPitcherId
+        End Get
+    End Property
+
     Public ReadOnly Property AwayRuns() As Integer
         Get
             Return Me.mAwayRuns
@@ -93,7 +110,23 @@ Public Class Game
         End Get
     End Property
 
+    Public ReadOnly Property CurrentInning() As Integer
+        Get
+            Return Me.mCurrentInning
+        End Get
+    End Property
 
+    Public ReadOnly Property CurrentInningHalf() As String
+        Get
+            Return Me.mCurrentInningHalf
+        End Get
+    End Property
+
+    Public ReadOnly Property CurrentInningState() As String
+        Get
+            Return Me.mCurrentInningState
+        End Get
+    End Property
 
 
     Public Sub New(gamePk As String)
@@ -102,7 +135,7 @@ Public Class Game
     End Sub
 
     Public Sub LoadGameData()
-        Dim Data As JObject = mAPI.returnLiveFeedData(Me.mGamePk)
+        Dim Data As JObject = mAPI.ReturnLiveFeedData(Me.mGamePk)
         Dim LiveData As JObject = Data.SelectToken("liveData")
         Dim LineData As JObject = LiveData.SelectToken("linescore")
         Dim BoxData As JObject = LiveData.SelectToken("boxscore")
@@ -128,33 +161,61 @@ Public Class Game
         ' game status
         mGameStatus = GameData.SelectToken("status.detailedState").ToString().ToUpper()
 
-        ' away runs
-        mAwayRuns = Convert.ToInt32(LineData.SelectToken("teams.away.runs").ToString())
 
-        ' home runs
-        mHomeRuns = Convert.ToInt32(LineData.SelectToken("teams.home.runs").ToString())
+        If Me.GameStatus() = "IN PROGRESS" Or Me.GameStatus().Contains("MANAGER") Or Me.GameStatus().Contains("OFFICIAL") Then
 
-        If mGameStatus = "FINAL" Or mGameStatus = "COMPLETE" Or mGameStatus = "GAME OVER" Then
+            ' away runs
+            Dim AwayRuns As String = LineData.SelectToken("teams.away.runs").ToString()
+            If Not AwayRuns.Equals(String.Empty) Then
+                mAwayRuns = Convert.ToInt32(AwayRuns)
+            Else
+                mAwayRuns = 0
+            End If
+
+            ' home runs
+            Dim HomeRuns As String = LineData.SelectToken("teams.home.runs").ToString()
+            If Not HomeRuns.Equals(String.Empty) Then
+                mHomeRuns = Convert.ToInt32(HomeRuns)
+            Else
+                mHomeRuns = 0
+            End If
+
+            ' inning data
+            mCurrentInning = LineData.SelectToken("currentInning")
+            mCurrentInningHalf = LineData.SelectToken("inningHalf").ToString().ToUpper()
+            mCurrentInningState = LineData.SelectToken("inningState").ToString().ToUpper()
+
+        End If
+
+
+        If Me.GameStatus() = "SCHEDULED" Or Me.GameStatus() = "WARMUP" Or Me.GameStatus() = "PRE-GAME" Or Me.GameStatus().StartsWith("DELAYED") Or Me.GameStatus() = "POSTPONED" Then
+
+            mAwaySchedPitcherId = GameData.SelectToken("probablePitchers.away.id")
+            mHomeSchedPitcherId = GameData.SelectToken("probablePitchers.home.id")
+
+        End If
+
+
+        If Me.GameStatus() = "FINAL" Or Me.GameStatus() = "COMPLETE" Or Me.GameStatus() = "GAME OVER" Then
+
+            ' runs
+            mAwayRuns = LineData.SelectToken("teams.away.runs")
+            mHomeRuns = LineData.SelectToken("teams.home.runs")
 
             ' winning pitcher id
-            Dim WinPitcherId As String = LiveData.SelectToken("decisions.winner.id")
+            mWinningPitcherId = LiveData.SelectToken("decisions.winner.id").ToString()
 
             ' losing pitcher id
-            Dim LosePitcherId As String = LiveData.SelectToken("decisions.loser.id")
+            mLosingPitcherId = LiveData.SelectToken("decisions.loser.id").ToString()
 
-            ' winning and losing teams
-            For Each row As DataRow In AwayTeam().Lineup().Rows()
-                If WinPitcherId = row(0) Then
-                    mWinningTeam = AwayTeam()
-                    mLosingTeam = HomeTeam()
-                    Exit For
-                End If
-            Next
-
-            If WinningTeam() Is Nothing Then
+            If Convert.ToInt32(mAwayRuns) > Convert.ToInt32(mHomeRuns) Then
+                mWinningTeam = AwayTeam()
+                mLosingTeam = HomeTeam()
+            Else
                 mWinningTeam = HomeTeam()
                 mLosingTeam = AwayTeam()
             End If
+
         End If
     End Sub
 
@@ -167,6 +228,8 @@ Public Class Game
         sb.Append($"Game Date-Time: {Me.GameDateTime()}")
         sb.Append(vbCr)
         sb.Append($"Game Status: {Me.GameStatus()}")
+        sb.Append(vbCr)
+        sb.Append($"Inning: {Me.CurrentInningHalf()} {Me.CurrentInning()}")
         sb.Append(vbCr)
         sb.Append($"Venue Weather: {Me.VenueWeather()}")
         sb.Append(vbCr)

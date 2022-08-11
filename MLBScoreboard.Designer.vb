@@ -37,6 +37,10 @@ Partial Class MLBScoreboard
         Me.QuitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ViewToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.PitcherStatsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.PlayerStatsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripSeparator1 = New System.Windows.Forms.ToolStripSeparator()
+        Me.MLBNewsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.TeamNewsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AboutToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
         Me.calDatePicker = New System.Windows.Forms.DateTimePicker()
         Me.dgvInnings = New System.Windows.Forms.DataGridView()
@@ -59,6 +63,10 @@ Partial Class MLBScoreboard
         Me.lblWeather = New System.Windows.Forms.Label()
         Me.imgAwayLogo = New System.Windows.Forms.PictureBox()
         Me.imgHomeLogo = New System.Windows.Forms.PictureBox()
+        Me.lblAwayWinnerLoser = New System.Windows.Forms.Label()
+        Me.lblHomeWinnerLoser = New System.Windows.Forms.Label()
+        Me.PlayRecapToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripSeparator2 = New System.Windows.Forms.ToolStripSeparator()
         Me.StatusStrip1.SuspendLayout()
         Me.MenuStrip1.SuspendLayout()
         CType(Me.dgvInnings, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -119,7 +127,7 @@ Partial Class MLBScoreboard
         '
         'ViewToolStripMenuItem
         '
-        Me.ViewToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.PitcherStatsToolStripMenuItem})
+        Me.ViewToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.PitcherStatsToolStripMenuItem, Me.PlayerStatsToolStripMenuItem, Me.ToolStripSeparator1, Me.MLBNewsToolStripMenuItem, Me.TeamNewsToolStripMenuItem, Me.ToolStripSeparator2, Me.PlayRecapToolStripMenuItem})
         Me.ViewToolStripMenuItem.Name = "ViewToolStripMenuItem"
         Me.ViewToolStripMenuItem.Size = New System.Drawing.Size(55, 24)
         Me.ViewToolStripMenuItem.Text = "View"
@@ -127,8 +135,31 @@ Partial Class MLBScoreboard
         'PitcherStatsToolStripMenuItem
         '
         Me.PitcherStatsToolStripMenuItem.Name = "PitcherStatsToolStripMenuItem"
-        Me.PitcherStatsToolStripMenuItem.Size = New System.Drawing.Size(224, 26)
+        Me.PitcherStatsToolStripMenuItem.Size = New System.Drawing.Size(173, 26)
         Me.PitcherStatsToolStripMenuItem.Text = "Pitcher Stats"
+        '
+        'PlayerStatsToolStripMenuItem
+        '
+        Me.PlayerStatsToolStripMenuItem.Name = "PlayerStatsToolStripMenuItem"
+        Me.PlayerStatsToolStripMenuItem.Size = New System.Drawing.Size(173, 26)
+        Me.PlayerStatsToolStripMenuItem.Text = "Player Stats"
+        '
+        'ToolStripSeparator1
+        '
+        Me.ToolStripSeparator1.Name = "ToolStripSeparator1"
+        Me.ToolStripSeparator1.Size = New System.Drawing.Size(170, 6)
+        '
+        'MLBNewsToolStripMenuItem
+        '
+        Me.MLBNewsToolStripMenuItem.Name = "MLBNewsToolStripMenuItem"
+        Me.MLBNewsToolStripMenuItem.Size = New System.Drawing.Size(173, 26)
+        Me.MLBNewsToolStripMenuItem.Text = "MLB News"
+        '
+        'TeamNewsToolStripMenuItem
+        '
+        Me.TeamNewsToolStripMenuItem.Name = "TeamNewsToolStripMenuItem"
+        Me.TeamNewsToolStripMenuItem.Size = New System.Drawing.Size(173, 26)
+        Me.TeamNewsToolStripMenuItem.Text = "Team News"
         '
         'AboutToolStripMenuItem1
         '
@@ -173,8 +204,7 @@ Partial Class MLBScoreboard
         DataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
         Me.dgvInnings.DefaultCellStyle = DataGridViewCellStyle2
         Me.dgvInnings.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
-        Me.dgvInnings.Enabled = False
-        Me.dgvInnings.Location = New System.Drawing.Point(474, 246)
+        Me.dgvInnings.Location = New System.Drawing.Point(474, 257)
         Me.dgvInnings.MultiSelect = False
         Me.dgvInnings.Name = "dgvInnings"
         Me.dgvInnings.ReadOnly = True
@@ -469,6 +499,41 @@ Partial Class MLBScoreboard
         Me.imgHomeLogo.TabIndex = 33
         Me.imgHomeLogo.TabStop = False
         '
+        'lblAwayWinnerLoser
+        '
+        Me.lblAwayWinnerLoser.AutoSize = True
+        Me.lblAwayWinnerLoser.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
+        Me.lblAwayWinnerLoser.ForeColor = System.Drawing.SystemColors.ControlLightLight
+        Me.lblAwayWinnerLoser.Location = New System.Drawing.Point(474, 220)
+        Me.lblAwayWinnerLoser.Name = "lblAwayWinnerLoser"
+        Me.lblAwayWinnerLoser.Size = New System.Drawing.Size(110, 18)
+        Me.lblAwayWinnerLoser.TabIndex = 34
+        Me.lblAwayWinnerLoser.Text = "Winner-Loser"
+        Me.lblAwayWinnerLoser.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'lblHomeWinnerLoser
+        '
+        Me.lblHomeWinnerLoser.AutoSize = True
+        Me.lblHomeWinnerLoser.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
+        Me.lblHomeWinnerLoser.ForeColor = System.Drawing.SystemColors.ControlLightLight
+        Me.lblHomeWinnerLoser.Location = New System.Drawing.Point(1039, 220)
+        Me.lblHomeWinnerLoser.Name = "lblHomeWinnerLoser"
+        Me.lblHomeWinnerLoser.Size = New System.Drawing.Size(110, 18)
+        Me.lblHomeWinnerLoser.TabIndex = 35
+        Me.lblHomeWinnerLoser.Text = "Winner-Loser"
+        Me.lblHomeWinnerLoser.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'PlayRecapToolStripMenuItem
+        '
+        Me.PlayRecapToolStripMenuItem.Name = "PlayRecapToolStripMenuItem"
+        Me.PlayRecapToolStripMenuItem.Size = New System.Drawing.Size(173, 26)
+        Me.PlayRecapToolStripMenuItem.Text = "Play Recap"
+        '
+        'ToolStripSeparator2
+        '
+        Me.ToolStripSeparator2.Name = "ToolStripSeparator2"
+        Me.ToolStripSeparator2.Size = New System.Drawing.Size(170, 6)
+        '
         'MLBScoreboard
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 20.0!)
@@ -476,6 +541,8 @@ Partial Class MLBScoreboard
         Me.BackColor = System.Drawing.Color.Green
         Me.CausesValidation = False
         Me.ClientSize = New System.Drawing.Size(1765, 689)
+        Me.Controls.Add(Me.lblHomeWinnerLoser)
+        Me.Controls.Add(Me.lblAwayWinnerLoser)
         Me.Controls.Add(Me.imgHomeLogo)
         Me.Controls.Add(Me.imgAwayLogo)
         Me.Controls.Add(Me.lblWeather)
@@ -547,4 +614,12 @@ Partial Class MLBScoreboard
     Friend WithEvents PitcherStatsToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents imgAwayLogo As PictureBox
     Friend WithEvents imgHomeLogo As PictureBox
+    Friend WithEvents PlayerStatsToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents ToolStripSeparator1 As ToolStripSeparator
+    Friend WithEvents MLBNewsToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents TeamNewsToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents lblAwayWinnerLoser As Label
+    Friend WithEvents lblHomeWinnerLoser As Label
+    Friend WithEvents ToolStripSeparator2 As ToolStripSeparator
+    Friend WithEvents PlayRecapToolStripMenuItem As ToolStripMenuItem
 End Class

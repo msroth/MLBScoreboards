@@ -9,8 +9,8 @@ Public Class Database
     Public Sub New()
 
         ' create connections
-        'Me.conn = New SQLiteConnection("Data Source=:memory:;Version=3;")
-        Me.conn = New SQLiteConnection("Data Source=scoreboard.db;Version=3;")
+        Me.conn = New SQLiteConnection("Data Source=:memory:;Version=3;")
+        'Me.conn = New SQLiteConnection("Data Source=scoreboard.db;Version=3;")
         Me.conn.Open()
 
         ' create tables
