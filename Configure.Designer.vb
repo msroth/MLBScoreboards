@@ -34,7 +34,7 @@ Partial Class Configure
         'numUpdateTime
         '
         Me.numUpdateTime.Location = New System.Drawing.Point(246, 47)
-        Me.numUpdateTime.Maximum = New Decimal(New Integer() {90, 0, 0, 0})
+        Me.numUpdateTime.Maximum = New Decimal(New Integer() {300, 0, 0, 0})
         Me.numUpdateTime.Minimum = New Decimal(New Integer() {15, 0, 0, 0})
         Me.numUpdateTime.Name = "numUpdateTime"
         Me.numUpdateTime.Size = New System.Drawing.Size(74, 27)
@@ -64,7 +64,7 @@ Partial Class Configure
         Me.cbxTeams.FormattingEnabled = True
         Me.cbxTeams.Location = New System.Drawing.Point(246, 91)
         Me.cbxTeams.Name = "cbxTeams"
-        Me.cbxTeams.Size = New System.Drawing.Size(151, 28)
+        Me.cbxTeams.Size = New System.Drawing.Size(238, 28)
         Me.cbxTeams.TabIndex = 5
         '
         'btnSave

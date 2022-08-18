@@ -13,8 +13,8 @@ Public Class Game
     Private mGameStatus As String
     Private mAwaySchedPitcherId As String
     Private mHomeSchedPitcherId As String
-    Private mAwayRuns As Integer
-    Private mHomeRuns As Integer
+    Private mAwayTeamRuns As Integer
+    Private mHomeTeamRuns As Integer
     Private mWinningTeam As Team
     Private mLosingTeam As Team
     Private mWinningPitcherId As String
@@ -22,7 +22,13 @@ Public Class Game
     Private mCurrentInning As Integer
     Private mCurrentInningHalf As String
     Private mCurrentInningState As String
-
+    Private mInnings As DataTable
+    Private mRHE As DataTable
+    Private mData As JObject
+    Private mLiveData As JObject
+    Private mLineData As JObject
+    Private mBoxData As JObject
+    Private mGameData As JObject
     Private mAPI As MLB_API = New MLB_API()
 
 
@@ -74,15 +80,15 @@ Public Class Game
         End Get
     End Property
 
-    Public ReadOnly Property AwayRuns() As Integer
+    Public ReadOnly Property AwayTeamRuns() As Integer
         Get
-            Return Me.mAwayRuns
+            Return Me.mAwayTeamRuns
         End Get
     End Property
 
-    Public ReadOnly Property HomeRuns() As Integer
+    Public ReadOnly Property HomeTeamRuns() As Integer
         Get
-            Return Me.mHomeRuns
+            Return Me.mHomeTeamRuns
         End Get
     End Property
 
@@ -128,92 +134,163 @@ Public Class Game
         End Get
     End Property
 
+    Public ReadOnly Property Innings() As DataTable
+        Get
+            Dim dt As DataTable = Me.mInnings
+            For Each col As DataColumn In Me.mRHE.Columns
+                If Not dt.Columns.Contains(col.ColumnName) Then
+                    Dim RHEcol As DataColumn = New DataColumn()
+                    RHEcol.ColumnName = col.ColumnName
+                    dt.Columns.Add(RHEcol)
+                End If
+
+                For Each row As DataRow In Me.mRHE.Rows
+                    dt.Rows(0).Item(col.ColumnName) = mRHE.Rows(0).Item(col.ColumnName).ToString()
+                    dt.Rows(1).Item(col.ColumnName) = mRHE.Rows(1).Item(col.ColumnName).ToString()
+                Next
+            Next
+            Return dt
+        End Get
+    End Property
+
+    Public ReadOnly Property RHE() As DataTable
+        Get
+            Return Me.mRHE
+        End Get
+    End Property
+
+    Public ReadOnly Property Data As JObject
+        Get
+            Return Me.mData
+        End Get
+    End Property
+
+    Public ReadOnly Property LiveData As JObject
+        Get
+            Return Me.mLiveData
+        End Get
+    End Property
+
+    Public ReadOnly Property LineScoreData As JObject
+        Get
+            Return Me.mLineData
+        End Get
+    End Property
+
+    Public ReadOnly Property BoxScoreData As JObject
+        Get
+            Return Me.mBoxData
+        End Get
+    End Property
+
+    Public ReadOnly Property GameData As JObject
+        Get
+            Return Me.mGameData
+        End Get
+    End Property
 
     Public Sub New(gamePk As String)
         Me.mGamePk = Convert.ToInt32(gamePk)
         LoadGameData()
     End Sub
 
-    Public Sub LoadGameData()
-        Dim Data As JObject = mAPI.ReturnLiveFeedData(Me.mGamePk)
-        Dim LiveData As JObject = Data.SelectToken("liveData")
-        Dim LineData As JObject = LiveData.SelectToken("linescore")
-        Dim BoxData As JObject = LiveData.SelectToken("boxscore")
-        Dim GameData As JObject = Data.SelectToken("gameData")
+    Public Sub RefreshMLBData()
+        mData = mAPI.ReturnLiveFeedData(Me.mGamePk)
+        mLiveData = mData.SelectToken("liveData")
+        mLineData = mLiveData.SelectToken("linescore")
+        mBoxData = mLiveData.SelectToken("boxscore")
+        mGameData = mData.SelectToken("gameData")
+    End Sub
 
-        File.WriteAllText($"c:\\temp\\{Me.GamePk()}-gamedata.json", GameData.ToString())
-        File.WriteAllText($"c:\\temp\\{Me.GamePk()}-livedata.json", LiveData.ToString())
-        File.WriteAllText($"c:\\temp\\{Me.GamePk()}-linescoredata.json", LineData.ToString())
-        File.WriteAllText($"c:\\temp\\{Me.GamePk()}-boxscoredata.json", BoxData.ToString())
+    Public Sub LoadGameData()
+
+        RefreshMLBData()
+        File.WriteAllText($"c:\\temp\\{Me.GamePk()}-gamedata.json", mData.ToString())
 
         ' get teams
-        mAwayTeam = New Team(Convert.ToInt32(BoxData.SelectToken("teams.away.team.id")))
-        mHomeTeam = New Team(Convert.ToInt32(BoxData.SelectToken("teams.home.team.id")))
+        Me.mAwayTeam = New Team(Convert.ToInt32(mBoxData.SelectToken("teams.away.team.id")))
+        Me.mHomeTeam = New Team(Convert.ToInt32(mBoxData.SelectToken("teams.home.team.id")))
+
+        ' set teams win/loss record
+        ' TODO this should be done in the Team object but need to do it without another API call
+        Me.mAwayTeam.Wins = mGameData.SelectToken("teams.away.record.wins")
+        Me.mAwayTeam.Loses = mGameData.SelectToken("teams.away.record.losses")
+        Me.mHomeTeam.Wins = mGameData.SelectToken("teams.home.record.wins")
+        Me.mHomeTeam.Loses = mGameData.SelectToken("teams.home.record.losses")
 
         ' game date and time
-        mGameDateTime = GameData.SelectToken("datetime.time").ToString() + GameData.SelectToken("datetime.ampm").ToString()
+        Me.mGameDateTime = mGameData.SelectToken("datetime.time").ToString() + mGameData.SelectToken("datetime.ampm").ToString()
 
         ' venue weather
-        Dim temp As String = GameData.SelectToken("weather.temp")
-        Dim conditions As String = GameData.SelectToken("weather.condition")
-        mVenueWeather = $"Weather: {temp}°F, {conditions}"
+        Me.mVenueWeather = $"Weather: {mGameData.SelectToken("weather.temp")}°F, {mGameData.SelectToken("weather.condition")}"
 
         ' game status
-        mGameStatus = GameData.SelectToken("status.detailedState").ToString().ToUpper()
+        Me.mGameStatus = mGameData.SelectToken("status.detailedState").ToString().ToUpper()
 
+        ' load innings
+        Me.LoadInnings()
 
-        If Me.GameStatus() = "IN PROGRESS" Or Me.GameStatus().Contains("MANAGER") Or Me.GameStatus().Contains("OFFICIAL") Then
+        ' load RHE table
+        Me.LoadRHE()
+
+        If Me.GameStatus() = "IN PROGRESS" Or
+            Me.GameStatus().Contains("MANAGER") Or
+            Me.GameStatus().Contains("OFFICIAL") Then
 
             ' away runs
-            Dim AwayRuns As String = LineData.SelectToken("teams.away.runs").ToString()
+            Dim AwayRuns As String = mLineData.SelectToken("teams.away.runs").ToString()
             If Not AwayRuns.Equals(String.Empty) Then
-                mAwayRuns = Convert.ToInt32(AwayRuns)
+                Me.mAwayTeamRuns = Convert.ToInt32(AwayRuns)
             Else
-                mAwayRuns = 0
+                Me.mAwayTeamRuns = 0
             End If
 
             ' home runs
-            Dim HomeRuns As String = LineData.SelectToken("teams.home.runs").ToString()
+            Dim HomeRuns As String = mLineData.SelectToken("teams.home.runs").ToString()
             If Not HomeRuns.Equals(String.Empty) Then
-                mHomeRuns = Convert.ToInt32(HomeRuns)
+                Me.mHomeTeamRuns = Convert.ToInt32(HomeRuns)
             Else
-                mHomeRuns = 0
+                Me.mHomeTeamRuns = 0
             End If
 
             ' inning data
-            mCurrentInning = LineData.SelectToken("currentInning")
-            mCurrentInningHalf = LineData.SelectToken("inningHalf").ToString().ToUpper()
-            mCurrentInningState = LineData.SelectToken("inningState").ToString().ToUpper()
-
+            Me.mCurrentInning = mLineData.SelectToken("currentInning")
+            Me.mCurrentInningHalf = mLineData.SelectToken("inningHalf").ToString().ToUpper()
+            Me.mCurrentInningState = mLineData.SelectToken("inningState").ToString().ToUpper()
         End If
 
 
-        If Me.GameStatus() = "SCHEDULED" Or Me.GameStatus() = "WARMUP" Or Me.GameStatus() = "PRE-GAME" Or Me.GameStatus().StartsWith("DELAYED") Or Me.GameStatus() = "POSTPONED" Then
+        If Me.GameStatus() = "SCHEDULED" Or
+            Me.GameStatus() = "WARMUP" Or
+            Me.GameStatus() = "PRE-GAME" Or
+            Me.GameStatus().StartsWith("DELAYED") Or
+            Me.GameStatus() = "POSTPONED" Then
 
-            mAwaySchedPitcherId = GameData.SelectToken("probablePitchers.away.id")
-            mHomeSchedPitcherId = GameData.SelectToken("probablePitchers.home.id")
-
+            Me.mAwaySchedPitcherId = mGameData.SelectToken("probablePitchers.away.id")
+            Me.mHomeSchedPitcherId = mGameData.SelectToken("probablePitchers.home.id")
         End If
 
 
-        If Me.GameStatus() = "FINAL" Or Me.GameStatus() = "COMPLETE" Or Me.GameStatus() = "GAME OVER" Then
+        If Me.GameStatus() = "FINAL" Or
+            Me.GameStatus() = "COMPLETE" Or
+            Me.GameStatus() = "GAME OVER" Then
 
             ' runs
-            mAwayRuns = LineData.SelectToken("teams.away.runs")
-            mHomeRuns = LineData.SelectToken("teams.home.runs")
+            Me.mAwayTeamRuns = mLineData.SelectToken("teams.away.runs")
+            Me.mHomeTeamRuns = mLineData.SelectToken("teams.home.runs")
 
             ' winning pitcher id
-            mWinningPitcherId = LiveData.SelectToken("decisions.winner.id").ToString()
+            Me.mWinningPitcherId = mLiveData.SelectToken("decisions.winner.id").ToString()
 
             ' losing pitcher id
-            mLosingPitcherId = LiveData.SelectToken("decisions.loser.id").ToString()
+            Me.mLosingPitcherId = mLiveData.SelectToken("decisions.loser.id").ToString()
 
-            If Convert.ToInt32(mAwayRuns) > Convert.ToInt32(mHomeRuns) Then
-                mWinningTeam = AwayTeam()
-                mLosingTeam = HomeTeam()
+            If Convert.ToInt32(mAwayTeamRuns) > Convert.ToInt32(mHomeTeamRuns) Then
+                Me.mWinningTeam = AwayTeam()
+                Me.mLosingTeam = HomeTeam()
             Else
-                mWinningTeam = HomeTeam()
-                mLosingTeam = AwayTeam()
+                Me.mWinningTeam = HomeTeam()
+                Me.mLosingTeam = AwayTeam()
             End If
 
         End If
@@ -233,9 +310,9 @@ Public Class Game
         sb.Append(vbCr)
         sb.Append($"Venue Weather: {Me.VenueWeather()}")
         sb.Append(vbCr)
-        sb.Append($"Away Team: {Me.AwayTeam().FullName()} - {Me.HomeRuns()} runs")
+        sb.Append($"Away Team: {Me.AwayTeam().FullName()} - {Me.HomeTeamRuns()} runs")
         sb.Append(vbCr)
-        sb.Append($"Home Team: {Me.HomeTeam().FullName()} - {Me.AwayRuns()} runs")
+        sb.Append($"Home Team: {Me.HomeTeam().FullName()} - {Me.AwayTeamRuns()} runs")
         sb.Append(vbCr)
         If Not Me.WinningTeam() Is Nothing Then
             sb.Append($"Winning Team: {Me.WinningTeam().ShortName()}")
@@ -247,5 +324,92 @@ Public Class Game
         Return sb.ToString()
 
     End Function
+
+    Private Sub LoadInnings()
+
+        Me.mInnings = New DataTable("Innings")
+
+        ' add rows for away and home lines
+        Me.mInnings.Rows.Add()
+        Me.mInnings.Rows.Add()
+
+        ' add column for team name and record
+        Dim col As DataColumn = New DataColumn()
+        col.ColumnName = ""
+        Me.mInnings.Columns.Add(col)
+
+        Dim awayNameAndRecord As String = String.Format("{0} ({1}-{2})", Me.AwayTeam.Abbr, Me.AwayTeam.Wins, Me.AwayTeam.Loses)
+        Me.mInnings.Rows(0).Item(0) = awayNameAndRecord
+        Dim homeNameAndRecord As String = String.Format("{0} ({1}-{2})", Me.HomeTeam.Abbr, Me.HomeTeam.Wins, Me.HomeTeam.Loses)
+        Me.mInnings.Rows(1).Item(0) = homeNameAndRecord
+
+        ' fill innings
+        Dim innings As JArray = Me.mLineData.SelectToken("innings")
+        Dim inningCount As Integer = 0
+        For Each inning As JObject In innings
+
+            ' create a column for inning
+            col = New DataColumn()
+            col.ColumnName = inning.SelectToken("num")
+            Me.mInnings.Columns.Add(col)
+            inningCount += 1
+
+            ' away data
+            Dim runs As String = inning.SelectToken("away.runs")
+            If runs Is Nothing Then
+                runs = " "
+            End If
+            Me.mInnings.Rows(0).Item(Integer.Parse(inning.SelectToken("num"))) = runs
+
+            ' home data
+            runs = inning.SelectToken("home.runs")
+            If runs Is Nothing Then
+                runs = " "
+            End If
+            Me.mInnings.Rows(1).Item(Integer.Parse(inning.SelectToken("num"))) = runs
+        Next
+
+        ' fill in remaining empty columns for unplayed innings
+        If inningCount < 9 Then
+            For i As Integer = inningCount + 1 To 9
+                col = New DataColumn()
+                col.ColumnName = i
+                Me.mInnings.Columns.Add(col)
+            Next
+        End If
+
+    End Sub
+
+    Private Sub LoadRHE()
+
+        Me.mRHE = New DataTable("RHE")
+        ' add rows for away and home lines
+        Me.mRHE.Rows.Add()
+        Me.mRHE.Rows.Add()
+
+        Dim RHE() As String = {"R", "H", "E"}
+        For Each stat As String In RHE
+            Dim col = New DataColumn()
+            col.ColumnName = stat
+            Me.mRHE.Columns.Add(col)
+        Next
+
+        ' fill R-H-E columns
+        If Me.GameStatus() = "IN PROGRESS" Or
+            Me.GameStatus() = "FINAL" Or
+            Me.GameStatus() = "COMPLETE" Or
+            Me.GameStatus() = "GAME OVER" Or
+            Me.GameStatus().Contains("MANAGER") Or
+            Me.GameStatus().Contains("OFFICIAL") Then
+            Me.mRHE.Rows(0).Item("R") = Me.mLineData.SelectToken("teams.away.runs").ToString()
+            Me.mRHE.Rows(0).Item("H") = Me.mLineData.SelectToken("teams.away.hits").ToString()
+            Me.mRHE.Rows(0).Item("E") = Me.mLineData.SelectToken("teams.away.errors").ToString()
+
+            Me.mRHE.Rows(1).Item("R") = Me.mLineData.SelectToken("teams.home.runs").ToString()
+            Me.mRHE.Rows(1).Item("H") = Me.mLineData.SelectToken("teams.home.hits").ToString()
+            Me.mRHE.Rows(1).Item("E") = Me.mLineData.SelectToken("teams.home.errors").ToString()
+        End If
+
+    End Sub
 
 End Class

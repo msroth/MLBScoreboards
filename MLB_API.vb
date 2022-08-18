@@ -7,7 +7,7 @@ Imports Newtonsoft.Json.Linq
 
 Public Class MLB_API
 
-    Private API_BASE_URL As String = "http://statsapi.mlb.com/api"
+    Private API_BASE_URL As String = "https://statsapi.mlb.com/api"
     Private API_LIVEFEED_URL As String = API_BASE_URL + "/v1.1/game/{0}/feed/live"
     Private API_ALL_TEAMS_URL As String = API_BASE_URL + "/v1/teams?sportId=1&activeStatus=ACTIVE"
     Private API_TEAM_URL As String = API_ALL_TEAMS_URL + "/v1/teams/{0}"
@@ -16,12 +16,12 @@ Public Class MLB_API
     Private API_SINGLE_PERSON_DATA_URL = API_BASE_URL + "/v1/people/{0}"
     Private API_PERSON_STATS_URL = API_BASE_URL + "/v1/people/{0}/stats/game/{1}"
 
-    Shared ReadOnly WebClient As HttpClient = New HttpClient()
+    Shared client As HttpClient = New HttpClient()
 
     'Private Async Function GetData(url As String) As Task(Of String)
     '    Dim responseBody As String = "No Data"
     '    Try
-    '        responseBody = Await WebClient.GetStringAsync(url)
+    '        responseBody = Await client.GetStringAsync(url)
     '        Trace.WriteLine(responseBody)
     '    Catch e As HttpRequestException
     '        Trace.WriteLine(Environment.NewLine & "Exception Caught!")
@@ -56,6 +56,34 @@ Public Class MLB_API
     '    Dim json As JObject = JObject.Parse(r)
     '    Return json
     'End Function
+
+    'Async Function ReturnMultiplePlayerData(PlayerIds As List(Of String)) As Task(Of JObject)
+    '    Dim ids As String = ""
+    '    For Each id As String In PlayerIds
+    '        id += id + ","
+    '    Next
+    '    ids = ids.Substring(1, ids.Length - 1)
+    '    Dim url As String = String.Format(API_MULTIPLE_PERSON_DATA_URL, ids)
+    '    Dim r As String = Await GetData(url)
+    '    Dim json As JObject = JObject.Parse(r)
+    '    Return json
+    'End Function
+
+    'Async Function ReturnPlayerData(PlayerId As String) As Task(Of JObject)
+    '    Dim url As String = String.Format(API_SINGLE_PERSON_DATA_URL, PlayerId)
+    '    Dim r As String = Await GetData(url)
+    '    Dim json As JObject = JObject.Parse(r)
+    '    Return json
+    'End Function
+
+    'Async Function ReturnPlayerStats(PlayerId As String, GamePk As String) As Task(Of JObject)
+    '    Dim url As String = String.Format(API_PERSON_STATS_URL, PlayerId, GamePk)
+    '    Dim r As String = Await GetData(url)
+    '    Dim json As JObject = JObject.Parse(r)
+    '    Return json
+    'End Function
+
+    ' ========================
 
     Function GetData(url)
         Dim result As String = ""
@@ -118,4 +146,6 @@ Public Class MLB_API
         Dim json As JObject = JObject.Parse(r)
         Return json
     End Function
+
+
 End Class

@@ -10,10 +10,9 @@ Public Class Team
     Private mFullName As String
     Private mWins As String
     Private mLoses As String
-    'Private mLineup As DataTable = New DataTable("LineUp")
     Private mLineup As List(Of Player) = New List(Of Player)
     Private mAPI As MLB_API = New MLB_API()
-    Private mSBData As ScoreboardData = New ScoreboardData()
+    'Private mSBData As ScoreboardData = New ScoreboardData()
 
 
     Public ReadOnly Property Id() As Integer
@@ -40,23 +39,23 @@ Public Class Team
         End Get
     End Property
 
-    Public ReadOnly Property Wins() As String
+    Public Property Wins() As String
+        Set(wins As String)
+            Me.mWins = wins
+        End Set
         Get
             Return Me.mWins
         End Get
     End Property
 
-    Public ReadOnly Property Loses() As String
+    Public Property Loses() As String
+        Set(loses As String)
+            Me.mLoses = loses
+        End Set
         Get
             Return Me.mLoses
         End Get
     End Property
-
-    'Public ReadOnly Property Lineup() As DataTable
-    '    Get
-    '        Return Me.mLineup
-    '    End Get
-    'End Property
 
     Public ReadOnly Property Lineup() As List(Of Player)
         Get
@@ -83,21 +82,11 @@ Public Class Team
                 Exit For
             End If
         Next
-
     End Sub
-
-    'Public Function GetPlayerData(Id As String) As DataRow
-    '    For Each row As DataRow In mLineup.Rows()
-    '        If row("Id") = Id Then
-    '            Return row
-    '        End If
-    '    Next
-    '    Return Nothing
-    'End Function
 
     Public Function GetPlayerData(Id As String) As Player
         For Each Player In mLineup
-            If Player.Id() = Id Then
+            If Convert.ToInt32(Player.Id()) = Convert.ToInt32(Id) Then
                 Return Player
             End If
         Next
@@ -116,8 +105,6 @@ Public Class Team
 
         ' determine if team is away or home
         Dim AwayOrHome As String
-
-        ' test team ids
         Dim awayId As String = BoxData.SelectToken("teams.away.team.id")
         If Convert.ToInt32(awayId) = Me.Id() Then
             AwayOrHome = "away"
@@ -125,40 +112,31 @@ Public Class Team
             AwayOrHome = "home"
         End If
 
-        ' clear roster table before update
-        'mLineup.Reset()
+        ' clear line up list before update
         mLineup.Clear()
 
-        '' setup columns in datatable
-        'mLineup.Columns.Add("Id")
-        'mLineup.Columns.Add("Num")
-        'mLineup.Columns.Add("Name")
-        'mLineup.Columns.Add("Position")
-
-        ' get active batters and pitchers
-        Dim PlayerIds As List(Of String) = New List(Of String)
+        ' get active batters and pitchers for game
         For Each Id As String In BoxData.SelectToken($"teams.{AwayOrHome}.batters")
-            mLineup.Add(New Player(Id))
 
-            '    Dim row As DataRow = mLineup.NewRow()
-            '    row("Id") = Id
+            ' use boxscore data to create Player objects
+            For Each Player As JProperty In BoxData.SelectToken($"teams.{AwayOrHome}.players")
+                If Player.Value.Item("person").Item("id").ToString().Equals(Id) Then
+                    Dim pNum As String = Player.Value.Item("jerseyNumber")
+                    Dim pName As String = Player.Value.Item("person").Item("fullName")
+                    pName = pName.Substring(pName.LastIndexOf(" ") + 1) + ", " + pName.Substring(0, 1)
+                    Dim pPosition As String = Player.Value.Item("position").Item("abbreviation")
 
-            '    For Each Player As JProperty In BoxData.SelectToken($"teams.{AwayOrHome}.players")
-            '        If Player.Value.Item("person").Item("id").ToString().Equals(Id) Then
-            '            row("Num") = Player.Value.Item("jerseyNumber")
-            '            row("Name") = Player.Value.Item("person").Item("fullName")
-            '            row("Position") = Player.Value.Item("position").Item("name")
-
-            '            mLineup.Rows.Add(row)
-            '            Exit For
-            '        End If
-            '    Next
+                    mLineup.Add(New Player(Id, pNum, pName, pPosition))
+                    Exit For
+                End If
+            Next
         Next
     End Sub
 
 
     Public Function ToString() As String
         Dim sb As StringBuilder = New StringBuilder()
+        sb.Append(vbCr)
         sb.Append($"Team Id: {Me.Id()}")
         sb.Append(vbCr)
         sb.Append($"Team Full Name: {Me.FullName()}")
@@ -167,34 +145,21 @@ Public Class Team
         sb.Append(vbCr)
         sb.Append($"Team Abbr: {Me.Abbr()}")
         sb.Append(vbCr)
-
-        ' flatten line up
-        'If mLineup.Rows.Count > 0 Then
-        '    For Each row As DataRow In mLineup.Rows
-        '        sb.Append(row(0).ToString())
-        '        sb.Append(vbTab)
-        '        sb.Append(row(1).ToString())
-        '        sb.Append(vbTab)
-        '        sb.Append(row(2).ToString())
-        '        sb.Append(vbTab)
-        '        sb.Append(row(3).ToString())
-        '        sb.Append(vbCr)
-        '    Next
-        'End If
-
+        sb.Append("Players:")
+        sb.Append(vbCr)
         If mLineup.Count > 0 Then
             For Each Player In mLineup
+                sb.Append(vbTab)
                 sb.Append(Player.Id())
-                sb.Append(vbCr)
+                sb.Append(vbTab)
                 sb.Append(Player.Name())
-                sb.Append(vbCr)
+                sb.Append(vbTab)
                 sb.Append(Player.Number())
-                sb.Append(vbCr)
+                sb.Append(vbTab)
                 sb.Append(Player.Position())
                 sb.Append(vbCr)
             Next
         End If
-
         Return sb.ToString()
     End Function
 
@@ -209,7 +174,7 @@ Public Class Team
             Dim row As DataRow = dt.NewRow()
             row("Id") = player.Id()
             row("Num") = player.Number()
-            row("name") = player.Name()
+            row("Name") = player.Name()
             row("Position") = player.Position()
             dt.Rows.Add(row)
         Next

@@ -1,28 +1,55 @@
 ﻿Public Class Configure
-    Private SBData As ScoreboardData = New ScoreboardData()
-    Private Props As Properties = SBData.getProperties()
+    Private mSBData As ScoreboardData = New ScoreboardData()
+    Private mProps As Properties = mSBData.getProperties()
+    Private mAllTeams As List(Of Team)
+
+    Public Property AllTeams() As List(Of Team)
+        Set(teams As List(Of Team))
+            Me.mAllTeams = teams
+        End Set
+        Get
+            Return Me.mAllTeams
+        End Get
+    End Property
+
 
     Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
         Close()
     End Sub
 
     Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
-        Props.Add(Props.TIMER_KEY, numUpdateTime.Value.ToString())
-        Props.Add(Props.FAVORITE_TEAM_KEY, cbxTeams.SelectedValue.ToString())
-        Props.Write()
+        mProps.Add(mProps.TIMER_KEY, numUpdateTime.Value.ToString())
+        mProps.Add(mProps.FAVORITE_TEAM_KEY, cbxTeams.SelectedValue.ToString())
+        mProps.Write()
         Close()
     End Sub
 
     Private Sub Configure_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LoadTeamsComboBox()
-        numUpdateTime.Value = Convert.ToInt32(Props.GetProperty(Props.TIMER_KEY, "15"))
-        cbxTeams.Text = Props.GetProperty(Props.FAVORITE_TEAM_KEY)
+        numUpdateTime.Value = Convert.ToInt32(mProps.GetProperty(mProps.TIMER_KEY, "15"))
+        cbxTeams.SelectedValue = mProps.GetProperty(mProps.FAVORITE_TEAM_KEY)
+        'Dim dt As DataTable = cbxTeams.DataSource
+        'For i As Integer = 0 To dt.Rows.Count - 1
+        '    If dt.Rows(i)(cbxTeams.ValueMember) = mProps.GetProperty(mProps.FAVORITE_TEAM_KEY) Then
+        '        cbxTeams.SelectedIndex = i
+        '        Exit For
+        '    End If
+        'Next
+        ' cbxTeams.Text = mProps.GetProperty(mProps.FAVORITE_TEAM_KEY)
     End Sub
 
     Private Sub LoadTeamsComboBox()
-        Dim dt As DataTable = SBData.getAllTeamAbbrevs()
+        'Dim dt As DataTable = mSBData.getAllTeamAbbrevs()
+        Dim dt As DataTable = New DataTable("Teams")
+        dt.Columns.Add("Abbr")
+        dt.Columns.Add("Name")
+        For Each Team In mAllTeams
+            Dim name As String = $"{Team.FullName} ({Team.Abbr})"
+            dt.Rows.Add(Team.Abbr, name)
+        Next
+        dt = dt.Select("", "Name").CopyToDataTable()
         cbxTeams.DataSource = dt
-        cbxTeams.DisplayMember = dt.Columns(0).ColumnName
-        cbxTeams.ValueMember = dt.Columns(0).ColumnName
+        cbxTeams.DisplayMember = dt.Columns("Name").ColumnName
+        cbxTeams.ValueMember = dt.Columns("Abbr").ColumnName
     End Sub
 End Class

@@ -38,7 +38,6 @@ Public Class ScoreboardData
             Dim teamId As String = Team.SelectToken("id").ToString()
             Dim oTeam As Team = New Team(Convert.ToInt32(teamId))
             Teams.Add(oTeam)
-            'Trace.WriteLine(oTeam.ToString())
         Next
         Return Teams
     End Function
@@ -80,9 +79,6 @@ Public Class ScoreboardData
 
     Public Function refreshLiveData(gamePk) As JObject
         Me.liveData = Me.API.ReturnLiveFeedData(gamePk)
-
-        ' TODO update database data
-
         Return Me.liveData
     End Function
 
@@ -137,18 +133,54 @@ Public Class ScoreboardData
         Return playData
     End Function
 
-    Public Function getLastPlayDescription() As String
+    Public Function GetLastPitchDescription(ThisGame As Game) As String
+        Dim playData As JObject = Me.getLiveData.SelectToken("liveData.plays.currentPlay")
+        Dim currentPlayData As JObject = Me.getCurrentPlayData()
+        Dim playEvents As JArray = currentPlayData.SelectToken("playEvents")
+        Dim lastEventIdx As Int32 = playEvents.Count - 1
+        If lastEventIdx < 0 Then
+            Return String.Empty
+        End If
+        Dim pitchResults = playEvents.Item(lastEventIdx)
+        Dim pitchType = pitchResults.SelectToken("details.type.description")
+        Dim pitchCall As String = pitchResults.SelectToken("details.description")
+        Dim startSpeed As String = pitchResults.SelectToken("pitchData.startSpeed")
+        Dim endSpeed As String = pitchResults.SelectToken("pitchData.endSpeed")
+        Dim pitchNum As String = pitchResults.SelectToken("pitchNumber")
+
+        Dim desc As String
+        If pitchType = String.Empty Then
+            desc = String.Empty
+        ElseIf startSpeed = "" Then
+            desc = String.Format("{0}", pitchCall)
+        Else
+            desc = String.Format("Pitch #{0}: {1} - {4}  (Start {2}mph, End {3}mph)", pitchNum, pitchType, startSpeed, endSpeed, pitchCall)
+        End If
+
+        Return desc
+    End Function
+
+    Public Function GetLastPlayDescription(ThisGame As Game) As String
         Try
-            Dim lastPlayData As JObject = Me.getLastPlayData()
+            'Dim currentPlayIdx As Integer = Me.liveData.SelectToken("liveData.plays.currentPlay.atBatIndex")
+            Dim currentPlayIdx As Integer = ThisGame.LiveData.SelectToken("liveData.plays.currentPlay.atBatIndex")
+            Dim lastPlayData As JObject = getPlayData(currentPlayIdx - 1)
+            Dim allPlayData As JArray = ThisGame.LiveData.SelectToken("liveData.plays.allPlays")
             Dim desc As String = lastPlayData.SelectToken("result.description")
             Dim playInning As String = lastPlayData.SelectToken("about.inning")
             Dim playInningHalf As String = lastPlayData.SelectToken("about.halfInning")
-            Dim currentInning As String = getCurrentInningNumber()
-            Dim currentInningHalf As String = getCurrentInningHalf()
+            'Dim currentInning As String = getCurrentInningNumber()
+            'Dim currentInningHalf As String = getCurrentInningHalf()
+
             desc = String.Format("Last play: {0}", desc)
-            If Not (playInning.Equals(currentInning)) Or Not (playInningHalf.ToUpper().Equals(currentInningHalf.ToUpper())) Then
+            'If Not (playInning.Equals(currentInning)) Or Not (playInningHalf.ToUpper().Equals(currentInningHalf.ToUpper())) Then
+            'desc = String.Format("{0} {1}: {2}", playInningHalf.ToUpper(), playInning, desc)
+            'End If
+            If Not (playInning.Equals(ThisGame.CurrentInning)) Or
+                Not (playInningHalf.ToUpper().Equals(ThisGame.CurrentInningHalf.ToUpper())) Then
                 desc = String.Format("{0} {1}: {2}", playInningHalf.ToUpper(), playInning, desc)
             End If
+
             Return desc
         Catch ex As Exception
             Return Nothing
@@ -290,45 +322,65 @@ Public Class ScoreboardData
         End If
     End Function
 
-    Public Function getPitchingStats(pitcherId, team) As String
-        Dim playData As JObject = getCurrentPlayData()
-        pitcherId = "ID" + pitcherId.ToString
+    Public Function GetPitcherMatchup(ThisGame As Game) As String
+        Dim matchup As String = ""
+        Dim awayPitcherId As String = ThisGame.AwayScheduledPitcherId()
+        Dim awayPitcherName As String = ThisGame.AwayTeam.GetPlayerData(awayPitcherId).Name
+        Dim homePitcherId As String = ThisGame.HomeScheduledPitcherId()
+        Dim homePitcherName As String = ThisGame.HomeTeam.GetPlayerData(homePitcherId).Name
 
+        'Dim awayPitchingStats As String = getPitchingStats(awayPitcherId, ThisGame.AwayTeam.Abbr)
+        'Dim homePitchingStats As String = getPitchingStats(homePitcherId, ThisGame.HomeTeam.Abbr)
+        Dim awayPitchingStats As String = getPitchingStats(awayPitcherId, ThisGame)
+        Dim homePitchingStats As String = getPitchingStats(homePitcherId, ThisGame)
+        matchup = String.Format("Preview: {0} {1} vs. {2} {3}", awayPitcherName, awayPitchingStats, homePitcherName, homePitchingStats)
+        Return matchup
+    End Function
+
+    'Public Function getPitchingStats(pitcherId, teamAbbr) As String
+    Public Function getPitchingStats(pitcherId As Integer, ThisGame As Game) As String
+        'Dim playData As JObject = getCurrentPlayData()
         Dim pitcherStats As String = String.Empty
 
+        'TODO - get these stats from player object
         Dim playerData As JObject
-        If team = Me.getAwayTeamAbbr() Then
+        'If teamAbbr = Me.GetAwayTeamAbbr() Then
+        If ThisGame.AwayTeam.GetPlayerData(pitcherId) IsNot Nothing Then
             playerData = getBoxScoreData().SelectToken("teams.away.players")
         Else
             playerData = getBoxScoreData().SelectToken("teams.home.players")
         End If
 
+        Dim pId As String = "ID" + pitcherId.ToString()
         For Each player In playerData
-            If player.Key = pitcherId Then
+            If player.Key = pId Then
                 Dim wins As String = player.Value.Item("seasonStats").Item("pitching").Item("wins")
                 Dim losses As String = player.Value.Item("seasonStats").Item("pitching").Item("losses")
                 Dim era As String = player.Value.Item("seasonStats").Item("pitching").Item("era")
                 pitcherStats = String.Format(" ({0}-{1}, {2} ERA)", wins, losses, era)
+                Exit For
             End If
         Next
         Return pitcherStats
     End Function
 
-    Public Function getBatterStats(batterId, team) As String
-        Dim playData As JObject = getCurrentPlayData()
-        batterId = "ID" + batterId
+    Public Function getBatterStats(batterId As Integer, ThisGame As Game) As String
+        'Dim playData As JObject = getCurrentPlayData()
 
         Dim batterStats As String = String.Empty
 
+        'TODO - get these stats from player object
         Dim playerData As JObject
-        If team = "away" Then
+        'If team = "away" Then
+        If ThisGame.AwayTeam.GetPlayerData(batterId) IsNot Nothing Then
             playerData = getBoxScoreData().SelectToken("teams.away.players")
         Else
             playerData = getBoxScoreData().SelectToken("teams.home.players")
         End If
 
+        Dim bId As String = "ID" + batterId.ToString
         For Each player In playerData
-            If player.Key = batterId Then
+            If player.Key = bId Then
                 Dim hits As String = player.Value.Item("stats").Item("batting").Item("hits")
                 Dim atBats As String = player.Value.Item("stats").Item("batting").Item("atBats")
                 Dim avg As String = player.Value.Item("seasonStats").Item("batting").Item("avg")
