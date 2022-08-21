@@ -1,10 +1,10 @@
 ﻿Public Class Configure
     Private mSBData As ScoreboardData = New ScoreboardData()
     Private mProps As Properties = mSBData.getProperties()
-    Private mAllTeams As List(Of Team)
+    Private mAllTeams As Dictionary(Of String, Team)
 
-    Public Property AllTeams() As List(Of Team)
-        Set(teams As List(Of Team))
+    Public Property AllTeams() As Dictionary(Of String, Team)
+        Set(teams As Dictionary(Of String, Team))
             Me.mAllTeams = teams
         End Set
         Get
@@ -43,7 +43,7 @@
         Dim dt As DataTable = New DataTable("Teams")
         dt.Columns.Add("Abbr")
         dt.Columns.Add("Name")
-        For Each Team In mAllTeams
+        For Each Team In mAllTeams.Values
             Dim name As String = $"{Team.FullName} ({Team.Abbr})"
             dt.Rows.Add(Team.Abbr, name)
         Next

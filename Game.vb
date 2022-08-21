@@ -19,6 +19,7 @@ Public Class Game
     Private mLosingTeam As Team
     Private mWinningPitcherId As String
     Private mLosingPitcherId As String
+    Private mSavePitcherId As String
     Private mCurrentInning As Integer
     Private mCurrentInningHalf As String
     Private mCurrentInningState As String
@@ -116,6 +117,12 @@ Public Class Game
         End Get
     End Property
 
+    Public ReadOnly Property SavePitcherId() As String
+        Get
+            Return Me.mSavePitcherId
+        End Get
+    End Property
+
     Public ReadOnly Property CurrentInning() As Integer
         Get
             Return Me.mCurrentInning
@@ -149,6 +156,7 @@ Public Class Game
                     dt.Rows(1).Item(col.ColumnName) = mRHE.Rows(1).Item(col.ColumnName).ToString()
                 Next
             Next
+
             Return dt
         End Get
     End Property
@@ -219,7 +227,13 @@ Public Class Game
         Me.mHomeTeam.Loses = mGameData.SelectToken("teams.home.record.losses")
 
         ' game date and time
-        Me.mGameDateTime = mGameData.SelectToken("datetime.time").ToString() + mGameData.SelectToken("datetime.ampm").ToString()
+        Dim gameDate As String = mGameData.SelectToken("datetime.officialDate").ToString()
+        Dim gameTime As String = mGameData.SelectToken("datetime.time").ToString()
+        Dim gameTimeAmPm As String = mGameData.SelectToken("datetime.ampm").ToString()
+        Me.mGameDateTime = $"{gameDate} {gameTime}{gameTimeAmPm}"
+
+        ' TODO - convert to local time
+        'Dim gameLocalDateTime As String = ConvertDateTimeToLocalTimeZone()
 
         ' venue weather
         Me.mVenueWeather = $"Weather: {mGameData.SelectToken("weather.temp")}°F, {mGameData.SelectToken("weather.condition")}"
@@ -227,11 +241,15 @@ Public Class Game
         ' game status
         Me.mGameStatus = mGameData.SelectToken("status.detailedState").ToString().ToUpper()
 
+        ' load RHE table
+        Me.LoadRHE()
+
         ' load innings
         Me.LoadInnings()
 
-        ' load RHE table
-        Me.LoadRHE()
+        ' load team player data
+        Me.AwayTeam.LoadLineupAndRosterData(Me)
+        Me.HomeTeam.LoadLineupAndRosterData(Me)
 
         If Me.GameStatus() = "IN PROGRESS" Or
             Me.GameStatus().Contains("MANAGER") Or
@@ -257,6 +275,7 @@ Public Class Game
             Me.mCurrentInning = mLineData.SelectToken("currentInning")
             Me.mCurrentInningHalf = mLineData.SelectToken("inningHalf").ToString().ToUpper()
             Me.mCurrentInningState = mLineData.SelectToken("inningState").ToString().ToUpper()
+
         End If
 
 
@@ -285,6 +304,11 @@ Public Class Game
             ' losing pitcher id
             Me.mLosingPitcherId = mLiveData.SelectToken("decisions.loser.id").ToString()
 
+            ' saving pitcher id
+            If mLiveData.SelectToken("decisions.save.id") IsNot Nothing Then
+                mSavePitcherId = mLiveData.SelectToken("decisions.save.id").ToString()
+            End If
+
             If Convert.ToInt32(mAwayTeamRuns) > Convert.ToInt32(mHomeTeamRuns) Then
                 Me.mWinningTeam = AwayTeam()
                 Me.mLosingTeam = HomeTeam()
@@ -294,6 +318,7 @@ Public Class Game
             End If
 
         End If
+        Trace.WriteLine($"Loading game {Me.GamePk} {Me.AwayTeam.Abbr} @ {Me.HomeTeam.Abbr} data")
     End Sub
 
 
@@ -411,5 +436,108 @@ Public Class Game
         End If
 
     End Sub
+
+    Public Function GetPitchingMatchup() As String
+        Dim matchup As String = ""
+        Dim awayPitcherName As String
+        If Me.AwayTeam.GetPlayer(Me.AwayScheduledPitcherId()) Is Nothing Then
+            awayPitcherName = "Unknown"
+        Else
+            awayPitcherName = Me.AwayTeam.GetPlayer(Me.AwayScheduledPitcherId()).Name
+        End If
+
+        Dim homePitcherName As String
+        If Me.HomeTeam.GetPlayer(Me.HomeScheduledPitcherId()) Is Nothing Then
+            homePitcherName = "Unknown"
+        Else
+            homePitcherName = Me.HomeTeam.GetPlayer(Me.HomeScheduledPitcherId()).Name
+        End If
+
+        Dim awayPitchingStats As String = Me.GetPitchingStats(Me.AwayScheduledPitcherId(), Me.AwayTeam())
+        Dim homePitchingStats As String = GetPitchingStats(Me.HomeScheduledPitcherId(), Me.HomeTeam())
+        matchup = String.Format("Preview: {0} {1} vs. {2} {3}", awayPitcherName, awayPitchingStats, homePitcherName, homePitchingStats)
+        Return matchup
+    End Function
+
+    Public Function GetPitchingStats(pitcherId As Integer, ThisTeam As Team) As String
+        Dim pitchingStats As String = String.Empty
+
+        Dim playerData As JObject
+        If ThisTeam.Id = Me.AwayTeam.Id Then
+            playerData = Me.BoxScoreData().SelectToken("teams.away.players")
+        Else
+            playerData = Me.BoxScoreData().SelectToken("teams.home.players")
+        End If
+        ' TODO - load this data into Player object
+
+        Dim pId As String = "ID" + pitcherId.ToString()
+        For Each player In playerData
+            If player.Key = pId Then
+                Dim wins As String = player.Value.Item("seasonStats").Item("pitching").Item("wins")
+                Dim losses As String = player.Value.Item("seasonStats").Item("pitching").Item("losses")
+                Dim era As String = player.Value.Item("seasonStats").Item("pitching").Item("era")
+                pitchingStats = String.Format(" ({0}-{1}, {2} ERA)", wins, losses, era)
+                Exit For
+            End If
+        Next
+        Return pitchingStats
+    End Function
+
+    Public Function GetBatterStats(batterId As Integer, ThisGame As Game) As String
+        'Dim playData As JObject = getCurrentPlayData()
+
+        Dim batterStats As String = String.Empty
+
+        Dim playerData As JObject
+        If ThisGame.AwayScheduledPitcherId = Me.AwayTeam.Id Then
+            playerData = Me.BoxScoreData().SelectToken("teams.away.players")
+        Else
+            playerData = Me.BoxScoreData().SelectToken("teams.home.players")
+        End If
+
+        'TODO - get these stats from player object
+
+        Dim bId As String = "ID" + batterId.ToString
+        For Each player In playerData
+            If player.Key = bId Then
+                Dim hits As String = player.Value.Item("stats").Item("batting").Item("hits")
+                Dim atBats As String = player.Value.Item("stats").Item("batting").Item("atBats")
+                Dim avg As String = player.Value.Item("seasonStats").Item("batting").Item("avg")
+                batterStats = String.Format(" ({0}-{1}, {2} AVG)", hits, atBats, avg)
+            End If
+        Next
+        Return batterStats
+    End Function
+
+
+    Function ConvertDateTimeToLocalTimeZone() As String
+
+        Dim gameTime As String = mGameData.SelectToken("datetime.dateTime").ToString()
+        Dim gameTZ As String = mGameData.SelectToken("venue.timeZone.tz").ToString()
+        Dim gameTZI As TimeZoneInfo
+        If gameTZ = "EDT" Then
+            gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time")
+        ElseIf gameTZ = "EST" Then
+            gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time")
+        ElseIf gameTZ = "CDT" Then
+            gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time")
+        ElseIf gameTZ = "CST" Then
+            gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time")
+        ElseIf gameTZ = "MDT" Then
+            gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Mountain Standard Time")
+        ElseIf gameTZ = "MST" Then
+            gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Mountain Standard Time")
+        ElseIf gameTZ = "PDT" Then
+            gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time")
+        ElseIf gameTZ = "PST" Then
+            gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time")
+        End If
+
+        Dim gt As DateTime = DateTime.Parse(gameTime)
+        Dim ds As String = TimeZoneInfo.ConvertTime(gt, gameTZI, TimeZoneInfo.Local)
+
+        Return ds
+    End Function
+
 
 End Class

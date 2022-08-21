@@ -16,7 +16,7 @@ Public Class MLB_API
     Private API_SINGLE_PERSON_DATA_URL = API_BASE_URL + "/v1/people/{0}"
     Private API_PERSON_STATS_URL = API_BASE_URL + "/v1/people/{0}/stats/game/{1}"
 
-    Shared client As HttpClient = New HttpClient()
+    'Shared client As HttpClient = New HttpClient()
 
     'Private Async Function GetData(url As String) As Task(Of String)
     '    Dim responseBody As String = "No Data"
@@ -90,7 +90,7 @@ Public Class MLB_API
         Using client As New WebClient()
             result = client.DownloadString(url)
         End Using
-        Trace.WriteLine(url)
+        'Trace.WriteLine(url)
         Return result
     End Function
 
