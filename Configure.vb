@@ -1,6 +1,6 @@
 ﻿Public Class Configure
     Private mSBData As ScoreboardData = New ScoreboardData()
-    Private mProps As Properties = mSBData.getProperties()
+    Private mProps As Properties = mSBData.GetProperties()
     Private mAllTeams As Dictionary(Of String, Team)
 
     Public Property AllTeams() As Dictionary(Of String, Team)
@@ -11,7 +11,6 @@
             Return Me.mAllTeams
         End Get
     End Property
-
 
     Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
         Close()
@@ -28,14 +27,6 @@
         LoadTeamsComboBox()
         numUpdateTime.Value = Convert.ToInt32(mProps.GetProperty(mProps.TIMER_KEY, "15"))
         cbxTeams.SelectedValue = mProps.GetProperty(mProps.FAVORITE_TEAM_KEY)
-        'Dim dt As DataTable = cbxTeams.DataSource
-        'For i As Integer = 0 To dt.Rows.Count - 1
-        '    If dt.Rows(i)(cbxTeams.ValueMember) = mProps.GetProperty(mProps.FAVORITE_TEAM_KEY) Then
-        '        cbxTeams.SelectedIndex = i
-        '        Exit For
-        '    End If
-        'Next
-        ' cbxTeams.Text = mProps.GetProperty(mProps.FAVORITE_TEAM_KEY)
     End Sub
 
     Private Sub LoadTeamsComboBox()

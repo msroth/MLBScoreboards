@@ -28,6 +28,8 @@ Partial Class Configure
         Me.cbxTeams = New System.Windows.Forms.ComboBox()
         Me.btnSave = New System.Windows.Forms.Button()
         Me.btnCancel = New System.Windows.Forms.Button()
+        Me.Label2 = New System.Windows.Forms.Label()
+        Me.CheckBox1 = New System.Windows.Forms.CheckBox()
         CType(Me.numUpdateTime, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -85,11 +87,32 @@ Partial Class Configure
         Me.btnCancel.Text = "Cancel"
         Me.btnCancel.UseVisualStyleBackColor = True
         '
+        'Label2
+        '
+        Me.Label2.AutoSize = True
+        Me.Label2.Location = New System.Drawing.Point(40, 137)
+        Me.Label2.Name = "Label2"
+        Me.Label2.Size = New System.Drawing.Size(121, 20)
+        Me.Label2.TabIndex = 8
+        Me.Label2.Text = "Write Data Files?"
+        '
+        'CheckBox1
+        '
+        Me.CheckBox1.AutoSize = True
+        Me.CheckBox1.Location = New System.Drawing.Point(246, 137)
+        Me.CheckBox1.Name = "CheckBox1"
+        Me.CheckBox1.Size = New System.Drawing.Size(103, 24)
+        Me.CheckBox1.TabIndex = 9
+        Me.CheckBox1.Text = "CheckBox1"
+        Me.CheckBox1.UseVisualStyleBackColor = True
+        '
         'Configure
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(800, 258)
+        Me.Controls.Add(Me.CheckBox1)
+        Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.btnCancel)
         Me.Controls.Add(Me.btnSave)
         Me.Controls.Add(Me.cbxTeams)
@@ -110,4 +133,6 @@ Partial Class Configure
     Friend WithEvents cbxTeams As ComboBox
     Friend WithEvents btnSave As Button
     Friend WithEvents btnCancel As Button
+    Friend WithEvents Label2 As Label
+    Friend WithEvents CheckBox1 As CheckBox
 End Class

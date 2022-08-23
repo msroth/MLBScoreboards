@@ -8,8 +8,8 @@ Public Class Player
     Dim mFullName As String
     Dim mPosition As String
     Private mAPI As MLB_API = New MLB_API()
-    Private mSeasonStats As DataTable = New DataTable("SeasonStats")
-    Private mCareerStats As DataTable = New DataTable("CareerStats")
+    Private mBattingStats As DataTable = New DataTable("BattingStats")
+    Private mPitchingStats As DataTable = New DataTable("PithingStats")
 
 
     Public ReadOnly Property Id() As String
@@ -36,21 +36,21 @@ Public Class Player
         End Get
     End Property
 
-    Public ReadOnly Property SeasonStats() As DataTable
+    Public ReadOnly Property BattingStats() As DataTable
         Get
-            If mSeasonStats.Rows.Count = 0 Then
-                LoadSeasonStats()
+            If mBattingStats.Rows.Count = 0 Then
+                LoadBattingStats()
             End If
-            Return Me.mSeasonStats
+            Return Me.mBattingStats
         End Get
     End Property
 
-    Public ReadOnly Property CareerStats() As DataTable
+    Public ReadOnly Property PitchingStats() As DataTable
         Get
-            If mCareerStats.Rows.Count = 0 Then
-                LoadCareerStats()
+            If mPitchingStats.Rows.Count = 0 Then
+                LoadPitchingStats()
             End If
-            Return Me.mCareerStats
+            Return Me.mPitchingStats
         End Get
     End Property
 
@@ -61,10 +61,10 @@ Public Class Player
         Me.mId = Id
         Dim Data As JObject = mAPI.ReturnPlayerData(Id)
         Dim PlayerData As JProperty = Data.Property("people")
-        Dim Player As JObject = PlayerData.Value(0)
-        Me.mNumber = Player.SelectToken("primaryNumber")
-        Me.mFullName = Player.SelectToken("boxscoreName")
-        Me.mPosition = Player.SelectToken("primaryPosition.abbreviation")
+        Dim ThisPlayer As JObject = PlayerData.Value(0)
+        Me.mNumber = ThisPlayer.SelectToken("primaryNumber")
+        Me.mFullName = ThisPlayer.SelectToken("boxscoreName")
+        Me.mPosition = ThisPlayer.SelectToken("primaryPosition.abbreviation")
 
     End Sub
 
@@ -77,12 +77,17 @@ Public Class Player
     End Sub
 
 
-    Private Sub LoadSeasonStats()
+    Private Sub LoadBattingStats()
 
+        ' http://statsapi.mlb.com/api/v1/stats?stats=season&group=hitting&personId=602104
+        ' http://statsapi.mlb.com/api/v1/stats?stats=career&group=hitting&personId=602104
+
+        ' personID is ignored
+        ' must loop through data looking for this player id
 
     End Sub
 
-    Private Sub LoadCareerStats()
+    Private Sub LoadPitchingStats()
 
 
     End Sub

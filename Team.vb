@@ -71,22 +71,26 @@ Public Class Team
     Public Sub New(TeamId As Integer)
         Me.mId = TeamId
 
-        ' needs to load all other data from API and JSON data
-        Dim Data As JObject = mAPI.ReturnAllTeamsData()
-        Dim TeamsData As JArray = Data.SelectToken("teams")
+        Try
+            ' needs to load all other data from API and JSON data
+            Dim Data As JObject = mAPI.ReturnAllTeamsData()
+            Dim TeamsData As JArray = Data.SelectToken("teams")
 
-        For Each Team As JObject In TeamsData
-            Dim Id As String = Team.SelectToken("id").ToString()
-            If Me.Id() = Convert.ToInt32(Id) Then
-                Me.mFullName = Team.SelectToken("name")
-                Me.mShortName = Team.SelectToken("teamName")
-                Me.mAbbr = Team.SelectToken("abbreviation")
+            For Each Team As JObject In TeamsData
+                Dim Id As String = Team.SelectToken("id").ToString()
+                If Me.Id() = Convert.ToInt32(Id) Then
+                    Me.mFullName = Team.SelectToken("name")
+                    Me.mShortName = Team.SelectToken("teamName")
+                    Me.mAbbr = Team.SelectToken("abbreviation")
 
-                File.WriteAllText($"c:\\temp\\{mAbbr}-teamdata.json", Team.ToString())
+                    File.WriteAllText($"c:\\temp\\{mAbbr}-teamdata.json", Team.ToString())
 
-                Exit For
-            End If
-        Next
+                    Exit For
+                End If
+            Next
+        Catch ex As Exception
+            Trace.WriteLine($"ERROR: New Team - {ex}")
+        End Try
     End Sub
 
     Public Function GetPlayer(Id As String) As Player
@@ -103,37 +107,41 @@ Public Class Team
             Return
         End If
 
-        ' determine if team is away or home
-        Dim AwayOrHome As String
-        If Me.Id() = ThisGame.AwayTeam.Id Then
-            AwayOrHome = "away"
-        Else
-            AwayOrHome = "home"
-        End If
+        Try
+            ' determine if team is away or home
+            Dim AwayOrHome As String
+            If Me.Id() = ThisGame.AwayTeam.Id Then
+                AwayOrHome = "away"
+            Else
+                AwayOrHome = "home"
+            End If
 
-        ' clear lineup and roster lists before update
-        mLineup.Clear()
-        mRoster.Clear()
+            ' clear lineup and roster lists before update
+            mLineup.Clear()
+            mRoster.Clear()
 
-        ' use boxscore data to create Player objects
-        For Each Player As JProperty In ThisGame.BoxScoreData().SelectToken($"teams.{AwayOrHome}.players")
-            Dim pId As String = Player.Value.Item("person").Item("id")
-            Dim pNum As String = Player.Value.Item("jerseyNumber")
-            Dim pName As String = Player.Value.Item("person").Item("fullName")
-            pName = pName.Substring(pName.IndexOf(" ") + 1) + ", " + pName.Substring(0, 1)
-            Dim pPosition As String = Player.Value.Item("position").Item("abbreviation")
-            Dim aPlayer As Player = New Player(pId, pNum, pName, pPosition)
-            mRoster.Add(aPlayer)
+            ' use boxscore data to create Player objects
+            For Each Player As JProperty In ThisGame.BoxScoreData().SelectToken($"teams.{AwayOrHome}.players")
+                Dim pId As String = Player.Value.Item("person").Item("id")
+                Dim pNum As String = Player.Value.Item("jerseyNumber")
+                Dim pName As String = Player.Value.Item("person").Item("fullName")
+                pName = pName.Substring(pName.IndexOf(" ") + 1) + ", " + pName.Substring(0, 1)
+                Dim pPosition As String = Player.Value.Item("position").Item("abbreviation")
+                Dim aPlayer As Player = New Player(pId, pNum, pName, pPosition)
+                mRoster.Add(aPlayer)
 
-            ' get active batters and pitchers for game
-            For Each Id As String In ThisGame.BoxScoreData().SelectToken($"teams.{AwayOrHome}.batters")
-                ' add player obj to lineup table
-                If Player.Value.Item("person").Item("id").ToString().Equals(Id) Then
-                    mLineup.Add(aPlayer)
-                End If
-                'Exit For
+                ' get active batters and pitchers for game
+                For Each Id As String In ThisGame.BoxScoreData().SelectToken($"teams.{AwayOrHome}.batters")
+                    ' add player obj to lineup table
+                    If Player.Value.Item("person").Item("id").ToString().Equals(Id) Then
+                        mLineup.Add(aPlayer)
+                    End If
+                    'Exit For
+                Next
             Next
-        Next
+        Catch ex As Exception
+            Trace.WriteLine($"ERROR: LoadLineupAndRosterData - {ex}")
+        End Try
     End Sub
 
     Public Function ToString() As String
@@ -165,42 +173,53 @@ Public Class Team
         Return sb.ToString()
     End Function
 
-    Function GetLinup() As DataTable
+    Function GetLinupTable() As DataTable
         Dim dt As DataTable = New DataTable("Lineup")
-        dt.Columns.Add("Id")
-        dt.Columns.Add("Num")
-        dt.Columns.Add("Name")
-        dt.Columns.Add("Position")
 
-        For Each player As Player In mLineup
-            Dim row As DataRow = dt.NewRow()
-            row("Id") = player.Id()
-            row("Num") = player.Number()
-            row("Name") = player.Name()
-            row("Position") = player.Position()
-            dt.Rows.Add(row)
-        Next
+        Try
+            dt.Columns.Add("Id")
+            dt.Columns.Add("Num")
+            dt.Columns.Add("Name")
+            dt.Columns.Add("Position")
+
+            For Each player As Player In mLineup
+                Dim row As DataRow = dt.NewRow()
+                row("Id") = player.Id()
+                row("Num") = player.Number()
+                row("Name") = player.Name()
+                row("Position") = player.Position()
+                dt.Rows.Add(row)
+            Next
+        Catch ex As Exception
+            Trace.WriteLine($"ERROR: GetLineup - {ex}")
+        End Try
         Return dt
     End Function
 
-    Function GetRoster() As DataTable
+    Function GetRosterTable() As DataTable
 
         ' TODO - will probably want to have more/different data in roster?
 
         Dim dt As DataTable = New DataTable("Roster")
-        dt.Columns.Add("Id")
-        dt.Columns.Add("Num")
-        dt.Columns.Add("Name")
-        dt.Columns.Add("Position")
 
-        For Each player As Player In mRoster
-            Dim row As DataRow = dt.NewRow()
-            row("Id") = player.Id()
-            row("Num") = player.Number()
-            row("Name") = player.Name()
-            row("Position") = player.Position()
-            dt.Rows.Add(row)
-        Next
+        Try
+            dt.Columns.Add("Id")
+            dt.Columns.Add("Num")
+            dt.Columns.Add("Name")
+            dt.Columns.Add("Position")
+
+            For Each player As Player In mRoster
+                Dim row As DataRow = dt.NewRow()
+                row("Id") = player.Id()
+                row("Num") = player.Number()
+                row("Name") = player.Name()
+                row("Position") = player.Position()
+                dt.Rows.Add(row)
+            Next
+
+        Catch ex As Exception
+            Trace.WriteLine($"ERROR: GetRoster - {ex}")
+        End Try
         Return dt
     End Function
 End Class

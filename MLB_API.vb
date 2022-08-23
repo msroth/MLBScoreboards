@@ -16,6 +16,9 @@ Public Class MLB_API
     Private API_SINGLE_PERSON_DATA_URL = API_BASE_URL + "/v1/people/{0}"
     Private API_PERSON_STATS_URL = API_BASE_URL + "/v1/people/{0}/stats/game/{1}"
 
+    'http://statsapi.mlb.com/api/v1/stats?stats=season&group=hitting&personId=602104
+
+
     'Shared client As HttpClient = New HttpClient()
 
     'Private Async Function GetData(url As String) As Task(Of String)
@@ -87,10 +90,14 @@ Public Class MLB_API
 
     Function GetData(url)
         Dim result As String = ""
-        Using client As New WebClient()
-            result = client.DownloadString(url)
-        End Using
-        'Trace.WriteLine(url)
+        Try
+            Using client As New WebClient()
+                result = client.DownloadString(url)
+            End Using
+            'Trace.WriteLine(url)
+        Catch ex As Exception
+            Trace.WriteLine($"ERROR: GetData - {ex}")
+        End Try
         Return result
     End Function
 

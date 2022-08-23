@@ -10,9 +10,13 @@ Public Class Properties
     Public FAVORITE_TEAM_KEY As String = "favorite_team"
     Public PROPERTIES_FILE As String = "config.mlb"
 
-
     Public Sub New()
         ' open file
+        Dim fi As FileInfo = New FileInfo(PROPERTIES_FILE)
+        If Not fi.Exists() Then
+            File.WriteAllText(PROPERTIES_FILE, "timer=30" + vbCr + "favorite_team=WSH")
+        End If
+
         Dim sr As New StreamReader(PROPERTIES_FILE)
         ' load properties
         Load(sr)

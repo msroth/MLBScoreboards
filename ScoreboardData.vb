@@ -67,10 +67,10 @@ Public Class ScoreboardData
     ' Return data
     'End Function
 
-    Public Function getCurrentPlayData(ThisGame As Game) As JObject
-        Dim playData As JObject = ThisGame.LiveData.SelectToken("plays.currentPlay")
-        Return playData
-    End Function
+    'Public Function getCurrentPlayData(ThisGame As Game) As JObject
+    '    Dim playData As JObject = ThisGame.LiveData.SelectToken("plays.currentPlay")
+    '    Return playData
+    'End Function
 
     'Public Function getLastPlayData(ThisGame As Game) As JObject
     '    Dim currentPlayIdx As Integer = ThisGame.LiveData.SelectToken("plays.currentPlay.atBatIndex")
@@ -92,8 +92,10 @@ Public Class ScoreboardData
         Dim desc As String
 
         Try
-            Dim playData As JObject = ThisGame.LiveData.SelectToken("plays.currentPlay")
-            Dim currentPlayData As JObject = Me.getCurrentPlayData(ThisGame)
+            'Dim playData As JObject = ThisGame.LiveData.SelectToken("plays.currentPlay")
+            'Dim currentPlayData As JObject = Me.getCurrentPlayData(ThisGame)
+
+            Dim currentPlayData As JObject = ThisGame.CurrentPlayData()
             Dim playEvents As JArray = currentPlayData.SelectToken("playEvents")
             Dim lastEventIdx As Int32 = playEvents.Count - 1
             If lastEventIdx < 0 Then
@@ -474,26 +476,20 @@ Public Class ScoreboardData
     '    Return dt
     'End Function
 
-    Function getCurrentBatterId(ThisGame As Game) As String
-        Dim playData As JObject = getCurrentPlayData(ThisGame)
-        Dim batterId As String = playData.SelectToken("matchup.batter.id").ToString
-        Return batterId
-    End Function
-
-    Function getCurrentPitcherId(ThisGame As Game) As String
-        Dim playData As JObject = getCurrentPlayData(ThisGame)
-        Dim pitcherId As String = playData.SelectToken("matchup.pitcher.id").ToString
-        Return pitcherId
-    End Function
-
-    'Function getCurrentInningState() As String
-    '    Dim gameData As JObject = Me.getLiveData()
-    '    Dim inningState As String = gameData.SelectToken("liveData.linescore.inningState")
-    '    Return inningState.ToUpper
+    'Function getCurrentBatterId(ThisGame As Game) As String
+    '    Dim playData As JObject = getCurrentPlayData(ThisGame)
+    '    Dim batterId As String = playData.SelectToken("matchup.batter.id").ToString
+    '    Return batterId
     'End Function
 
-    Function getLastOutBatterId(ThisGame As Game) As String
-        Dim lastBatterId As String
+    'Function getCurrentPitcherId(ThisGame As Game) As String
+    '    Dim playData As JObject = getCurrentPlayData(ThisGame)
+    '    Dim pitcherId As String = playData.SelectToken("matchup.pitcher.id").ToString
+    '    Return pitcherId
+    'End Function
+
+    Function GetLastOutBatterId(ThisGame As Game) As String
+        Dim lastBatterId As String = 0
         Try
             Dim lastInning As Integer = ThisGame.CurrentInning - 1
             If lastInning < 0 Then
@@ -520,7 +516,7 @@ Public Class ScoreboardData
         Return lastBatterId
     End Function
 
-    Public Function getProperties() As Properties
+    Public Function GetProperties() As Properties
         Dim props As Properties = New Properties()
         Return props
     End Function
@@ -564,4 +560,87 @@ Public Class ScoreboardData
     '    End If
 
     'End Function
+
+    Public Function GetDueUpBatters(ThisGame As Game) As List(Of Player)
+        Dim DueUpBatters As List(Of Player) = New List(Of Player)
+
+        'TODO - batting order is kept in boxscore by person id
+        ' use it to get proper order
+
+        ' get last batter
+        Dim lastBatterId As String = 0
+        Try
+            Dim lastInning As Integer = ThisGame.CurrentInning - 1
+            If lastInning < 0 Then
+                lastInning = 0
+            End If
+
+            Dim jsonPath As String
+            Dim allPlayData As JObject = ThisGame.LiveData.SelectToken("plays")
+
+            If ThisGame.CurrentInningState = "END" Then
+                jsonPath = "plays.playsByInning[" + lastInning.ToString + "].top"
+            Else
+                jsonPath = "plays.playsByInning[" + lastInning.ToString + "].bottom"
+            End If
+
+            Dim data = ThisGame.LiveData.SelectToken(jsonPath)
+            Dim lastPlayIndex = data(data.Count - 1)
+            jsonPath = "allPlays[" + lastPlayIndex.ToString + "].matchup.batter.id"
+
+            lastBatterId = allPlayData.SelectToken(jsonPath)
+        Catch ex As Exception
+            Trace.WriteLine($"ERROR: GetDueUpBatters - get last batter Id - {ex}")
+        End Try
+
+        ' figure out next three batters
+        Dim NextBatterIds As List(Of String) = New List(Of String)
+        Dim startIdx As Integer
+        Dim dt As DataTable
+
+        Try
+            If ThisGame.CurrentInningState() = "END" Then
+                dt = ThisGame.AwayTeam.GetLinupTable()
+            Else
+                dt = ThisGame.HomeTeam.GetLinupTable()
+            End If
+
+            ' find last batter in lineup
+            For Each row As DataRow In dt.Rows()
+                If row.Item("id").ToString.Equals(lastBatterId) Then
+                    startIdx = dt.Rows().IndexOf(row)
+                    'Trace.WriteLine($"startIdx={startIdx}")
+                    Exit For
+                End If
+            Next
+
+            ' get next three batter ids - skip pitchers
+            Dim idx As Integer = startIdx + 1
+            While NextBatterIds.Count < 3
+                If idx >= dt.Rows().Count() Then
+                    idx = idx - dt.Rows().Count()
+                End If
+                'Trace.WriteLine($"idx={idx}")
+                If Not dt.Rows(idx).Item("Position").ToString().ToUpper = "P" Then
+                    NextBatterIds.Add(dt.Rows(idx).Item("Id").ToString())
+                End If
+                idx += 1
+            End While
+        Catch ex As Exception
+            Trace.WriteLine($"ERROR: GetDueUpBatters - get next due up ids - {ex}")
+        End Try
+
+        ' build list of player objs
+        For Each Id As String In NextBatterIds
+            If ThisGame.CurrentInningState() = "END" Then
+                DueUpBatters.Add(ThisGame.AwayTeam.GetPlayer(Id))
+            Else
+                DueUpBatters.Add(ThisGame.HomeTeam.GetPlayer(Id))
+            End If
+        Next
+
+        Return DueUpBatters
+    End Function
+
+
 End Class
