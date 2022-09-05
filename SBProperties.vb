@@ -1,23 +1,23 @@
 ﻿
 Imports System.IO
 
-Public Class Properties
+Public Class SBProperties
 
     Private m_Properties As New Hashtable
-
-    Public TIMER_KEY As String = "timer"
-    Public WEATHER_KEY As String = "weather_key"
-    Public FAVORITE_TEAM_KEY As String = "favorite_team"
-    Public PROPERTIES_FILE As String = "config.mlb"
+    Public mGAME_TIMER_KEY As String = "game_refresh"
+    Public mSCOREBOARD_TIMER_KEY As String = "scoreboard_refresh"
+    Public mFAVORITE_TEAM_KEY As String = "favorite_team"
+    Public mDATA_FILES_KEY As String = "debug"
+    Public mPROPERTIES_FILE As String = "config.mlb"
 
     Public Sub New()
         ' open file
-        Dim fi As FileInfo = New FileInfo(PROPERTIES_FILE)
+        Dim fi As FileInfo = New FileInfo(mPROPERTIES_FILE)
         If Not fi.Exists() Then
-            File.WriteAllText(PROPERTIES_FILE, "timer=30" + vbCr + "favorite_team=WSH")
+            File.WriteAllText(mPROPERTIES_FILE, $"{mGAME_TIMER_KEY}=30 {vbCr} {mSCOREBOARD_TIMER_KEY}=30 {vbCr} {mFAVORITE_TEAM_KEY}=WSH {vbCr} {mDATA_FILES_KEY}=0")
         End If
 
-        Dim sr As New StreamReader(PROPERTIES_FILE)
+        Dim sr As New StreamReader(mPROPERTIES_FILE)
         ' load properties
         Load(sr)
         sr.Close()
@@ -47,7 +47,7 @@ Public Class Properties
             value = line.Split("=")(1)
 
             Add(key, value)
-            Trace.WriteLine($"read prop {key} = {value}")
+            'Trace.WriteLine($"read prop {key} = {value}")
 
         Loop
 
@@ -64,16 +64,16 @@ Public Class Properties
         If value Is Nothing Then
             value = defValue
         End If
-        Trace.WriteLine($"got property {key}={value}")
+        'Trace.WriteLine($"got property {key}={value}")
         Return value
     End Function
 
     Public Sub Write()
-        Dim sw As New StreamWriter(PROPERTIES_FILE)
+        Dim sw As New StreamWriter(mPROPERTIES_FILE)
         For Each key As String In m_Properties.Keys()
             If Not key Is Nothing Then
                 sw.WriteLine($"{key}={GetProperty(key)}")
-                Trace.WriteLine($"propery {key} saved as {GetProperty(key)}")
+                'Trace.WriteLine($"propery {key} saved as {GetProperty(key)}")
             End If
         Next
         sw.Close()

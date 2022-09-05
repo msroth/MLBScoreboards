@@ -23,6 +23,9 @@ Public Class Game
     Private mCurrentInning As Integer
     Private mCurrentInningHalf As String
     Private mCurrentInningState As String
+    Private mBalls As String
+    Private mStrikes As String
+    Private mOuts As String
     Private mInnings As DataTable
     Private mRHE As DataTable
     Private mData As JObject
@@ -33,6 +36,7 @@ Public Class Game
     Private mCurrentPlayData As JObject
     Private mAllPlaysData As JObject
     Private mAPI As MLB_API = New MLB_API()
+    Private mProperties As SBProperties = New SBProperties()
 
 
     Public ReadOnly Property GamePk() As Integer
@@ -214,6 +218,24 @@ Public Class Game
         End Get
     End Property
 
+    Public ReadOnly Property Balls As String
+        Get
+            Return Me.mBalls
+        End Get
+    End Property
+
+    Public ReadOnly Property Strikes As String
+        Get
+            Return Me.mStrikes
+        End Get
+    End Property
+
+    Public ReadOnly Property Outs As String
+        Get
+            Return Me.mOuts
+        End Get
+    End Property
+
     Public Sub New(gamePk As String)
         Me.mGamePk = Convert.ToInt32(gamePk)
         LoadGameData()
@@ -237,16 +259,18 @@ Public Class Game
 
         Try
             RefreshMLBData()
-            File.WriteAllText($"c:\\temp\\{Me.GamePk()}-gamedata.json", mData.ToString())
-            File.WriteAllText($"c:\\temp\\{Me.GamePk()}-boxdata.json", mBoxData.ToString())
-            File.WriteAllText($"c:\\temp\\{Me.GamePk()}-linedata.json", mLineData.ToString())
+            If mProperties.GetProperty(mProperties.mDATA_FILES_KEY, "0") = "1" Then
+                File.WriteAllText($"c:\\temp\\{Me.GamePk()}-gamedata.json", mData.ToString())
+                File.WriteAllText($"c:\\temp\\{Me.GamePk()}-boxdata.json", mBoxData.ToString())
+                File.WriteAllText($"c:\\temp\\{Me.GamePk()}-linedata.json", mLineData.ToString())
+            End If
 
             ' get teams
             Me.mAwayTeam = New Team(Convert.ToInt32(mBoxData.SelectToken("teams.away.team.id")))
             Me.mHomeTeam = New Team(Convert.ToInt32(mBoxData.SelectToken("teams.home.team.id")))
 
             ' set teams win/loss record
-            ' TODO this should be done in the Team object but need to do it without another API call
+            ' TODO this should be done in the Team object
             Me.mAwayTeam.Wins = mGameData.SelectToken("teams.away.record.wins")
             Me.mAwayTeam.Loses = mGameData.SelectToken("teams.away.record.losses")
             Me.mHomeTeam.Wins = mGameData.SelectToken("teams.home.record.wins")
@@ -274,8 +298,8 @@ Public Class Game
             Me.LoadInnings()
 
             ' load team player data
-            Me.AwayTeam.LoadLineupAndRosterData(Me)
-            Me.HomeTeam.LoadLineupAndRosterData(Me)
+            Me.AwayTeam.LoadPlayerData(Me)
+            Me.HomeTeam.LoadPlayerData(Me)
 
             If Me.GameStatus() = "IN PROGRESS" Or
                 Me.GameStatus().Contains("MANAGER") Or
@@ -302,6 +326,10 @@ Public Class Game
                 Me.mCurrentInningHalf = mLineData.SelectToken("inningHalf").ToString().ToUpper()
                 Me.mCurrentInningState = mLineData.SelectToken("inningState").ToString().ToUpper()
 
+                ' BSO data
+                Me.mBalls = Me.CurrentPlayData.SelectToken("count.balls")
+                Me.mStrikes = Me.CurrentPlayData.SelectToken("count.strikes")
+                Me.mOuts = Me.CurrentPlayData.SelectToken("count.outs")
             End If
 
 
@@ -364,9 +392,9 @@ Public Class Game
         sb.Append(vbCr)
         sb.Append($"Venue Weather: {Me.VenueWeather()}")
         sb.Append(vbCr)
-        sb.Append($"Away Team: {Me.AwayTeam().FullName()} - {Me.HomeTeamRuns()} runs")
+        sb.Append($"Away Team: {Me.AwayTeam().FullName()} - {Me.AwayTeamRuns()} runs")
         sb.Append(vbCr)
-        sb.Append($"Home Team: {Me.HomeTeam().FullName()} - {Me.AwayTeamRuns()} runs")
+        sb.Append($"Home Team: {Me.HomeTeam().FullName()} - {Me.HomeTeamRuns()} runs")
         sb.Append(vbCr)
         If Not Me.WinningTeam() Is Nothing Then
             sb.Append($"Winning Team: {Me.WinningTeam().ShortName()}")
@@ -479,14 +507,14 @@ Public Class Game
             If Me.AwayTeam.GetPlayer(Me.AwayScheduledPitcherId()) Is Nothing Then
                 awayPitcherName = "Unknown"
             Else
-                awayPitcherName = Me.AwayTeam.GetPlayer(Me.AwayScheduledPitcherId()).Name
+                awayPitcherName = Me.AwayTeam.GetPlayer(Me.AwayScheduledPitcherId()).FullName
             End If
 
             Dim homePitcherName As String
             If Me.HomeTeam.GetPlayer(Me.HomeScheduledPitcherId()) Is Nothing Then
                 homePitcherName = "Unknown"
             Else
-                homePitcherName = Me.HomeTeam.GetPlayer(Me.HomeScheduledPitcherId()).Name
+                homePitcherName = Me.HomeTeam.GetPlayer(Me.HomeScheduledPitcherId()).FullName
             End If
 
             Dim awayPitchingStats As String = Me.GetPitchingStats(Me.AwayScheduledPitcherId(), Me.AwayTeam())
@@ -508,7 +536,6 @@ Public Class Game
             Else
                 playerData = Me.BoxScoreData().SelectToken("teams.home.players")
             End If
-            ' TODO - load this data into Player object
 
             Dim pId As String = "ID" + pitcherId.ToString()
             For Each player In playerData
@@ -526,12 +553,12 @@ Public Class Game
         Return pitchingStats
     End Function
 
-    Public Function GetBatterStats(batterId As Integer, ThisGame As Game) As String
+    Public Function GetBatterStats(batterId As Integer, ThisTeam As Team) As String
         Dim batterStats As String = String.Empty
 
         Try
             Dim playerData As JObject
-            If ThisGame.AwayTeam.Id = Me.AwayTeam.Id Then
+            If ThisTeam.Id = AwayTeam.Id Then
                 playerData = Me.BoxScoreData().SelectToken("teams.away.players")
             Else
                 playerData = Me.BoxScoreData().SelectToken("teams.home.players")
@@ -544,6 +571,7 @@ Public Class Game
                     Dim atBats As String = player.Value.Item("stats").Item("batting").Item("atBats")
                     Dim avg As String = player.Value.Item("seasonStats").Item("batting").Item("avg")
                     batterStats = String.Format(" ({0}-{1}, {2} AVG)", hits, atBats, avg)
+                    Exit for
                 End If
             Next
         Catch ex As Exception
@@ -592,4 +620,174 @@ Public Class Game
         Return pitcherId
     End Function
 
+    Public Function GetDueUpBatters() As String
+        Dim lastBatterId As String = 0
+        Dim battingTeam As Team
+        Dim sb As StringBuilder = New StringBuilder()
+        Dim battingTeamLineup As DataTable
+
+        sb.Append(vbCr + vbCr + "Due up:" + vbCr)
+
+        Try
+            Dim lastInning As Integer = Me.CurrentInning() - 1
+            If lastInning <= 0 Then
+                lastInning = 0
+            End If
+
+            ' get correct team obj
+            If Me.CurrentInningState() = "END" Then
+                battingTeam = Me.AwayTeam
+            Else
+                battingTeam = Me.HomeTeam
+            End If
+
+            battingTeamLineup = battingTeam.GetLinupTable()
+
+            ' find the last batter it
+            ' if last inning = 0, it's 1st inning and no batters yet
+            If lastInning > 0 Then
+                Dim jsonPath As String
+                Dim allPlayData As JObject = Me.LiveData().SelectToken("plays")
+
+                ' build path to last innings plays
+                If Me.AwayTeam.Id = battingTeam.Id Then
+                    jsonPath = $"playsByInning[{lastInning}].top"
+                Else
+                    jsonPath = $"playsByInning[{lastInning}].bottom"
+                End If
+
+                ' get play data
+                Dim data As JArray = allPlayData.SelectToken(jsonPath)
+                If data Is Nothing Or data.Count < 1 Then
+                    Return sb.ToString()
+                End If
+                Dim lastPlayIndex = data.Item(data.Count() - 1)  ' zero based
+                jsonPath = $"allPlays[{lastPlayIndex.ToString()}].matchup.batter.id"
+
+                ' get last batter id
+                lastBatterId = allPlayData.SelectToken(jsonPath)
+
+            Else
+                ' set last batter id = batter #9 in lineup, which will
+                ' result in first three batters due up
+                For Each row As DataRow In battingTeamLineup.Rows()
+                    If 9 = row("BattingOrder") Then
+                        lastBatterId = row("Id")
+                    End If
+                Next
+            End If
+
+            ' figure out next three batters
+            Dim battingPosition As Integer = battingTeam.GetPlayer(lastBatterId).BattingPosition()
+
+            For i As Integer = 1 To 3
+                battingPosition += 1
+                If battingPosition > 9 Then
+                    battingPosition -= 9
+                End If
+
+                For Each row As DataRow In battingTeamLineup.Rows()
+                    If battingPosition = row("BattingOrder") Then
+                        'DueUpBatters.Add(battingTeam.GetPlayer(row("Id")))
+                        sb.Append($"  {row("Name")} {Me.GetBatterStats(row("Id"), battingTeam)}")
+                        sb.Append(vbCr)
+                    End If
+                Next
+            Next
+
+        Catch ex As Exception
+            Trace.WriteLine($"ERROR: GetDueUpBatters - get last batter Id - {ex}")
+        End Try
+
+        Return sb.ToString()
+    End Function
+
+    Public Function GetLastPitchDescription() As String
+        Dim desc As String = ""
+
+        Try
+            Dim currentPlayData As JObject = Me.CurrentPlayData()
+            Dim playEvents As JArray = currentPlayData.SelectToken("playEvents")
+            Dim lastEventIdx As Int32 = playEvents.Count - 1
+            If lastEventIdx < 0 Then
+                Return String.Empty
+            End If
+            Dim pitchResults = playEvents.Item(lastEventIdx)
+            Dim pitchType = pitchResults.SelectToken("details.type.description")
+            Dim pitchCall As String = pitchResults.SelectToken("details.description")
+            Dim startSpeed As String = pitchResults.SelectToken("pitchData.startSpeed")
+            Dim endSpeed As String = pitchResults.SelectToken("pitchData.endSpeed")
+            Dim pitchNum As String = pitchResults.SelectToken("pitchNumber")
+
+            If pitchType = String.Empty Then
+                desc = String.Empty
+            ElseIf startSpeed = "" Then
+                desc = $"{pitchCall}"
+            Else
+                desc = $"Pitch #{pitchNum}: {pitchType} - {pitchCall}  (Start {startSpeed}mph, End {endSpeed}mph)"
+            End If
+        Catch ex As Exception
+            Trace.WriteLine($"ERROR: GetLastPitchDescription - {ex}")
+        End Try
+        Return desc
+    End Function
+
+    Public Function GetLastPlayDescription() As String
+        Dim desc As String = ""
+        Try
+            Dim currentPlayIdx As Integer = Me.LiveData.SelectToken("plays.currentPlay.atBatIndex")
+            If currentPlayIdx = 0 Then
+                Return ""
+            End If
+
+            Dim allPlaysData As JArray = Me.LiveData.SelectToken("plays.allPlays")
+            Dim lastPlayData = allPlaysData(currentPlayIdx - 1)
+
+            desc = lastPlayData.SelectToken("result.description")
+            Dim playInning As String = lastPlayData.SelectToken("about.inning")
+            Dim playInningHalf As String = lastPlayData.SelectToken("about.halfInning")
+
+            desc = $"Last play: {desc}"
+            If Not (playInning.Equals(Me.CurrentInning)) Or
+                Not (playInningHalf.ToUpper().Equals(Me.CurrentInningHalf.ToUpper())) Then
+                desc = $"{playInningHalf.ToUpper()} {playInning}: {desc}"
+            End If
+
+        Catch ex As Exception
+            Trace.WriteLine($"ERROR: GetLastPlayDescription - {ex}")
+        End Try
+        Return desc
+    End Function
+
+
+    Public Function GetPitcherBatterMatchup() As String
+        Dim matchup As String = ""
+        Try
+            Dim playData As JObject = Me.CurrentPlayData()
+
+            ' get current pitcher and batter
+            Dim pitcherId As String = playData.SelectToken("matchup.pitcher.id").ToString
+            Dim batterId As String = playData.SelectToken("matchup.batter.id").ToString
+            Dim pitcherName As String = playData.SelectToken("matchup.pitcher.fullName")
+            Dim batterName As String = playData.SelectToken("matchup.batter.fullName")
+
+            ' get stats
+            Dim pitcherStats As String = String.Empty
+            Dim batterStats As String = String.Empty
+
+            If Me.CurrentInningHalf = "TOP" Then
+                pitcherStats = Me.GetPitchingStats(pitcherId, Me.HomeTeam)
+                batterStats = Me.GetBatterStats(batterId, Me.AwayTeam)
+            Else
+                pitcherStats = Me.GetPitchingStats(pitcherId, Me.AwayTeam)
+                batterStats = Me.GetBatterStats(batterId, Me.HomeTeam)
+            End If
+
+            matchup = $"Pitcher: {pitcherName} {pitcherStats} - Batter: {batterName} {batterStats}"
+
+        Catch ex As Exception
+            Trace.WriteLine($"ERROR: UpdatePitcherBatterMatchup - {ex}")
+        End Try
+        Return matchup
+    End Function
 End Class

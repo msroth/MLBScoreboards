@@ -6,7 +6,10 @@ Public Class Player
     Dim mId As String
     Dim mNumber As String
     Dim mFullName As String
+    Dim mShortName As String
     Dim mPosition As String
+    Dim mShortPosition As String
+    Dim mBattingPosition As Integer
     Private mAPI As MLB_API = New MLB_API()
     Private mBattingStats As DataTable = New DataTable("BattingStats")
     Private mPitchingStats As DataTable = New DataTable("PithingStats")
@@ -24,36 +27,42 @@ Public Class Player
         End Get
     End Property
 
-    Public ReadOnly Property Name() As String
+    Public ReadOnly Property FullName() As String
         Get
             Return Me.mFullName
         End Get
     End Property
 
-    Public ReadOnly Property Position() As String
+    Public ReadOnly Property ShortName() As String
+        Get
+            Return Me.mFullName
+        End Get
+    End Property
+
+    Public ReadOnly Property ShortPosition() As String
+        Get
+            Return Me.mShortPosition
+        End Get
+    End Property
+
+    Public ReadOnly Property FullPosition() As String
         Get
             Return Me.mPosition
         End Get
     End Property
 
-    Public ReadOnly Property BattingStats() As DataTable
+    Public Property BattingPosition() As Integer
         Get
-            If mBattingStats.Rows.Count = 0 Then
-                LoadBattingStats()
-            End If
-            Return Me.mBattingStats
+            Return Me.mBattingPosition
         End Get
+        Set(number As Integer)
+            Me.mBattingPosition = number
+        End Set
     End Property
 
-    Public ReadOnly Property PitchingStats() As DataTable
-        Get
-            If mPitchingStats.Rows.Count = 0 Then
-                LoadPitchingStats()
-            End If
-            Return Me.mPitchingStats
-        End Get
-    End Property
-
+    Function ConvertToFullObject() As Player
+        Return New Player(Me.mId)
+    End Function
 
     Sub New(Id As String)
         ' Create new Player object by querying API
@@ -63,8 +72,10 @@ Public Class Player
         Dim PlayerData As JProperty = Data.Property("people")
         Dim ThisPlayer As JObject = PlayerData.Value(0)
         Me.mNumber = ThisPlayer.SelectToken("primaryNumber")
-        Me.mFullName = ThisPlayer.SelectToken("boxscoreName")
-        Me.mPosition = ThisPlayer.SelectToken("primaryPosition.abbreviation")
+        Me.mFullName = ThisPlayer.SelectToken("fullName")
+        Me.mShortName = ThisPlayer.SelectToken("lastInitName")
+        Me.mShortPosition = ThisPlayer.SelectToken("primaryPosition.abbreviation")
+        Me.mPosition = ThisPlayer.SelectToken("primaryPosition.name")
 
     End Sub
 
@@ -73,22 +84,8 @@ Public Class Player
         Me.mId = Id
         Me.mNumber = Number
         Me.mFullName = Name
-        Me.mPosition = Position
+        Me.mShortPosition = Position
     End Sub
 
 
-    Private Sub LoadBattingStats()
-
-        ' http://statsapi.mlb.com/api/v1/stats?stats=season&group=hitting&personId=602104
-        ' http://statsapi.mlb.com/api/v1/stats?stats=career&group=hitting&personId=602104
-
-        ' personID is ignored
-        ' must loop through data looking for this player id
-
-    End Sub
-
-    Private Sub LoadPitchingStats()
-
-
-    End Sub
 End Class

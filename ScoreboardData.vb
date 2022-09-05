@@ -28,39 +28,39 @@ Public Class ScoreboardData
 
     'End Sub
 
-    Public Function LoadTeamsData() As Dictionary(Of String, Team)
-        Dim Teams As Dictionary(Of String, Team) = New Dictionary(Of String, Team)
-        Try
-            Dim Data As JObject = API.ReturnAllTeamsData()
-            Dim TeamsData As JArray = Data.SelectToken("teams")
+    'Public Function LoadTeamsData() As Dictionary(Of String, Team)
+    '    Dim Teams As Dictionary(Of String, Team) = New Dictionary(Of String, Team)
+    '    Try
+    '        Dim Data As JObject = API.ReturnAllTeamsData()
+    '        Dim TeamsData As JArray = Data.SelectToken("teams")
 
-            For Each Team As JObject In TeamsData
-                Dim teamId As String = Team.SelectToken("id").ToString()
-                Dim oTeam As Team = New Team(Convert.ToInt32(teamId))
-                Teams.Add(teamId, oTeam)
-                Trace.WriteLine($"Loading team {oTeam.Id} - {oTeam.Abbr} data")
-            Next
-        Catch ex As Exception
-            Trace.WriteLine($"ERROR: LoadTeamsData - {ex}")
-        End Try
-        Return Teams
-    End Function
+    '        For Each Team As JObject In TeamsData
+    '            Dim teamId As String = Team.SelectToken("id").ToString()
+    '            Dim oTeam As Team = New Team(Convert.ToInt32(teamId))
+    '            Teams.Add(teamId, oTeam)
+    '            Trace.WriteLine($"Loading team {oTeam.Id} - {oTeam.Abbr} data")
+    '        Next
+    '    Catch ex As Exception
+    '        Trace.WriteLine($"ERROR: LoadTeamsData - {ex}")
+    '    End Try
+    '    Return Teams
+    'End Function
 
-    Public Function getLiveData() As JObject
-        Return Me.liveData
-    End Function
+    'Public Function getLiveData() As JObject
+    '    Return Me.liveData
+    'End Function
 
-    Public Function getLineScoreData() As JObject
-        Dim data As JObject = Me.liveData.SelectToken("liveData")
-        Dim lineData As JObject = data.SelectToken("linescore")
-        Return lineData
-    End Function
+    'Public Function getLineScoreData() As JObject
+    '    Dim data As JObject = Me.liveData.SelectToken("liveData")
+    '    Dim lineData As JObject = data.SelectToken("linescore")
+    '    Return lineData
+    'End Function
 
-    Public Function getBoxScoreData() As JObject
-        Dim data As JObject = Me.liveData.SelectToken("liveData")
-        Dim boxData As JObject = data.SelectToken("boxscore")
-        Return boxData
-    End Function
+    'Public Function getBoxScoreData() As JObject
+    '    Dim data As JObject = Me.liveData.SelectToken("liveData")
+    '    Dim boxData As JObject = data.SelectToken("boxscore")
+    '    Return boxData
+    'End Function
 
     'Public Function getGameData() As JObject
     ' Dim data As JObject = Me.liveData.SelectToken("gameData")
@@ -78,74 +78,74 @@ Public Class ScoreboardData
     '    Return lastPlayData
     'End Function
 
-    Public Function getPlayData(ThisGame As Game, playIdx As Integer) As JObject
-        If playIdx <= 0 Then
-            Return Nothing
-        End If
+    'Public Function getPlayData(ThisGame As Game, playIdx As Integer) As JObject
+    '    If playIdx <= 0 Then
+    '        Return Nothing
+    '    End If
 
-        Dim allPlayData As JArray = ThisGame.LiveData.SelectToken("plays.allPlays")
-        Dim playData = allPlayData(playIdx)
-        Return playData
-    End Function
+    '    Dim allPlayData As JArray = ThisGame.LiveData.SelectToken("plays.allPlays")
+    '    Dim playData = allPlayData(playIdx)
+    '    Return playData
+    'End Function
 
-    Public Function GetLastPitchDescription(ThisGame As Game) As String
-        Dim desc As String
+    'Public Function GetLastPitchDescription(ThisGame As Game) As String
+    '    Dim desc As String
 
-        Try
-            'Dim playData As JObject = ThisGame.LiveData.SelectToken("plays.currentPlay")
-            'Dim currentPlayData As JObject = Me.getCurrentPlayData(ThisGame)
+    '    Try
+    '        'Dim playData As JObject = ThisGame.LiveData.SelectToken("plays.currentPlay")
+    '        'Dim currentPlayData As JObject = Me.getCurrentPlayData(ThisGame)
 
-            Dim currentPlayData As JObject = ThisGame.CurrentPlayData()
-            Dim playEvents As JArray = currentPlayData.SelectToken("playEvents")
-            Dim lastEventIdx As Int32 = playEvents.Count - 1
-            If lastEventIdx < 0 Then
-                Return String.Empty
-            End If
-            Dim pitchResults = playEvents.Item(lastEventIdx)
-            Dim pitchType = pitchResults.SelectToken("details.type.description")
-            Dim pitchCall As String = pitchResults.SelectToken("details.description")
-            Dim startSpeed As String = pitchResults.SelectToken("pitchData.startSpeed")
-            Dim endSpeed As String = pitchResults.SelectToken("pitchData.endSpeed")
-            Dim pitchNum As String = pitchResults.SelectToken("pitchNumber")
+    '        Dim currentPlayData As JObject = ThisGame.CurrentPlayData()
+    '        Dim playEvents As JArray = currentPlayData.SelectToken("playEvents")
+    '        Dim lastEventIdx As Int32 = playEvents.Count - 1
+    '        If lastEventIdx < 0 Then
+    '            Return String.Empty
+    '        End If
+    '        Dim pitchResults = playEvents.Item(lastEventIdx)
+    '        Dim pitchType = pitchResults.SelectToken("details.type.description")
+    '        Dim pitchCall As String = pitchResults.SelectToken("details.description")
+    '        Dim startSpeed As String = pitchResults.SelectToken("pitchData.startSpeed")
+    '        Dim endSpeed As String = pitchResults.SelectToken("pitchData.endSpeed")
+    '        Dim pitchNum As String = pitchResults.SelectToken("pitchNumber")
 
-            If pitchType = String.Empty Then
-                desc = String.Empty
-            ElseIf startSpeed = "" Then
-                desc = String.Format("{0}", pitchCall)
-            Else
-                desc = String.Format("Pitch #{0}: {1} - {4}  (Start {2}mph, End {3}mph)", pitchNum, pitchType, startSpeed, endSpeed, pitchCall)
-            End If
-        Catch ex As Exception
-            Trace.WriteLine($"ERROR: GetLastPitchDescription - {ex}")
-        End Try
-        Return desc
-    End Function
+    '        If pitchType = String.Empty Then
+    '            desc = String.Empty
+    '        ElseIf startSpeed = "" Then
+    '            desc = String.Format("{0}", pitchCall)
+    '        Else
+    '            desc = String.Format("Pitch #{0}: {1} - {4}  (Start {2}mph, End {3}mph)", pitchNum, pitchType, startSpeed, endSpeed, pitchCall)
+    '        End If
+    '    Catch ex As Exception
+    '        Trace.WriteLine($"ERROR: GetLastPitchDescription - {ex}")
+    '    End Try
+    '    Return desc
+    'End Function
 
-    Public Function GetLastPlayDescription(ThisGame As Game) As String
-        Dim desc As String
-        Try
-            Dim currentPlayIdx As Integer = ThisGame.LiveData.SelectToken("plays.currentPlay.atBatIndex")
-            If currentPlayIdx = 0 Then
-                Return ""
-            End If
-            Dim lastPlayData As JObject = getPlayData(ThisGame, currentPlayIdx - 1)
-            Dim allPlayData As JArray = ThisGame.LiveData.SelectToken("plays.allPlays")
-            desc = lastPlayData.SelectToken("result.description")
-            Dim playInning As String = lastPlayData.SelectToken("about.inning")
-            Dim playInningHalf As String = lastPlayData.SelectToken("about.halfInning")
+    'Public Function GetLastPlayDescription(ThisGame As Game) As String
+    '    Dim desc As String
+    '    Try
+    '        Dim currentPlayIdx As Integer = ThisGame.LiveData.SelectToken("plays.currentPlay.atBatIndex")
+    '        If currentPlayIdx = 0 Then
+    '            Return ""
+    '        End If
+    '        Dim lastPlayData As JObject = getPlayData(ThisGame, currentPlayIdx - 1)
+    '        Dim allPlayData As JArray = ThisGame.LiveData.SelectToken("plays.allPlays")
+    '        desc = lastPlayData.SelectToken("result.description")
+    '        Dim playInning As String = lastPlayData.SelectToken("about.inning")
+    '        Dim playInningHalf As String = lastPlayData.SelectToken("about.halfInning")
 
-            desc = String.Format("Last play: {0}", desc)
-            If Not (playInning.Equals(ThisGame.CurrentInning)) Or
-                Not (playInningHalf.ToUpper().Equals(ThisGame.CurrentInningHalf.ToUpper())) Then
-                desc = String.Format("{0} {1}: {2}", playInningHalf.ToUpper(), playInning, desc)
-            End If
+    '        desc = String.Format("Last play: {0}", desc)
+    '        If Not (playInning.Equals(ThisGame.CurrentInning)) Or
+    '            Not (playInningHalf.ToUpper().Equals(ThisGame.CurrentInningHalf.ToUpper())) Then
+    '            desc = String.Format("{0} {1}: {2}", playInningHalf.ToUpper(), playInning, desc)
+    '        End If
 
-        Catch ex As Exception
-            Trace.WriteLine($"ERROR: GetLastPlayDescription - {ex}")
-        End Try
-        Return desc
+    '    Catch ex As Exception
+    '        Trace.WriteLine($"ERROR: GetLastPlayDescription - {ex}")
+    '    End Try
+    '    Return desc
 
-    End Function
+    'End Function
 
     'Public Function getCurrentInningNumber() As String
     '    Dim gameData As JObject = Me.getLiveData()
@@ -180,11 +180,11 @@ Public Class ScoreboardData
     '    Return team
     'End Function
 
-    Public Function GetHomeTeamId() As String
-        Dim data As JObject = getBoxScoreData()
-        Dim id As String = data.SelectToken("teams.home.team.id")
-        Return id
-    End Function
+    'Public Function GetHomeTeamId() As String
+    '    Dim data As JObject = getBoxScoreData()
+    '    Dim id As String = data.SelectToken("teams.home.team.id")
+    '    Return id
+    'End Function
 
     'Public Function GetHomeTeamFullName() As String
     '    Dim TeamData As Dictionary(Of String, String) = GetTeamData(GetHomeTeamId())
@@ -201,33 +201,33 @@ Public Class ScoreboardData
     '    Return TeamData("abbr")
     'End Function
 
-    Public Function GetTeamData(TeamId As String) As Dictionary(Of String, String)
-        Dim TeamData As Dictionary(Of String, String) = New Dictionary(Of String, String)
+    'Public Function GetTeamData(TeamId As String) As Dictionary(Of String, String)
+    '    Dim TeamData As Dictionary(Of String, String) = New Dictionary(Of String, String)
 
-        Try
-            Dim data As JObject = Me.API.ReturnAllTeamsData()
-            Dim teams As JArray = data.SelectToken("teams")
+    '    Try
+    '        Dim data As JObject = Me.API.ReturnAllTeamsData()
+    '        Dim teams As JArray = data.SelectToken("teams")
 
-            For Each team As JObject In teams
-                If TeamId.Equals(team.SelectToken("id").ToString()) Then
-                    TeamData.Add("id", team.SelectToken("id").ToString())
-                    TeamData.Add("fullname", team.SelectToken("name"))
-                    TeamData.Add("shortname", team.SelectToken("teamName"))
-                    TeamData.Add("abbr", team.SelectToken("abbreviation"))
-                    Exit For
-                End If
-            Next
-        Catch ex As Exception
-            Trace.WriteLine($"ERROR: GetTeamData - {ex}")
-        End Try
-        Return TeamData
-    End Function
+    '        For Each team As JObject In teams
+    '            If TeamId.Equals(team.SelectToken("id").ToString()) Then
+    '                TeamData.Add("id", team.SelectToken("id").ToString())
+    '                TeamData.Add("fullname", team.SelectToken("name"))
+    '                TeamData.Add("shortname", team.SelectToken("teamName"))
+    '                TeamData.Add("abbr", team.SelectToken("abbreviation"))
+    '                Exit For
+    '            End If
+    '        Next
+    '    Catch ex As Exception
+    '        Trace.WriteLine($"ERROR: GetTeamData - {ex}")
+    '    End Try
+    '    Return TeamData
+    'End Function
 
-    Public Function GetAwayTeamId() As String
-        Dim data As JObject = getBoxScoreData()
-        Dim id As String = data.SelectToken("teams.away.team.id")
-        Return id
-    End Function
+    'Public Function GetAwayTeamId() As String
+    '    Dim data As JObject = getBoxScoreData()
+    '    Dim id As String = data.SelectToken("teams.away.team.id")
+    '    Return id
+    'End Function
 
     'Public Function GetAwayTeamFullName() As String
     '    Dim TeamData As Dictionary(Of String, String) = GetTeamData(GetAwayTeamId())
@@ -358,27 +358,27 @@ Public Class ScoreboardData
     '    Return batterStats
     'End Function
 
-    Function LoadAllGamesData(gameDate As String) As Dictionary(Of String, Game)
-        Dim ListOfGames As Dictionary(Of String, Game) = New Dictionary(Of String, Game)
+    'Function LoadAllGamesData(gameDate As String) As Dictionary(Of String, Game)
+    '    Dim ListOfGames As Dictionary(Of String, Game) = New Dictionary(Of String, Game)
 
-        Try
-            Dim schedule As JObject = Me.API.ReturnScheduleData(gameDate)
-            Dim gameDates As JArray = schedule.SelectToken("dates")
+    '    Try
+    '        Dim schedule As JObject = Me.API.ReturnScheduleData(gameDate)
+    '        Dim gameDates As JArray = schedule.SelectToken("dates")
 
-            For Each gDate As JObject In gameDates
-                Dim games As JArray = gDate.SelectToken("games")
+    '        For Each gDate As JObject In gameDates
+    '            Dim games As JArray = gDate.SelectToken("games")
 
-                For Each game As JObject In games
-                    Dim gamePk As String = game.SelectToken("gamePk")
-                    Dim oGame As Game = New Game(gamePk)
-                    ListOfGames.Add(gamePk, oGame)
-                Next
-            Next
-        Catch ex As Exception
-            Trace.WriteLine($"ERROR: LoadAllTeamsData - {ex}")
-        End Try
-        Return ListOfGames
-    End Function
+    '            For Each game As JObject In games
+    '                Dim gamePk As String = game.SelectToken("gamePk")
+    '                Dim oGame As Game = New Game(gamePk)
+    '                ListOfGames.Add(gamePk, oGame)
+    '            Next
+    '        Next
+    '    Catch ex As Exception
+    '        Trace.WriteLine($"ERROR: LoadAllTeamsData - {ex}")
+    '    End Try
+    '    Return ListOfGames
+    'End Function
 
     'Sub LoadAllGamesData(gameDate As String)
 
@@ -488,43 +488,44 @@ Public Class ScoreboardData
     '    Return pitcherId
     'End Function
 
-    Function GetLastOutBatterId(ThisGame As Game) As String
-        Dim lastBatterId As String = 0
-        Try
-            Dim lastInning As Integer = ThisGame.CurrentInning - 1
-            If lastInning < 0 Then
-                lastInning = 0
-            End If
+    'Function GetLastOutBatterId(ThisGame As Game) As String
+    '    Dim lastBatterId As String = 0
+    '    Try
+    '        Dim lastInning As Integer = ThisGame.CurrentInning - 1
+    '        If lastInning < 0 Then
+    '            lastInning = 0
+    '        End If
 
-            Dim jsonPath As String
-            Dim allPlayData As JObject = ThisGame.LiveData.SelectToken("plays")
+    '        Dim jsonPath As String
+    '        Dim allPlayData As JObject = ThisGame.LiveData.SelectToken("plays")
 
-            If ThisGame.CurrentInningState = "END" Then
-                jsonPath = "plays.playsByInning[" + lastInning.ToString + "].top"
-            Else
-                jsonPath = "plays.playsByInning[" + lastInning.ToString + "].bottom"
-            End If
+    '        If ThisGame.CurrentInningState = "END" Then
+    '            jsonPath = "plays.playsByInning[" + lastInning.ToString + "].top"
+    '        Else
+    '            jsonPath = "plays.playsByInning[" + lastInning.ToString + "].bottom"
+    '        End If
 
-            Dim data = ThisGame.LiveData.SelectToken(jsonPath)
-            Dim lastPlayIndex = data(data.Count - 1)
-            jsonPath = "allPlays[" + lastPlayIndex.ToString + "].matchup.batter.id"
+    '        Dim data = ThisGame.LiveData.SelectToken(jsonPath)
+    '        Dim lastPlayIndex = data(data.Count - 1)
+    '        jsonPath = "allPlays[" + lastPlayIndex.ToString + "].matchup.batter.id"
 
-            lastBatterId = allPlayData.SelectToken(jsonPath)
-        Catch ex As Exception
-            Trace.WriteLine($"ERROR: getLastBatterId - {ex}")
-        End Try
-        Return lastBatterId
-    End Function
+    '        lastBatterId = allPlayData.SelectToken(jsonPath)
+    '    Catch ex As Exception
+    '        Trace.WriteLine($"ERROR: getLastBatterId - {ex}")
+    '    End Try
+    '    Return lastBatterId
+    'End Function
 
-    Public Function GetProperties() As Properties
-        Dim props As Properties = New Properties()
-        Return props
-    End Function
-    Public Function getValueFromConfig(key As String, defaultValue As String) As Integer
-        Dim props As Properties = New Properties()
-        Dim value = props.GetProperty(key, defaultValue)
-        Return value
-    End Function
+    'Public Function GetProperties() As Properties
+    '    Dim props As Properties = New Properties()
+    '    Return props
+    'End Function
+
+    'Public Function getValueFromConfig(key As String, defaultValue As String) As Integer
+    '    Dim props As SBProperties = New SBProperties()
+    '    Dim value = props.GetProperty(key, defaultValue)
+    '    Return value
+    'End Function
 
     'Public Sub addValueToConfig(key As String, value As String)
     '    Dim props As Properties = New Properties()
@@ -561,86 +562,92 @@ Public Class ScoreboardData
 
     'End Function
 
-    Public Function GetDueUpBatters(ThisGame As Game) As List(Of Player)
-        Dim DueUpBatters As List(Of Player) = New List(Of Player)
+    'Public Function GetDueUpBatters(ThisGame As Game) As List(Of Player)
+    '    Dim DueUpBatters As List(Of Player) = New List(Of Player)
 
-        'TODO - batting order is kept in boxscore by person id
-        ' use it to get proper order
 
-        ' get last batter
-        Dim lastBatterId As String = 0
-        Try
-            Dim lastInning As Integer = ThisGame.CurrentInning - 1
-            If lastInning < 0 Then
-                lastInning = 0
-            End If
+    '    ' get last batter
+    '    Dim lastBatterId As String = 0
+    '    Try
+    '        Dim lastInning As Integer = ThisGame.CurrentInning - 1
+    '        If lastInning <= 0 Then
+    '            lastInning = 0
+    '        End If
 
-            Dim jsonPath As String
-            Dim allPlayData As JObject = ThisGame.LiveData.SelectToken("plays")
+    '        ' if last inning = 0, 1st inning and no batters yet
+    '        ' TODO - get batting order and return top three ids
 
-            If ThisGame.CurrentInningState = "END" Then
-                jsonPath = "plays.playsByInning[" + lastInning.ToString + "].top"
-            Else
-                jsonPath = "plays.playsByInning[" + lastInning.ToString + "].bottom"
-            End If
+    '        Dim jsonPath As String
+    '        Dim allPlayData As JObject = ThisGame.LiveData.SelectToken("plays")
 
-            Dim data = ThisGame.LiveData.SelectToken(jsonPath)
-            Dim lastPlayIndex = data(data.Count - 1)
-            jsonPath = "allPlays[" + lastPlayIndex.ToString + "].matchup.batter.id"
+    '        If ThisGame.CurrentInningState = "END" Then
+    '            jsonPath = $"playsByInning[{lastInning}].top"
+    '        Else
+    '            jsonPath = $"playsByInning[{lastInning}].bottom"
+    '        End If
 
-            lastBatterId = allPlayData.SelectToken(jsonPath)
-        Catch ex As Exception
-            Trace.WriteLine($"ERROR: GetDueUpBatters - get last batter Id - {ex}")
-        End Try
+    '        Dim data As JArray = allPlayData.SelectToken(jsonPath)
+    '        Dim lastPlayIndex = data.Item(data.Count() - 1)  ' zero based
+    '        jsonPath = "allPlays[" + lastPlayIndex.ToString() + "].matchup.batter.id"
 
-        ' figure out next three batters
-        Dim NextBatterIds As List(Of String) = New List(Of String)
-        Dim startIdx As Integer
-        Dim dt As DataTable
+    '        lastBatterId = allPlayData.SelectToken(jsonPath)
 
-        Try
-            If ThisGame.CurrentInningState() = "END" Then
-                dt = ThisGame.AwayTeam.GetLinupTable()
-            Else
-                dt = ThisGame.HomeTeam.GetLinupTable()
-            End If
 
-            ' find last batter in lineup
-            For Each row As DataRow In dt.Rows()
-                If row.Item("id").ToString.Equals(lastBatterId) Then
-                    startIdx = dt.Rows().IndexOf(row)
-                    'Trace.WriteLine($"startIdx={startIdx}")
-                    Exit For
-                End If
-            Next
+    '        ' figure out next three batters
+    '        Dim lastBatter As Player
+    '        Dim lineup As DataTable
+    '        Dim lastBattingPosition As Integer
 
-            ' get next three batter ids - skip pitchers
-            Dim idx As Integer = startIdx + 1
-            While NextBatterIds.Count < 3
-                If idx >= dt.Rows().Count() Then
-                    idx = idx - dt.Rows().Count()
-                End If
-                'Trace.WriteLine($"idx={idx}")
-                If Not dt.Rows(idx).Item("Position").ToString().ToUpper = "P" Then
-                    NextBatterIds.Add(dt.Rows(idx).Item("Id").ToString())
-                End If
-                idx += 1
-            End While
-        Catch ex As Exception
-            Trace.WriteLine($"ERROR: GetDueUpBatters - get next due up ids - {ex}")
-        End Try
+    '        ' Away Team
+    '        If ThisGame.CurrentInningState = "END" Then
+    '            lastBatter = ThisGame.AwayTeam.GetPlayer(lastBatterId)
+    '            lineup = ThisGame.AwayTeam.GetLinupTable()
+    '            lastBattingPosition = lastBatter.BattingPosition()
+    '            Dim battingPosition As Integer = lastBattingPosition
+    '            For i As Integer = 1 To 3
+    '                battingPosition = battingPosition + 1
+    '                If battingPosition > 9 Then
+    '                    battingPosition = battingPosition - 9
+    '                End If
 
-        ' build list of player objs
-        For Each Id As String In NextBatterIds
-            If ThisGame.CurrentInningState() = "END" Then
-                DueUpBatters.Add(ThisGame.AwayTeam.GetPlayer(Id))
-            Else
-                DueUpBatters.Add(ThisGame.HomeTeam.GetPlayer(Id))
-            End If
-        Next
+    '                For Each row As DataRow In lineup.Rows()
+    '                    If battingPosition = row("BattingOrder") Then
+    '                        DueUpBatters.Add(ThisGame.AwayTeam.GetPlayer(row("Id")))
+    '                    End If
+    '                Next
+    '            Next
+    '        Else
+    '            ' Home Team
+    '            lastBatter = ThisGame.HomeTeam.GetPlayer(lastBatterId)
+    '            lineup = ThisGame.AwayTeam.GetLinupTable()
+    '            lastBattingPosition = lastBatter.BattingPosition()
+    '            Dim battingPosition As Integer = lastBattingPosition
+    '            For i As Integer = 1 To 3
+    '                battingPosition = battingPosition + 1
 
-        Return DueUpBatters
-    End Function
+    '                If battingPosition > 9 Then
+    '                    battingPosition = battingPosition - 9
+    '                End If
+
+    '                For Each row As DataRow In lineup.Rows()
+    '                    If battingPosition = row("BattingOrder") Then
+    '                        DueUpBatters.Add(ThisGame.HomeTeam.GetPlayer(row("Id")))
+    '                    End If
+    '                Next
+    '            Next
+
+
+
+    '        End If
+
+    '    Catch ex As Exception
+    '        Trace.WriteLine($"ERROR: GetDueUpBatters - get last batter Id - {ex}")
+    '    End Try
+
+
+
+    '    Return DueUpBatters
+    'End Function
 
 
 End Class

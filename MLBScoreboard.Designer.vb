@@ -52,7 +52,7 @@ Partial Class MLBScoreboard
         Me.lblBalls = New System.Windows.Forms.Label()
         Me.lblStrikes = New System.Windows.Forms.Label()
         Me.lblOuts = New System.Windows.Forms.Label()
-        Me.UpdateTimer = New System.Windows.Forms.Timer(Me.components)
+        Me.ScoreboardUpdateTimer = New System.Windows.Forms.Timer(Me.components)
         Me.dgvAwayLineup = New System.Windows.Forms.DataGridView()
         Me.dgvHomeLineup = New System.Windows.Forms.DataGridView()
         Me.lblAwayLineup = New System.Windows.Forms.Label()
@@ -67,6 +67,7 @@ Partial Class MLBScoreboard
         Me.imgHomeLogo = New System.Windows.Forms.PictureBox()
         Me.lblAwayWinnerLoser = New System.Windows.Forms.Label()
         Me.lblHomeWinnerLoser = New System.Windows.Forms.Label()
+        Me.GameUpdateTimer = New System.Windows.Forms.Timer(Me.components)
         Me.StatusStrip1.SuspendLayout()
         Me.MenuStrip1.SuspendLayout()
         CType(Me.dgvInnings, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -298,10 +299,10 @@ Partial Class MLBScoreboard
         Me.lblOuts.TabIndex = 20
         Me.lblOuts.Text = "Outs: 0"
         '
-        'UpdateTimer
+        'ScoreboardUpdateTimer
         '
-        Me.UpdateTimer.Enabled = True
-        Me.UpdateTimer.Interval = 15000
+        Me.ScoreboardUpdateTimer.Enabled = True
+        Me.ScoreboardUpdateTimer.Interval = 30000
         '
         'dgvAwayLineup
         '
@@ -534,6 +535,11 @@ Partial Class MLBScoreboard
         Me.lblHomeWinnerLoser.Text = "Winner-Loser"
         Me.lblHomeWinnerLoser.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
+        'GameUpdateTimer
+        '
+        Me.GameUpdateTimer.Enabled = True
+        Me.GameUpdateTimer.Interval = 20000
+        '
         'MLBScoreboard
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 20.0!)
@@ -603,7 +609,7 @@ Partial Class MLBScoreboard
     Friend WithEvents lblHomeLineup As Label
     Friend WithEvents lblMatchup As Label
     Friend WithEvents dgvGames As DataGridView
-    Friend WithEvents UpdateTimer As Timer
+    Friend WithEvents ScoreboardUpdateTimer As Timer
     Friend WithEvents lblGamePk As Label
     Friend WithEvents lblStatus As Label
     Friend WithEvents tbxCommentary As RichTextBox
@@ -622,4 +628,5 @@ Partial Class MLBScoreboard
     Friend WithEvents lblHomeWinnerLoser As Label
     Friend WithEvents ToolStripSeparator2 As ToolStripSeparator
     Friend WithEvents PlayRecapToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents GameUpdateTimer As Timer
 End Class

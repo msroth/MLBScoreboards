@@ -12,6 +12,7 @@ Public Class Team
     Private mLoses As String
     Private mLineup As List(Of Player) = New List(Of Player)
     Private mRoster As List(Of Player) = New List(Of Player)
+    Private mBattingOrder As List(Of Player) = New List(Of Player)
     Private mAPI As MLB_API = New MLB_API()
 
     Public ReadOnly Property Id() As Integer
@@ -68,6 +69,12 @@ Public Class Team
         End Get
     End Property
 
+    Public ReadOnly Property BattingOrder() As List(Of Player)
+        Get
+            Return Me.mBattingOrder
+        End Get
+    End Property
+
     Public Sub New(TeamId As Integer)
         Me.mId = TeamId
 
@@ -102,7 +109,7 @@ Public Class Team
         Return Nothing
     End Function
 
-    Public Sub LoadLineupAndRosterData(ThisGame As Game)
+    Public Sub LoadPlayerData(ThisGame As Game)
         If ThisGame Is Nothing Or ThisGame.GamePk = 0 Then
             Return
         End If
@@ -119,6 +126,7 @@ Public Class Team
             ' clear lineup and roster lists before update
             mLineup.Clear()
             mRoster.Clear()
+            mBattingOrder.Clear()
 
             ' use boxscore data to create Player objects
             For Each Player As JProperty In ThisGame.BoxScoreData().SelectToken($"teams.{AwayOrHome}.players")
@@ -128,17 +136,28 @@ Public Class Team
                 pName = pName.Substring(pName.IndexOf(" ") + 1) + ", " + pName.Substring(0, 1)
                 Dim pPosition As String = Player.Value.Item("position").Item("abbreviation")
                 Dim aPlayer As Player = New Player(pId, pNum, pName, pPosition)
+                'Dim aPlayer As Player = New Player(pId)
                 mRoster.Add(aPlayer)
 
-                ' get active batters and pitchers for game
+                ' get active batters and pitchers for game i.e. the line up
                 For Each Id As String In ThisGame.BoxScoreData().SelectToken($"teams.{AwayOrHome}.batters")
                     ' add player obj to lineup table
                     If Player.Value.Item("person").Item("id").ToString().Equals(Id) Then
                         mLineup.Add(aPlayer)
                     End If
-                    'Exit For
                 Next
             Next
+
+            ' load batting order
+            Dim BODAta As JArray = ThisGame.BoxScoreData().SelectToken($"teams.{AwayOrHome}.battingOrder")
+            Dim i As Integer = 1
+            For Each playerId As String In BODAta
+                Dim player As Player = GetPlayer(playerId)
+                player.BattingPosition = i.ToString()
+                mBattingOrder.Append(player)
+                i += 1
+            Next
+
         Catch ex As Exception
             Trace.WriteLine($"ERROR: LoadLineupAndRosterData - {ex}")
         End Try
@@ -162,11 +181,11 @@ Public Class Team
                 sb.Append(vbTab)
                 sb.Append(Player.Id())
                 sb.Append(vbTab)
-                sb.Append(Player.Name())
+                sb.Append(Player.FullName())
                 sb.Append(vbTab)
                 sb.Append(Player.Number())
                 sb.Append(vbTab)
-                sb.Append(Player.Position())
+                sb.Append(Player.ShortPosition())
                 sb.Append(vbCr)
             Next
         End If
@@ -181,18 +200,22 @@ Public Class Team
             dt.Columns.Add("Num")
             dt.Columns.Add("Name")
             dt.Columns.Add("Position")
+            dt.Columns.Add("BattingOrder")
 
             For Each player As Player In mLineup
                 Dim row As DataRow = dt.NewRow()
                 row("Id") = player.Id()
                 row("Num") = player.Number()
-                row("Name") = player.Name()
-                row("Position") = player.Position()
+                row("Name") = player.FullName()
+                row("Position") = player.ShortPosition()
+                row("BattingOrder") = player.BattingPosition()
                 dt.Rows.Add(row)
             Next
         Catch ex As Exception
             Trace.WriteLine($"ERROR: GetLineup - {ex}")
         End Try
+        ' sort by batting order
+        dt = dt.Select("", "BattingOrder").CopyToDataTable()
         Return dt
     End Function
 
@@ -212,8 +235,8 @@ Public Class Team
                 Dim row As DataRow = dt.NewRow()
                 row("Id") = player.Id()
                 row("Num") = player.Number()
-                row("Name") = player.Name()
-                row("Position") = player.Position()
+                row("Name") = player.FullName()
+                row("Position") = player.ShortPosition()
                 dt.Rows.Add(row)
             Next
 
