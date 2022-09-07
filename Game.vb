@@ -643,7 +643,7 @@ Public Class Game
 
             battingTeamLineup = battingTeam.GetLinupTable()
 
-            ' find the last batter it
+            ' find the last batter id
             ' if last inning = 0, it's 1st inning and no batters yet
             If lastInning > 0 Then
                 Dim jsonPath As String
@@ -696,7 +696,7 @@ Public Class Game
             Next
 
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: GetDueUpBatters - get last batter Id - {ex}")
+            Trace.WriteLine($"ERROR: GetDueUpBatters - {ex}")
         End Try
 
         Return sb.ToString()

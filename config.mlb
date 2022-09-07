@@ -1,2 +1,4 @@
-timer=30
+game_refresh=20
+scoreboard_refresh=30
 favorite_team=WSH
+debug=0

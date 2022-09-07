@@ -14,7 +14,6 @@ Public Class PlayerStats
     Private mBattingGameStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
     Private mBattingSeasonStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
     Private mBattingCareerStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
-    Private mGameFieldingStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
     Private mPitchingGameStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
     Private mPitchingSeasonStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
     Private mPitchingCareerStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
@@ -112,19 +111,22 @@ Public Class PlayerStats
             If Me.mThisPlayer.Id = pId Then
 
                 ' get pitching
-                If Me.mThisPlayer.ShortPosition = "P" Then
-                    PitchingSeasonStatsData = aPlayer.Value.Item("seasonStats").Item("pitching")
-                    PitchingGameStatsData = aPlayer.Value.Item("stats").Item("pitching")
-                    PitchingCareerStatsData = Me.mAPI.ReturnPlayerStats(Me.mThisPlayer.Id, "career", "pitching")
-                End If
+                'If Me.mThisPlayer.ShortPosition = "P" Then
+                'PitchingSeasonStatsData = aPlayer.Value.Item("seasonStats").Item("pitching")
+                PitchingSeasonStatsData = Me.mAPI.ReturnPlayerStats(Me.mThisPlayer.Id, "season", "pitching")
+                PitchingGameStatsData = aPlayer.Value.Item("stats").Item("pitching")
+                PitchingCareerStatsData = Me.mAPI.ReturnPlayerStats(Me.mThisPlayer.Id, "career", "pitching")
+                'End If
 
                 ' get batting stats
-                BattingSeasonStatsData = aPlayer.Value.Item("seasonStats").Item("batting")
+                'BattingSeasonStatsData = aPlayer.Value.Item("seasonStats").Item("batting")
+                BattingSeasonStatsData = Me.mAPI.ReturnPlayerStats(Me.mThisPlayer.Id, "season", "hitting")
                 BattingGameStatsData = aPlayer.Value.Item("stats").Item("batting")
                 BattingCareerStatsData = Me.mAPI.ReturnPlayerStats(Me.mThisPlayer.Id, "career", "hitting")
 
                 ' get fielding stats
-                FieldingSeasonStatsData = aPlayer.Value.Item("seasonStats").Item("fielding")
+                'FieldingSeasonStatsData = aPlayer.Value.Item("seasonStats").Item("fielding")
+                FieldingSeasonStatsData = Me.mAPI.ReturnPlayerStats(Me.mThisPlayer.Id, "season", "fielding")
                 FieldingGameStatsData = aPlayer.Value.Item("stats").Item("fielding")
                 FieldingCareerStatsData = Me.mAPI.ReturnPlayerStats(Me.mThisPlayer.Id, "career", "fielding")
 
@@ -176,53 +178,53 @@ Public Class PlayerStats
         End If
 
         If FieldingSeasonStatsData IsNot Nothing Then
-            For Each key As String In FieldingStatsKeys
-                Dim value = ""
-                If FieldingSeasonStatsData.ContainsKey(key) Then
-                    value = FieldingSeasonStatsData(key)
+            Dim stats As JArray = FieldingSeasonStatsData.SelectToken("people[0].stats[0].splits")
+            For i = 0 To stats.Count - 1
+                Dim statsdata As JObject = stats.Item(i)
+                Dim position As String = statsdata.SelectToken("position.abbreviation")
+                If position.ToUpper() = Me.mThisPlayer.ShortPosition Then
+                    For Each key As String In FieldingStatsKeys
+                        Dim value As String = statsdata.SelectToken($"stat.{key}")
+                        Me.mFieldingSeasonStats.Add(key, value)
+                    Next
                 End If
-                Me.mFieldingSeasonStats.Add(key, value)
             Next
         End If
 
-        ' career stats
-        'Dim Data As JObject = JObject.Parse(File.ReadAllText("C:\\temp\\fieldingcareerstatsdata.json"))
-        'Dim JData As JArray = Data.SelectToken("stats[0].splits")
-
-        'For Each entry As JObject In JData
-
-        '    Dim id As String = entry.SelectToken("player.id")
-        '    If id = Me.mThisPlayer.Id Then
-        '        Dim stats As JObject = entry.SelectToken("stat")
-        '        For Each key As String In FieldingStatsKeys
-        '            Dim value = ""
-        '            If stats.ContainsKey(key) Then
-        '                value = stats.SelectToken(key)
-        '            End If
-        '            Me.mFieldingCareerStats.Add(key, value)
-        '        Next
-
-        '    End If
-        'Next
+        If FieldingCareerStatsData IsNot Nothing Then
+            Dim stats As JArray = FieldingCareerStatsData.SelectToken("people[0].stats[0].splits")
+            For i = 0 To stats.Count - 1
+                Dim statsdata As JObject = stats.Item(i)
+                Dim position As String = statsdata.SelectToken("position.abbreviation")
+                If position.ToUpper() = Me.mThisPlayer.ShortPosition Then
+                    For Each key As String In FieldingStatsKeys
+                        Dim value As String = statsdata.SelectToken($"stat.{key}")
+                        Me.mFieldingCareerStats.Add(key, value)
+                    Next
+                End If
+            Next
+        End If
 
         Dim dt As DataTable = InitDataGrids()
         For Each key As String In mFieldingSeasonStats.Keys
             Dim dr As DataRow = dt.NewRow()
             dr.Item("Stat") = key
             If mFieldingGameStats.ContainsKey(key) Then
-                dr.Item("Game") = mFieldingGameStats(key).ToString()
+                dr.Item("Game") = mFieldingGameStats(key)
             End If
             If mFieldingSeasonStats.ContainsKey(key) Then
-                dr.Item("Season") = mFieldingSeasonStats(key).ToString()
+                dr.Item("Season") = mFieldingSeasonStats(key)
             End If
             If mFieldingCareerStats.ContainsKey(key) Then
-                dr.Item("Career") = mFieldingCareerStats(key).ToString()
+                dr.Item("Career") = mFieldingCareerStats(key)
             End If
             dt.Rows.Add(dr)
         Next
         dgvFieldingStats.DataSource = dt
 
+
         ' load batting stats
+
         If BattingGameStatsData IsNot Nothing Then
             For Each key As String In BattingStatsKeys
                 Dim value = ""
@@ -234,75 +236,111 @@ Public Class PlayerStats
         End If
 
         If BattingSeasonStatsData IsNot Nothing Then
-            For Each key As String In BattingStatsKeys
-                Dim value = ""
-                If BattingSeasonStatsData.ContainsKey(key) Then
-                    value = BattingSeasonStatsData(key)
-                End If
-                Me.mBattingSeasonStats.Add(key, value)
+            Dim stats As JArray = BattingSeasonStatsData.SelectToken("people[0].stats[0].splits")
+            For i = 0 To stats.Count - 1
+                Dim statsdata As JObject = stats.Item(i)
+                'Dim position As String = statsdata.SelectToken("position.abbreviation")
+                'If position.ToUpper() = Me.mThisPlayer.ShortPosition Then
+                For Each key As String In BattingStatsKeys
+                    Dim value As String = statsdata.SelectToken($"stat.{key}")
+                    Me.mBattingSeasonStats.Add(key, value)
+                Next
+                'End If
             Next
         End If
 
-        ' career stats
+        If BattingCareerStatsData IsNot Nothing Then
+            Dim stats As JArray = BattingCareerStatsData.SelectToken("people[0].stats[0].splits")
+            For i = 0 To stats.Count - 1
+                Dim statsdata As JObject = stats.Item(i)
+                'Dim position As String = statsdata.SelectToken("position.abbreviation")
+                'If position.ToUpper() = Me.mThisPlayer.ShortPosition Then
+                For Each key As String In BattingStatsKeys
+                    Dim value As String = statsdata.SelectToken($"stat.{key}")
+                    Me.mBattingCareerStats.Add(key, value)
+                Next
+                'End If
+            Next
+        End If
 
         dt = InitDataGrids()
         For Each key As String In mBattingSeasonStats.Keys
             Dim dr As DataRow = dt.NewRow()
             dr.Item("Stat") = key
             If mBattingGameStats.ContainsKey(key) Then
-                dr.Item("Game") = mBattingGameStats(key).ToString()
+                dr.Item("Game") = mBattingGameStats(key)
             End If
             If mBattingSeasonStats.ContainsKey(key) Then
-                dr.Item("Season") = mBattingSeasonStats(key).ToString()
+                dr.Item("Season") = mBattingSeasonStats(key)
             End If
             If mBattingCareerStats.ContainsKey(key) Then
-                dr.Item("Career") = mBattingCareerStats(key).ToString()
+                dr.Item("Career") = mBattingCareerStats(key)
             End If
             dt.Rows.Add(dr)
         Next
         dgvBattingStats.DataSource = dt
 
+
         ' load pitching stats
-        If PitchingGameStatsData IsNot Nothing Then
-            For Each key As String In PitchingStatsKeys
-                Dim value = ""
-                If PitchingGameStatsData.ContainsKey(key) Then
-                    value = PitchingGameStatsData(key)
+
+        If Me.mThisPlayer.ShortPosition = "P" Then
+
+            If PitchingGameStatsData IsNot Nothing Then
+                For Each key As String In PitchingStatsKeys
+                    Dim value = ""
+                    If PitchingGameStatsData.ContainsKey(key) Then
+                        value = PitchingGameStatsData(key)
+                    End If
+                    Me.mPitchingGameStats.Add(key, value)
+                Next
+            End If
+
+            If PitchingSeasonStatsData IsNot Nothing Then
+                Dim stats As JArray = PitchingSeasonStatsData.SelectToken("people[0].stats[0].splits")
+                For i = 0 To stats.Count - 1
+                    Dim statsdata As JObject = stats.Item(i)
+                    'Dim position As String = statsdata.SelectToken("position.abbreviation")
+                    'If position.ToUpper() = Me.mThisPlayer.ShortPosition Then
+                    For Each key As String In PitchingStatsKeys
+                        Dim value As String = statsdata.SelectToken($"stat.{key}")
+                        Me.mPitchingSeasonStats.Add(key, value)
+                    Next
+                    'End If
+                Next
+            End If
+
+            If PitchingCareerStatsData IsNot Nothing Then
+                Dim stats As JArray = PitchingCareerStatsData.SelectToken("people[0].stats[0].splits")
+                For i = 0 To stats.Count - 1
+                    Dim statsdata As JObject = stats.Item(i)
+                    'Dim position As String = statsdata.SelectToken("position.abbreviation")
+                    'If position.ToUpper() = Me.mThisPlayer.ShortPosition Then
+                    For Each key As String In PitchingStatsKeys
+                        Dim value As String = statsdata.SelectToken($"stat.{key}")
+                        Me.mPitchingCareerStats.Add(key, value)
+                    Next
+                    'End If
+                Next
+            End If
+
+            dt = InitDataGrids()
+            For Each key As String In mPitchingSeasonStats.Keys
+                Dim dr As DataRow = dt.NewRow()
+                dr.Item("Stat") = key
+                If mPitchingGameStats.ContainsKey(key) Then
+                    dr.Item("Game") = mPitchingGameStats(key)
                 End If
-                Me.mPitchingGameStats.Add(key, value)
-            Next
-        End If
-
-        If PitchingSeasonStatsData IsNot Nothing Then
-            For Each key As String In PitchingStatsKeys
-                Dim value = ""
-                If PitchingSeasonStatsData.ContainsKey(key) Then
-                    value = PitchingSeasonStatsData(key)
+                If mPitchingSeasonStats.ContainsKey(key) Then
+                    dr.Item("Season") = mPitchingSeasonStats(key)
                 End If
-                Me.mPitchingSeasonStats.Add(key, value)
+                If mPitchingCareerStats.ContainsKey(key) Then
+                    dr.Item("Career") = mPitchingCareerStats(key)
+                End If
+                dt.Rows.Add(dr)
             Next
+            dgvPitchingStats.DataSource = dt
+
         End If
-
-        ' career stats
-
-        dt = InitDataGrids()
-        For Each key As String In mPitchingSeasonStats.Keys
-            Dim dr As DataRow = dt.NewRow()
-            dr.Item("Stat") = key
-            If mPitchingGameStats.ContainsKey(key) Then
-                dr.Item("Game") = mPitchingGameStats(key).ToString()
-            End If
-            If mPitchingSeasonStats.ContainsKey(key) Then
-                dr.Item("Season") = mPitchingSeasonStats(key).ToString()
-            End If
-            If mPitchingCareerStats.ContainsKey(key) Then
-                dr.Item("Career") = mPitchingCareerStats(key).ToString()
-            End If
-            dt.Rows.Add(dr)
-        Next
-        dgvPitchingStats.DataSource = dt
-
-
 
     End Sub
 

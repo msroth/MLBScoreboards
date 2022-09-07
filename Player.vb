@@ -60,7 +60,7 @@ Public Class Player
         End Set
     End Property
 
-    Function ConvertToFullObject() As Player
+    Public Function ConvertToFullObject() As Player
         Return New Player(Me.mId)
     End Function
 

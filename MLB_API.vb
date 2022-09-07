@@ -15,12 +15,9 @@ Public Class MLB_API
     Private API_MULTIPLE_PERSON_DATA_URL = API_BASE_URL + "/v1/people?personIds={0}"
     Private API_SINGLE_PERSON_DATA_URL = API_BASE_URL + "/v1/people/{0}"
     'Private API_PERSON_STATS_URL = API_BASE_URL + "/v1/people/{0}/stats/game/{1}"
-    Private API_PERSON_STATS_URL = API_BASE_URL + "/v1/stats?stats={0}&group={1}&personId={2}"
+    Private API_PERSON_STATS_URL = API_BASE_URL + "/v1/people/{0}?hydrate=stats(group={1},type={2})"
 
-    'http://statsapi.mlb.com/api/v1/stats?stats=season&group=hitting&personId=602104
-    'http://statsapi.mlb.com/api/v1/stats?stats=career&group=hitting&personId=602104
-    'http://statsapi.mlb.com/api/v1/stats?stats=career&group=pitching&personId=621074
-    '
+    'https://statsapi.mlb.com/api/v1/people/425877?hydrate=stats(group=hitting,type=season)
 
 
     'Shared client As HttpClient = New HttpClient()
@@ -152,7 +149,7 @@ Public Class MLB_API
     End Function
 
     Function ReturnPlayerStats(PlayerId As String, period As String, statType As String) As JObject
-        Dim url As String = String.Format(API_PERSON_STATS_URL, period, statType, PlayerId)
+        Dim url As String = String.Format(API_PERSON_STATS_URL, PlayerId, statType, period)
         Trace.WriteLine(url)
         Dim r As String = GetData(url)
         Dim json As JObject = JObject.Parse(r)

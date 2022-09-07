@@ -36,12 +36,7 @@ Partial Class MLBScoreboard
         Me.ConfigureToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.QuitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ViewToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.PitcherStatsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.PlayerStatsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator1 = New System.Windows.Forms.ToolStripSeparator()
-        Me.MLBNewsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.TeamNewsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ToolStripSeparator2 = New System.Windows.Forms.ToolStripSeparator()
         Me.PlayRecapToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AboutToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
         Me.calDatePicker = New System.Windows.Forms.DateTimePicker()
@@ -128,49 +123,20 @@ Partial Class MLBScoreboard
         '
         'ViewToolStripMenuItem
         '
-        Me.ViewToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.PitcherStatsToolStripMenuItem, Me.PlayerStatsToolStripMenuItem, Me.ToolStripSeparator1, Me.MLBNewsToolStripMenuItem, Me.TeamNewsToolStripMenuItem, Me.ToolStripSeparator2, Me.PlayRecapToolStripMenuItem})
+        Me.ViewToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripSeparator1, Me.PlayRecapToolStripMenuItem})
         Me.ViewToolStripMenuItem.Name = "ViewToolStripMenuItem"
         Me.ViewToolStripMenuItem.Size = New System.Drawing.Size(55, 24)
         Me.ViewToolStripMenuItem.Text = "View"
         '
-        'PitcherStatsToolStripMenuItem
-        '
-        Me.PitcherStatsToolStripMenuItem.Name = "PitcherStatsToolStripMenuItem"
-        Me.PitcherStatsToolStripMenuItem.Size = New System.Drawing.Size(173, 26)
-        Me.PitcherStatsToolStripMenuItem.Text = "Pitcher Stats"
-        '
-        'PlayerStatsToolStripMenuItem
-        '
-        Me.PlayerStatsToolStripMenuItem.Name = "PlayerStatsToolStripMenuItem"
-        Me.PlayerStatsToolStripMenuItem.Size = New System.Drawing.Size(173, 26)
-        Me.PlayerStatsToolStripMenuItem.Text = "Player Stats"
-        '
         'ToolStripSeparator1
         '
         Me.ToolStripSeparator1.Name = "ToolStripSeparator1"
-        Me.ToolStripSeparator1.Size = New System.Drawing.Size(170, 6)
-        '
-        'MLBNewsToolStripMenuItem
-        '
-        Me.MLBNewsToolStripMenuItem.Name = "MLBNewsToolStripMenuItem"
-        Me.MLBNewsToolStripMenuItem.Size = New System.Drawing.Size(173, 26)
-        Me.MLBNewsToolStripMenuItem.Text = "MLB News"
-        '
-        'TeamNewsToolStripMenuItem
-        '
-        Me.TeamNewsToolStripMenuItem.Name = "TeamNewsToolStripMenuItem"
-        Me.TeamNewsToolStripMenuItem.Size = New System.Drawing.Size(173, 26)
-        Me.TeamNewsToolStripMenuItem.Text = "Team News"
-        '
-        'ToolStripSeparator2
-        '
-        Me.ToolStripSeparator2.Name = "ToolStripSeparator2"
-        Me.ToolStripSeparator2.Size = New System.Drawing.Size(170, 6)
+        Me.ToolStripSeparator1.Size = New System.Drawing.Size(221, 6)
         '
         'PlayRecapToolStripMenuItem
         '
         Me.PlayRecapToolStripMenuItem.Name = "PlayRecapToolStripMenuItem"
-        Me.PlayRecapToolStripMenuItem.Size = New System.Drawing.Size(173, 26)
+        Me.PlayRecapToolStripMenuItem.Size = New System.Drawing.Size(224, 26)
         Me.PlayRecapToolStripMenuItem.Text = "Play Recap"
         '
         'AboutToolStripMenuItem1
@@ -617,16 +583,11 @@ Partial Class MLBScoreboard
     Friend WithEvents ConfigureToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents lblWeather As Label
     Friend WithEvents ViewToolStripMenuItem As ToolStripMenuItem
-    Friend WithEvents PitcherStatsToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents imgAwayLogo As PictureBox
     Friend WithEvents imgHomeLogo As PictureBox
-    Friend WithEvents PlayerStatsToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ToolStripSeparator1 As ToolStripSeparator
-    Friend WithEvents MLBNewsToolStripMenuItem As ToolStripMenuItem
-    Friend WithEvents TeamNewsToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents lblAwayWinnerLoser As Label
     Friend WithEvents lblHomeWinnerLoser As Label
-    Friend WithEvents ToolStripSeparator2 As ToolStripSeparator
     Friend WithEvents PlayRecapToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents GameUpdateTimer As Timer
 End Class

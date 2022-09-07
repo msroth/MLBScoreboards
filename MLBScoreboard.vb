@@ -768,7 +768,7 @@ Public Class MLBScoreboard
     End Sub
 
 
-    Private Sub PitcherStatsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles PitcherStatsToolStripMenuItem.Click
+    Private Sub PitcherStatsToolStripMenuItem_Click(sender As Object, e As EventArgs)
 
 
         ' get pitcher stats
@@ -805,6 +805,15 @@ Public Class MLBScoreboard
         frmPlayerStats.GamePk = Me.mCurrentGame.GamePk
         frmPlayerStats.AwayOrHome = TeamSide
         frmPlayerStats.Show()
+    End Sub
+
+    Private Sub PlayRecapToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles PlayRecapToolStripMenuItem.Click
+        If Me.mCurrentGame Is Nothing Or Me.mGAME_STATUS_FUTURE = Me.CheckGameStatus(Me.mCurrentGame.GameStatus) Then
+            Return
+        End If
+        Dim frmPlaySummary As PlaySummary = New PlaySummary()
+        frmPlaySummary.Game = Me.mCurrentGame
+        frmPlaySummary.ShowDialog()
     End Sub
 
     'Imports System.Drawing.Imaging
