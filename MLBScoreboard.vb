@@ -43,12 +43,10 @@ Public Class MLBScoreboard
                 ' start the update timer for the game
                 Me.GameUpdateTimer.Start()
             End If
+
             ' run the scoreboard
             ResetScreenControls()
             RunScoreboard()
-            'Else
-            'ResetScreenControls()
-            'End If
         Catch ex As Exception
             Trace.WriteLine($"ERROR: MLBScoreboard_Load - {ex}")
         End Try
@@ -97,13 +95,13 @@ Public Class MLBScoreboard
                 ' this forces a refresch of MLB data from API
                 Me.mCurrentGame.LoadGameData()
                 ' update status bar
-                Me.ToolStripStatusLabel1.Text = "Current Game Data Updated " + Date.Now
+                Me.ToolStripStatusLabel1.Text = $"Current Game ({Me.mCurrentGame.AwayTeam.Abbr} @ {Me.mCurrentGame.HomeTeam.Abbr}) Data Updated {Date.Now}"
             End If
 
             Trace.WriteLine("=== Run Game ===>")
             Trace.WriteLine(Me.mCurrentGame.ToString())
-            'Trace.WriteLine(Me.mCurrentGame.AwayTeam.ToString())
-            'Trace.WriteLine(Me.mCurrentGame.HomeTeam.ToString())
+            Trace.WriteLine(Me.mCurrentGame.AwayTeam.ToString())
+            Trace.WriteLine(Me.mCurrentGame.HomeTeam.ToString())
             Trace.WriteLine("<=== Run Game ===")
 
             ' load line up data
@@ -220,6 +218,9 @@ Public Class MLBScoreboard
                 ' update Balls, Strikes, Outs
                 Me.UpdateBSO()
 
+                ' update pitch count
+                Me.lblPitchCount.Text = $"Pitch Count: {Me.mCurrentGame.PitchCount()}"
+
                 ' update pitcher-batter matchup
                 lblMatchup.Text = Me.mCurrentGame.GetPitcherBatterMatchup()
 
@@ -275,7 +276,6 @@ Public Class MLBScoreboard
         dgvAwayLineup.DataSource = Nothing
         dgvHomeLineup.DataSource = Nothing
         dgvInnings.DataSource = BlankInningsTable()
-        'dgvGames.DataSource = Nothing
         lblWeather.Text = "Weather"
         lblWeather.Visible = True
         lblAwayWinnerLoser.Text = "Winner-Loser"
@@ -767,16 +767,6 @@ Public Class MLBScoreboard
         Trace.WriteLine($"Game timer interval set to {interval}")
     End Sub
 
-
-    Private Sub PitcherStatsToolStripMenuItem_Click(sender As Object, e As EventArgs)
-
-
-        ' get pitcher stats
-        ' boxscore.teams.away.players.ID.stats.pitching
-
-
-    End Sub
-
     Private Sub GameUpdateTimer_Tick(sender As Object, e As EventArgs) Handles GameUpdateTimer.Tick
         Trace.WriteLine($"Game timer tick called {DateTime.Now()}")
         Dim gameDate As DateTime = DateTime.Parse(Me.calDatePicker.Value.ToString("MM/dd/yyyy"))
@@ -815,6 +805,13 @@ Public Class MLBScoreboard
         frmPlaySummary.Game = Me.mCurrentGame
         frmPlaySummary.ShowDialog()
     End Sub
+
+    Private Sub StandingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StandingsToolStripMenuItem.Click
+
+    End Sub
+
+
+    ' ===============================================
 
     'Imports System.Drawing.Imaging
     'Imports System.IO

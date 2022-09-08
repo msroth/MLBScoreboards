@@ -38,6 +38,7 @@ Partial Class MLBScoreboard
         Me.ViewToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator1 = New System.Windows.Forms.ToolStripSeparator()
         Me.PlayRecapToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.StandingsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AboutToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
         Me.calDatePicker = New System.Windows.Forms.DateTimePicker()
         Me.dgvInnings = New System.Windows.Forms.DataGridView()
@@ -63,6 +64,7 @@ Partial Class MLBScoreboard
         Me.lblAwayWinnerLoser = New System.Windows.Forms.Label()
         Me.lblHomeWinnerLoser = New System.Windows.Forms.Label()
         Me.GameUpdateTimer = New System.Windows.Forms.Timer(Me.components)
+        Me.lblPitchCount = New System.Windows.Forms.Label()
         Me.StatusStrip1.SuspendLayout()
         Me.MenuStrip1.SuspendLayout()
         CType(Me.dgvInnings, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -123,7 +125,7 @@ Partial Class MLBScoreboard
         '
         'ViewToolStripMenuItem
         '
-        Me.ViewToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripSeparator1, Me.PlayRecapToolStripMenuItem})
+        Me.ViewToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripSeparator1, Me.PlayRecapToolStripMenuItem, Me.StandingsToolStripMenuItem})
         Me.ViewToolStripMenuItem.Name = "ViewToolStripMenuItem"
         Me.ViewToolStripMenuItem.Size = New System.Drawing.Size(55, 24)
         Me.ViewToolStripMenuItem.Text = "View"
@@ -131,13 +133,19 @@ Partial Class MLBScoreboard
         'ToolStripSeparator1
         '
         Me.ToolStripSeparator1.Name = "ToolStripSeparator1"
-        Me.ToolStripSeparator1.Size = New System.Drawing.Size(221, 6)
+        Me.ToolStripSeparator1.Size = New System.Drawing.Size(161, 6)
         '
         'PlayRecapToolStripMenuItem
         '
         Me.PlayRecapToolStripMenuItem.Name = "PlayRecapToolStripMenuItem"
-        Me.PlayRecapToolStripMenuItem.Size = New System.Drawing.Size(224, 26)
+        Me.PlayRecapToolStripMenuItem.Size = New System.Drawing.Size(164, 26)
         Me.PlayRecapToolStripMenuItem.Text = "Play Recap"
+        '
+        'StandingsToolStripMenuItem
+        '
+        Me.StandingsToolStripMenuItem.Name = "StandingsToolStripMenuItem"
+        Me.StandingsToolStripMenuItem.Size = New System.Drawing.Size(164, 26)
+        Me.StandingsToolStripMenuItem.Text = "Standings"
         '
         'AboutToolStripMenuItem1
         '
@@ -361,7 +369,7 @@ Partial Class MLBScoreboard
         Me.lblMatchup.AutoSize = True
         Me.lblMatchup.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.lblMatchup.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.lblMatchup.Location = New System.Drawing.Point(548, 400)
+        Me.lblMatchup.Location = New System.Drawing.Point(552, 392)
         Me.lblMatchup.Name = "lblMatchup"
         Me.lblMatchup.Size = New System.Drawing.Size(80, 20)
         Me.lblMatchup.TabIndex = 25
@@ -506,6 +514,17 @@ Partial Class MLBScoreboard
         Me.GameUpdateTimer.Enabled = True
         Me.GameUpdateTimer.Interval = 20000
         '
+        'lblPitchCount
+        '
+        Me.lblPitchCount.AutoSize = True
+        Me.lblPitchCount.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
+        Me.lblPitchCount.ForeColor = System.Drawing.SystemColors.ControlLightLight
+        Me.lblPitchCount.Location = New System.Drawing.Point(552, 423)
+        Me.lblPitchCount.Name = "lblPitchCount"
+        Me.lblPitchCount.Size = New System.Drawing.Size(94, 20)
+        Me.lblPitchCount.TabIndex = 36
+        Me.lblPitchCount.Text = "Pitches: 0"
+        '
         'MLBScoreboard
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 20.0!)
@@ -513,6 +532,7 @@ Partial Class MLBScoreboard
         Me.BackColor = System.Drawing.Color.Green
         Me.CausesValidation = False
         Me.ClientSize = New System.Drawing.Size(1838, 689)
+        Me.Controls.Add(Me.lblPitchCount)
         Me.Controls.Add(Me.lblHomeWinnerLoser)
         Me.Controls.Add(Me.lblAwayWinnerLoser)
         Me.Controls.Add(Me.imgHomeLogo)
@@ -590,4 +610,6 @@ Partial Class MLBScoreboard
     Friend WithEvents lblHomeWinnerLoser As Label
     Friend WithEvents PlayRecapToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents GameUpdateTimer As Timer
+    Friend WithEvents StandingsToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents lblPitchCount As Label
 End Class

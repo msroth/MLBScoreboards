@@ -6,11 +6,11 @@ Public Class PlayerStats
     Private mAPI As MLB_API = New MLB_API()
     Private mThisPlayer As Player = Nothing
     Private mLiveData As JObject
-    Private mGameData As JObject
+    'Private mGameData As JObject
     Private mBoxscoreData As JObject
     Private mGamePk As Integer = 0
     Private mAwayOrHome As String = ""
-    Private mStatsTable As DataTable
+    'Private mStatsTable As DataTable
     Private mBattingGameStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
     Private mBattingSeasonStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
     Private mBattingCareerStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
@@ -53,9 +53,6 @@ Public Class PlayerStats
             Close()
         End If
 
-        ' make API calls to get data
-        Me.Cursor = Cursors.WaitCursor
-
         ' get a full player object
         Me.mThisPlayer = Player.ConvertToFullObject()
 
@@ -64,9 +61,11 @@ Public Class PlayerStats
         Me.lblPosition.Text = Me.mThisPlayer.FullPosition
         Me.lblPlayerID.Text = $"ID: {Me.mThisPlayer.Id}"
 
-        ' get data
+        ' make API calls to get data
+        Me.Cursor = Cursors.WaitCursor
         Me.mLiveData = mAPI.ReturnLiveFeedData(Me.mGamePk).SelectToken("liveData")
         Me.mBoxscoreData = mLiveData.SelectToken("boxscore")
+        Me.Cursor = Cursors.Default
 
         LoadStats()
 
@@ -90,6 +89,29 @@ Public Class PlayerStats
     End Function
 
     Sub LoadStats()
+
+        ' array of stats to collect
+        Dim FieldingStatsKeys As String() = {"gamesPlayed", "assists", "putOuts", "errors", "chances", "fielding", "innings", "doublePlays",
+                                             "triplePlays", "throwingErrors"}
+
+        Dim BattingStatsKeys As String() = {"runs", "doubles", "triples", "homeRuns", "strikeOuts", "baseOnBalls", "hits", "hitByPitch",
+                                            "avg", "atBats", "obp", "slg", "ops", "caughtStealing", "stolenBases", "stolenBasePercentage",
+                                            "plateAppearances", "totalBases", "rbi", "sacBunts", "babip", "atBatsPerHomeRun"}
+
+        Dim PitchingStatsKeys As String() = {"gamesStarted", "groundOuts", "airOuts", "intentionalWalks", "numberOfPitches", "era",
+                                             "inningsPitched", "wins",
+                                             "losses", "saves", "holds", "blownSaves", "earnedRuns", "whip", "battersFaced", "outs",
+                                             "gamesPitched", "completeGames", "shutouts", "pitchesThrown", "balls", "strikes",
+                                             "strikePercentage", "hitBatsmen", "balks", "wildPitches", "pickoffs", "groundOutsToAirouts",
+                                             "rbi", "winPercentage", "pitchesPerInning", "gamesFinished", "strikeoutWalkRatio",
+                                             "strikeoutsPer9Inn", "walksPer9Inn", "hitsPer9Inn", "runsScoredPer9", "homeRunsPer9",
+                                             "inheritedRunners", "inheritedRunnersScored", "catchersInterference", "sacBunts", "sacFlies",
+                                             "passedBall"}
+
+
+        Dim StatsDict As Dictionary(Of String, String)
+
+
         ' == Game Stats ==
         Dim BattingGameStatsData As JObject
         Dim PitchingGameStatsData As JObject
@@ -105,27 +127,24 @@ Public Class PlayerStats
         Dim PitchingCareerStatsData As JObject
         Dim FieldingCareerStatsData As JObject
 
+        Me.Cursor = Cursors.WaitCursor
+
         ' find player in data
         For Each aPlayer As JProperty In Me.mBoxscoreData.SelectToken($"teams.{AwayOrHome().ToLower()}.players")
             Dim pId As String = aPlayer.Value.Item("person").Item("id")
             If Me.mThisPlayer.Id = pId Then
 
                 ' get pitching
-                'If Me.mThisPlayer.ShortPosition = "P" Then
-                'PitchingSeasonStatsData = aPlayer.Value.Item("seasonStats").Item("pitching")
                 PitchingSeasonStatsData = Me.mAPI.ReturnPlayerStats(Me.mThisPlayer.Id, "season", "pitching")
                 PitchingGameStatsData = aPlayer.Value.Item("stats").Item("pitching")
                 PitchingCareerStatsData = Me.mAPI.ReturnPlayerStats(Me.mThisPlayer.Id, "career", "pitching")
-                'End If
 
                 ' get batting stats
-                'BattingSeasonStatsData = aPlayer.Value.Item("seasonStats").Item("batting")
                 BattingSeasonStatsData = Me.mAPI.ReturnPlayerStats(Me.mThisPlayer.Id, "season", "hitting")
                 BattingGameStatsData = aPlayer.Value.Item("stats").Item("batting")
                 BattingCareerStatsData = Me.mAPI.ReturnPlayerStats(Me.mThisPlayer.Id, "career", "hitting")
 
                 ' get fielding stats
-                'FieldingSeasonStatsData = aPlayer.Value.Item("seasonStats").Item("fielding")
                 FieldingSeasonStatsData = Me.mAPI.ReturnPlayerStats(Me.mThisPlayer.Id, "season", "fielding")
                 FieldingGameStatsData = aPlayer.Value.Item("stats").Item("fielding")
                 FieldingCareerStatsData = Me.mAPI.ReturnPlayerStats(Me.mThisPlayer.Id, "career", "fielding")
@@ -149,22 +168,6 @@ Public Class PlayerStats
         Me.Cursor = Cursors.Default
 
         ' process all that data
-        Dim FieldingStatsKeys As String() = {"gamesPlayed", "assists", "putOuts", "errors", "chances", "fielding", "innings", "doublePlays",
-                                             "triplePlays", "throwingErrors"}
-
-        Dim BattingStatsKeys As String() = {"runs", "doubles", "triples", "homeRuns", "strikeOuts", "baseOnBalls", "hits", "hitByPitch",
-                                            "avg", "atBats", "obp", "slg", "ops", "caughtStealing", "stolenBases", "stolenBasePercentage",
-                                            "plateAppearances", "totalBases", "rbi", "sacBunts", "babip", "atBatsPerHomeRun"}
-
-        Dim PitchingStatsKeys As String() = {"gamesStarted", "groundOuts", "airOuts", "intentionalWalks", "numberOfPitches", "era",
-                                             "inningsPitched", "wins",
-                                             "losses", "saves", "holds", "blownSaves", "earnedRuns", "whip", "battersFaced", "outs",
-                                             "gamesPitched", "completeGames", "shutouts", "pitchesThrown", "balls", "strikes",
-                                             "strikePercentage", "hitBatsmen", "balks", "wildPitches", "pickoffs", "groundOutsToAirouts",
-                                             "rbi", "winPercentage", "pitchesPerInning", "gamesFinished", "strikeoutWalkRatio",
-                                             "strikeoutsPer9Inn", "walksPer9Inn", "hitsPer9Inn", "runsScoredPer9", "homeRunsPer9",
-                                             "inheritedRunners", "inheritedRunnersScored", "catchersInterference", "sacBunts", "sacFlies",
-                                             "passedBall"}
 
         ' load fielding stats
         If FieldingGameStatsData IsNot Nothing Then

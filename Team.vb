@@ -117,7 +117,7 @@ Public Class Team
         Try
             ' determine if team is away or home
             Dim AwayOrHome As String
-            If Me.Id() = ThisGame.AwayTeam.Id Then
+            If Me.Id = ThisGame.AwayTeam.Id Then
                 AwayOrHome = "away"
             Else
                 AwayOrHome = "home"
