@@ -12,12 +12,11 @@ Public Class MLB_API
     Private API_ALL_TEAMS_URL As String = API_BASE_URL + "/v1/teams?sportId=1&activeStatus=ACTIVE"
     Private API_TEAM_URL As String = API_ALL_TEAMS_URL + "/v1/teams/{0}"
     Private API_SCHEDULE_URL As String = API_BASE_URL + "/v1/schedule?sportId=1&date={0}"
-    Private API_MULTIPLE_PERSON_DATA_URL = API_BASE_URL + "/v1/people?personIds={0}"
-    Private API_SINGLE_PERSON_DATA_URL = API_BASE_URL + "/v1/people/{0}"
+    Private API_MULTIPLE_PERSON_DATA_URL As String = API_BASE_URL + "/v1/people?personIds={0}"
+    Private API_SINGLE_PERSON_DATA_URL As String = API_BASE_URL + "/v1/people/{0}"
     'Private API_PERSON_STATS_URL = API_BASE_URL + "/v1/people/{0}/stats/game/{1}"
-    Private API_PERSON_STATS_URL = API_BASE_URL + "/v1/people/{0}?hydrate=stats(group={1},type={2})"
-
-    'https://statsapi.mlb.com/api/v1/people/425877?hydrate=stats(group=hitting,type=season)
+    Private API_PERSON_STATS_URL As String = API_BASE_URL + "/v1/people/{0}?hydrate=stats(group={1},type={2})"
+    Private API_STANDINGS_URL As String = API_BASE_URL + "/v1/standings?leagueId=103,104&season={0}&standingsTypes=regularSeason&hydrate=team(division)&fields=records,standingsType,teamRecords,team,name,division,id,nameShort,abbreviation,divisionRank,gamesBack,wildCardRank,wildCardGamesBack,wildCardEliminationNumber,divisionGamesBack,clinched,eliminationNumber,winningPercentage,type,wins,losses,leagueRank,sportRank"
 
 
     'Shared client As HttpClient = New HttpClient()
@@ -150,11 +149,16 @@ Public Class MLB_API
 
     Function ReturnPlayerStats(PlayerId As String, period As String, statType As String) As JObject
         Dim url As String = String.Format(API_PERSON_STATS_URL, PlayerId, statType, period)
-        Trace.WriteLine(url)
         Dim r As String = GetData(url)
         Dim json As JObject = JObject.Parse(r)
         Return json
     End Function
 
+    Function ReturnSeasonStandings(year As String) As JObject
+        Dim url As String = String.Format(API_STANDINGS_URL, year)
+        Dim r As String = GetData(url)
+        Dim json As JObject = JObject.Parse(r)
+        Return json
+    End Function
 
 End Class

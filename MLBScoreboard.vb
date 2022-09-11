@@ -12,7 +12,7 @@ Public Class MLBScoreboard
 
     Private ReadOnly mGAME_STATUS_FUTURE_LABELS As String() = {"SCHEDULED", "WARMUP", "PRE-GAME", "DELAYED", "POSTPONED"}
     Private ReadOnly mGAME_STATUS_PRESENT_LABLES As String() = {"IN PROGRESS", "MANAGER", "OFFICIAL"}
-    Private ReadOnly mGAME_STATUS_PAST_LABELS As String() = {"FINAL", "COMPLETE", "GAME OVER"}
+    Private ReadOnly mGAME_STATUS_PAST_LABELS As String() = {"FINAL", "COMPLETE", "GAME OVER", "COMPLETED"}
     Private ReadOnly mGAME_STATUS_FUTURE = 1
     Private ReadOnly mGAME_STATUS_PRESENT = 0
     Private ReadOnly mGAME_STATUS_PAST = -1
@@ -90,12 +90,14 @@ Public Class MLBScoreboard
     Sub RunGame()
         Try
             If Me.mCurrentGame Is Nothing Then
+                Me.PlayRecapToolStripMenuItem.Enabled = False
                 Return
             Else
                 ' this forces a refresch of MLB data from API
                 Me.mCurrentGame.LoadGameData()
                 ' update status bar
                 Me.ToolStripStatusLabel1.Text = $"Current Game ({Me.mCurrentGame.AwayTeam.Abbr} @ {Me.mCurrentGame.HomeTeam.Abbr}) Data Updated {Date.Now}"
+                Me.PlayRecapToolStripMenuItem.Enabled = True
             End If
 
             Trace.WriteLine("=== Run Game ===>")
@@ -137,6 +139,7 @@ Public Class MLBScoreboard
                 lblBalls.Visible = True
                 lblStrikes.Visible = True
                 lblOuts.Visible = True
+                lblPitchCount.Visible = False
                 imgDiamond.Visible = True
                 lblAwayWinnerLoser.Visible = False
                 lblHomeWinnerLoser.Visible = False
@@ -153,6 +156,7 @@ Public Class MLBScoreboard
                 lblBalls.Visible = False
                 lblStrikes.Visible = False
                 lblOuts.Visible = False
+                lblPitchCount.Visible = False
                 imgDiamond.Visible = False
                 dgvAwayLineup.Visible = False
                 dgvHomeLineup.Visible = False
@@ -192,6 +196,7 @@ Public Class MLBScoreboard
                 lblBalls.Visible = True
                 lblStrikes.Visible = True
                 lblOuts.Visible = True
+                lblPitchCount.Visible = True
                 imgDiamond.Visible = True
                 dgvAwayLineup.Visible = True
                 dgvHomeLineup.Visible = True
@@ -261,6 +266,8 @@ Public Class MLBScoreboard
         lblStrikes.Visible = True
         lblOuts.Text = "Outs: 0"
         lblOuts.Visible = True
+        lblPitchCount.Text = "Pitch Count: 0"
+        lblPitchCount.Visible = True
         lblGameTitle.Text = "Away @ Home - mm/dd/yyyy (gamePk)"
         lblGameTitle.Visible = True
         lblMatchup.Text = "Match up"
@@ -807,7 +814,10 @@ Public Class MLBScoreboard
     End Sub
 
     Private Sub StandingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StandingsToolStripMenuItem.Click
-
+        Dim year As String = DateTime.Parse(Me.calDatePicker.Text).Year.ToString()
+        Dim frmStandings As Standings = New Standings()
+        frmStandings.Year = year
+        frmStandings.ShowDialog()
     End Sub
 
 

@@ -343,6 +343,8 @@ Public Class PlayerStats
             Next
             dgvPitchingStats.DataSource = dt
 
+        Else
+            Me.TabControl1.TabPages(1).Visible = False
         End If
 
     End Sub
