@@ -2,13 +2,13 @@
 Imports System.Text
 Imports Newtonsoft.Json.Linq
 
-Public Class MLBScoreboard
+Public Class MlbScoreboard
 
     'Private mSBData As ScoreboardData = New ScoreboardData()
-    Private mAPI As MLB_API = New MLB_API()
+    Private mAPI As MlbApi = New MlbApi()
     Private mProperties As SBProperties = New SBProperties()
-    Private mCurrentGame As Game = Nothing
-    Private mAllGames As Dictionary(Of String, Game) = New Dictionary(Of String, Game)
+    Private mCurrentGame As MlbGame = Nothing
+    Private mAllGames As Dictionary(Of String, MlbGame) = New Dictionary(Of String, MlbGame)
 
     Private ReadOnly mGAME_STATUS_FUTURE_LABELS As String() = {"SCHEDULED", "WARMUP", "PRE-GAME", "DELAYED", "POSTPONED"}
     Private ReadOnly mGAME_STATUS_PRESENT_LABLES As String() = {"IN PROGRESS", "MANAGER", "OFFICIAL"}
@@ -128,7 +128,7 @@ Public Class MLBScoreboard
             ' status
             Dim status As String = Me.mCurrentGame.GameStatus
 
-            If CheckGameStatus(status) = mGAME_STATUS_FUTURE Then
+            If MlbGame.CheckGameStatus(status) = MlbGame.mGAME_STATUS_FUTURE Then
                 ' turn off unused controls
                 tbxCommentary.Visible = False
                 dgvAwayLineup.Visible = True
@@ -150,7 +150,7 @@ Public Class MLBScoreboard
                 Me.LoadTeamRosterGrids()
             End If
 
-            If CheckGameStatus(status) = mGAME_STATUS_PAST Then
+            If MlbGame.CheckGameStatus(status) = MlbGame.mGAME_STATUS_PAST Then
                 ' turn off unused controls
                 tbxCommentary.Visible = False
                 lblBalls.Visible = False
@@ -190,7 +190,7 @@ Public Class MLBScoreboard
                 dgvInnings.ClearSelection()
             End If
 
-            If CheckGameStatus(status) = mGAME_STATUS_PRESENT Then
+            If MlbGame.CheckGameStatus(status) = MlbGame.mGAME_STATUS_PRESENT Then
                 ' turn on controls
                 tbxCommentary.Visible = True
                 lblBalls.Visible = True
@@ -349,26 +349,26 @@ Public Class MLBScoreboard
         End Try
     End Sub
 
-    Private Function CheckGameStatus(GameStatus As String) As Integer
-        For Each label As String In mGAME_STATUS_FUTURE_LABELS
-            If GameStatus.ToUpper().Contains(label.ToUpper()) Then
-                Return mGAME_STATUS_FUTURE
-            End If
-        Next
+    'Private Function CheckGameStatus(GameStatus As String) As Integer
+    '    For Each label As String In mGAME_STATUS_FUTURE_LABELS
+    '        If GameStatus.ToUpper().Contains(label.ToUpper()) Then
+    '            Return mGAME_STATUS_FUTURE
+    '        End If
+    '    Next
 
-        For Each label As String In mGAME_STATUS_PRESENT_LABLES
-            If GameStatus.ToUpper().Contains(label.ToUpper()) Then
-                Return mGAME_STATUS_PRESENT
-            End If
-        Next
+    '    For Each label As String In mGAME_STATUS_PRESENT_LABLES
+    '        If GameStatus.ToUpper().Contains(label.ToUpper()) Then
+    '            Return mGAME_STATUS_PRESENT
+    '        End If
+    '    Next
 
-        For Each label As String In mGAME_STATUS_PAST_LABELS
-            If GameStatus.ToUpper().Contains(label.ToUpper()) Then
-                Return mGAME_STATUS_PAST
-            End If
-        Next
-        Return -100
-    End Function
+    '    For Each label As String In mGAME_STATUS_PAST_LABELS
+    '        If GameStatus.ToUpper().Contains(label.ToUpper()) Then
+    '            Return mGAME_STATUS_PAST
+    '        End If
+    '    Next
+    '    Return -100
+    'End Function
 
     Private Sub LoadTeamLogos()
         Try
@@ -513,8 +513,8 @@ Public Class MLBScoreboard
     End Sub
 
 
-    Function LoadAllGamesData(gameDate As String) As Dictionary(Of String, Game)
-        Dim ListOfGames As Dictionary(Of String, Game) = New Dictionary(Of String, Game)
+    Function LoadAllGamesData(gameDate As String) As Dictionary(Of String, MlbGame)
+        Dim ListOfGames As Dictionary(Of String, MlbGame) = New Dictionary(Of String, MlbGame)
 
         Try
             Dim schedule As JObject = Me.mAPI.ReturnScheduleData(gameDate)
@@ -525,7 +525,7 @@ Public Class MLBScoreboard
 
                 For Each game As JObject In games
                     Dim gamePk As String = game.SelectToken("gamePk")
-                    Dim oGame As Game = New Game(gamePk)
+                    Dim oGame As MlbGame = New MlbGame(gamePk)
                     ListOfGames.Add(gamePk, oGame)
                 Next
             Next
@@ -535,7 +535,7 @@ Public Class MLBScoreboard
         Return ListOfGames
     End Function
 
-    Private Function FindTeamGame(teamAbbrev As String) As Game
+    Private Function FindTeamGame(teamAbbrev As String) As MlbGame
         For Each game In mAllGames.Values()
             If game.AwayTeam.Abbr = teamAbbrev Or game.HomeTeam.Abbr = teamAbbrev Then
                 Return game
@@ -575,7 +575,7 @@ Public Class MLBScoreboard
             dt.Columns.Add("Home")
             dt.Columns.Add("Status")
             dt.Columns.Add("Inning")
-            For Each game As Game In Me.mAllGames.Values()
+            For Each game As MlbGame In Me.mAllGames.Values()
                 Dim row As DataRow = dt.NewRow()
                 row("Id") = game.GamePk
                 row("Away") = $"{game.AwayTeam.Abbr} ({game.AwayTeam.Wins} - {game.AwayTeam.Loses})"
@@ -583,13 +583,13 @@ Public Class MLBScoreboard
                 row("Status") = game.GameStatus
                 row("Score") = $"{game.AwayTeamRuns} - {game.HomeTeamRuns}"
 
-                If CheckGameStatus(game.GameStatus) = mGAME_STATUS_PAST Then
+                If MlbGame.CheckGameStatus(game.GameStatus) = MlbGame.mGAME_STATUS_PAST Then
                     If game.Innings.Columns.Count > 13 Then  ' account for team name column and RHE appended to end
                         row("Inning") = game.Innings.Columns.Count - 4
                     Else
                         row("Inning") = ""
                     End If
-                ElseIf CheckGameStatus(game.GameStatus) = mGAME_STATUS_FUTURE Then
+                ElseIf MlbGame.CheckGameStatus(game.GameStatus) = MlbGame.mGAME_STATUS_FUTURE Then
                     row("Inning") = ""
                 Else
                     If game.CurrentInningState().ToUpper() = "MIDDLE" Or game.CurrentInningState().ToUpper() = "END" Then
@@ -681,7 +681,7 @@ Public Class MLBScoreboard
 
     Private Sub dgvAwayRoster_CellPainting(sender As Object, e As DataGridViewCellPaintingEventArgs) Handles dgvAwayLineup.CellPainting
 
-        If Me.mCurrentGame Is Nothing Or Me.CheckGameStatus(Me.mCurrentGame.GameStatus) = mGAME_STATUS_FUTURE Then
+        If Me.mCurrentGame Is Nothing Or MlbGame.CheckGameStatus(Me.mCurrentGame.GameStatus) = MlbGame.mGAME_STATUS_FUTURE Then
             Return
         End If
         Try
@@ -697,7 +697,7 @@ Public Class MLBScoreboard
 
     Private Sub dgvHomeRoster_CellPainting(sender As Object, e As DataGridViewCellPaintingEventArgs) Handles dgvHomeLineup.CellPainting
 
-        If Me.mCurrentGame Is Nothing Or Me.CheckGameStatus(Me.mCurrentGame.GameStatus) = mGAME_STATUS_FUTURE Then
+        If Me.mCurrentGame Is Nothing Or MlbGame.CheckGameStatus(Me.mCurrentGame.GameStatus) = MlbGame.mGAME_STATUS_FUTURE Then
             Return
         End If
 
@@ -786,18 +786,18 @@ Public Class MLBScoreboard
 
     Private Sub dgvAwayLineup_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvAwayLineup.CellClick
         Dim PlayerId As String = dgvAwayLineup.Rows(e.RowIndex).Cells("Id").Value
-        Dim ThisPlayer As Player = Me.mCurrentGame.AwayTeam.GetPlayer(PlayerId)
+        Dim ThisPlayer As MlbPlayer = Me.mCurrentGame.AwayTeam.GetPlayer(PlayerId)
         ShowPlayerStats(ThisPlayer, "AWAY")
     End Sub
 
     Private Sub dgvHomeLineup_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvHomeLineup.CellClick
         Dim PlayerId As String = dgvHomeLineup.Rows(e.RowIndex).Cells("Id").Value
-        Dim ThisPlayer As Player = Me.mCurrentGame.HomeTeam.GetPlayer(PlayerId)
+        Dim ThisPlayer As MlbPlayer = Me.mCurrentGame.HomeTeam.GetPlayer(PlayerId)
         ShowPlayerStats(ThisPlayer, "HOME")
     End Sub
 
-    Private Sub ShowPlayerStats(ThisPlayer As Player, TeamSide As String)
-        Dim frmPlayerStats As PlayerStats = New PlayerStats()
+    Private Sub ShowPlayerStats(ThisPlayer As MlbPlayer, TeamSide As String)
+        Dim frmPlayerStats As MlbPlayerStats = New MlbPlayerStats()
         frmPlayerStats.Player = ThisPlayer
         frmPlayerStats.GamePk = Me.mCurrentGame.GamePk
         frmPlayerStats.AwayOrHome = TeamSide
@@ -805,17 +805,17 @@ Public Class MLBScoreboard
     End Sub
 
     Private Sub PlayRecapToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles PlayRecapToolStripMenuItem.Click
-        If Me.mCurrentGame Is Nothing Or Me.mGAME_STATUS_FUTURE = Me.CheckGameStatus(Me.mCurrentGame.GameStatus) Then
+        If Me.mCurrentGame Is Nothing Or MlbGame.CheckGameStatus(Me.mCurrentGame.GameStatus) = MlbGame.mGAME_STATUS_FUTURE Then
             Return
         End If
-        Dim frmPlaySummary As PlaySummary = New PlaySummary()
+        Dim frmPlaySummary As MlbPlaySummary = New MlbPlaySummary()
         frmPlaySummary.Game = Me.mCurrentGame
         frmPlaySummary.ShowDialog()
     End Sub
 
     Private Sub StandingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StandingsToolStripMenuItem.Click
         Dim year As String = DateTime.Parse(Me.calDatePicker.Text).Year.ToString()
-        Dim frmStandings As Standings = New Standings()
+        Dim frmStandings As MlbStandings = New MlbStandings()
         frmStandings.Year = year
         frmStandings.ShowDialog()
     End Sub

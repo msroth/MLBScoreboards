@@ -1,13 +1,13 @@
 ﻿Imports Newtonsoft.Json.Linq
 
-Public Class PlaySummary
+Public Class MlbPlaySummary
 
-    Private mCurrentGame As Game
+    Private mCurrentGame As MlbGame
 
 
 
-    WriteOnly Property Game() As Game
-        Set(game As Game)
+    WriteOnly Property Game() As MlbGame
+        Set(game As MlbGame)
             Me.mCurrentGame = game
         End Set
     End Property

@@ -2,12 +2,12 @@
 
 Public Class Configure
     'Private mSBData As ScoreboardData = New ScoreboardData()
-    Private mMLB_API As MLB_API = New MLB_API()
+    Private mMLB_API As MlbApi = New MlbApi()
     Private mProps As SBProperties = New SBProperties()
-    Private mAllTeams As Dictionary(Of String, Team)
+    Private mAllTeams As Dictionary(Of String, MlbTeam)
 
-    Public Property AllTeams() As Dictionary(Of String, Team)
-        Set(teams As Dictionary(Of String, Team))
+    Public Property AllTeams() As Dictionary(Of String, MlbTeam)
+        Set(teams As Dictionary(Of String, MlbTeam))
             Me.mAllTeams = teams
         End Set
         Get
@@ -60,15 +60,15 @@ Public Class Configure
         cbxTeams.ValueMember = dt.Columns("Abbr").ColumnName
     End Sub
 
-    Public Function LoadTeamsData() As Dictionary(Of String, Team)
-        Dim Teams As Dictionary(Of String, Team) = New Dictionary(Of String, Team)
+    Public Function LoadTeamsData() As Dictionary(Of String, MlbTeam)
+        Dim Teams As Dictionary(Of String, MlbTeam) = New Dictionary(Of String, MlbTeam)
         Try
             Dim Data As JObject = mMLB_API.ReturnAllTeamsData()
             Dim TeamsData As JArray = Data.SelectToken("teams")
 
             For Each Team As JObject In TeamsData
                 Dim teamId As String = Team.SelectToken("id").ToString()
-                Dim oTeam As Team = New Team(Convert.ToInt32(teamId))
+                Dim oTeam As MlbTeam = New MlbTeam(Convert.ToInt32(teamId))
                 Teams.Add(teamId, oTeam)
                 Trace.WriteLine($"Loading team {oTeam.Id} - {oTeam.Abbr} data")
             Next

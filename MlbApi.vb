@@ -5,7 +5,7 @@ Imports System.Net
 Imports System.Net.Http
 Imports Newtonsoft.Json.Linq
 
-Public Class MLB_API
+Public Class MlbApi
 
     Private API_BASE_URL As String = "https://statsapi.mlb.com/api"
     Private API_LIVEFEED_URL As String = API_BASE_URL + "/v1.1/game/{0}/feed/live"

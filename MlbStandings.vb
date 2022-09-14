@@ -1,8 +1,8 @@
 ﻿
 Imports Newtonsoft.Json.Linq
 
-Public Class Standings
-    Private mAPI As MLB_API = New MLB_API()
+Public Class MlbStandings
+    Private mAPI As MlbApi = New MlbApi()
     Private mYear As String
     Private mLeagueNames As New Dictionary(Of String, String) From {{"200", "American League West"},
                                                                   {"201", "American League East"},

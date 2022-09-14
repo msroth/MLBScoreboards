@@ -3,11 +3,11 @@ Imports System.Text
 Imports Newtonsoft.Json.Linq
 
 
-Public Class Game
+Public Class MlbGame
 
     Private mGamePk As String
-    Private mAwayTeam As Team
-    Private mHomeTeam As Team
+    Private mAwayTeam As MlbTeam
+    Private mHomeTeam As MlbTeam
     Private mGameDateTime As String
     Private mVenueWeather As String
     Private mGameStatus As String
@@ -15,8 +15,8 @@ Public Class Game
     Private mHomeSchedPitcherId As String
     Private mAwayTeamRuns As String
     Private mHomeTeamRuns As String
-    Private mWinningTeam As Team
-    Private mLosingTeam As Team
+    Private mWinningTeam As MlbTeam
+    Private mLosingTeam As MlbTeam
     Private mWinningPitcherId As String
     Private mLosingPitcherId As String
     Private mSavePitcherId As String
@@ -36,8 +36,36 @@ Public Class Game
     Private mGameData As JObject
     Private mCurrentPlayData As JObject
     Private mAllPlaysData As JObject
-    Private mAPI As MLB_API = New MLB_API()
+    Private mAPI As MlbApi = New MlbApi()
     Private mProperties As SBProperties = New SBProperties()
+
+    Shared ReadOnly mGAME_STATUS_FUTURE_LABELS As String() = {"SCHEDULED", "WARMUP", "PRE-GAME", "DELAYED", "POSTPONED"}
+    Shared ReadOnly mGAME_STATUS_PRESENT_LABLES As String() = {"IN PROGRESS", "MANAGER", "OFFICIAL"}
+    Shared ReadOnly mGAME_STATUS_PAST_LABELS As String() = {"FINAL", "COMPLETE", "GAME OVER", "COMPLETED"}
+    Public Shared ReadOnly mGAME_STATUS_FUTURE = 1
+    Public Shared ReadOnly mGAME_STATUS_PRESENT = 0
+    Public Shared ReadOnly mGAME_STATUS_PAST = -1
+
+    Public Shared Function CheckGameStatus(GameStatus As String) As Integer
+        For Each label As String In mGAME_STATUS_FUTURE_LABELS
+            If GameStatus.ToUpper().Contains(label.ToUpper()) Then
+                Return mGAME_STATUS_FUTURE
+            End If
+        Next
+
+        For Each label As String In mGAME_STATUS_PRESENT_LABLES
+            If GameStatus.ToUpper().Contains(label.ToUpper()) Then
+                Return mGAME_STATUS_PRESENT
+            End If
+        Next
+
+        For Each label As String In mGAME_STATUS_PAST_LABELS
+            If GameStatus.ToUpper().Contains(label.ToUpper()) Then
+                Return mGAME_STATUS_PAST
+            End If
+        Next
+        Return -100
+    End Function
 
 
     Public ReadOnly Property GamePk() As Integer
@@ -46,13 +74,13 @@ Public Class Game
         End Get
     End Property
 
-    Public ReadOnly Property AwayTeam() As Team
+    Public ReadOnly Property AwayTeam() As MlbTeam
         Get
             Return Me.mAwayTeam
         End Get
     End Property
 
-    Public ReadOnly Property HomeTeam() As Team
+    Public ReadOnly Property HomeTeam() As MlbTeam
         Get
             Return Me.mHomeTeam
         End Get
@@ -100,13 +128,13 @@ Public Class Game
         End Get
     End Property
 
-    Public ReadOnly Property WinningTeam() As Team
+    Public ReadOnly Property WinningTeam() As MlbTeam
         Get
             Return Me.mWinningTeam
         End Get
     End Property
 
-    Public ReadOnly Property LosingTeam() As Team
+    Public ReadOnly Property LosingTeam() As MlbTeam
         Get
             Return Me.mLosingTeam
         End Get
@@ -274,11 +302,11 @@ Public Class Game
             End If
 
             ' get teams
-            Me.mAwayTeam = New Team(Convert.ToInt32(mBoxData.SelectToken("teams.away.team.id")))
-            Me.mHomeTeam = New Team(Convert.ToInt32(mBoxData.SelectToken("teams.home.team.id")))
+            Me.mAwayTeam = New MlbTeam(Convert.ToInt32(mBoxData.SelectToken("teams.away.team.id")))
+            Me.mHomeTeam = New MlbTeam(Convert.ToInt32(mBoxData.SelectToken("teams.home.team.id")))
 
             ' set teams win/loss record
-            ' TODO this should be done in the Team object
+            ' This data is not available from the team data
             Me.mAwayTeam.Wins = mGameData.SelectToken("teams.away.record.wins")
             Me.mAwayTeam.Loses = mGameData.SelectToken("teams.away.record.losses")
             Me.mHomeTeam.Wins = mGameData.SelectToken("teams.home.record.wins")
@@ -309,9 +337,9 @@ Public Class Game
             Me.AwayTeam.LoadPlayerData(Me)
             Me.HomeTeam.LoadPlayerData(Me)
 
-            If Me.GameStatus() = "IN PROGRESS" Or
-                Me.GameStatus().Contains("MANAGER") Or
-                Me.GameStatus().Contains("OFFICIAL") Then
+            'current game
+
+            If MlbGame.CheckGameStatus(Me.GameStatus) = MlbGame.mGAME_STATUS_PRESENT Then
 
                 ' away runs
                 Dim AwayRuns As String = mLineData.SelectToken("teams.away.runs").ToString()
@@ -344,20 +372,18 @@ Public Class Game
             End If
 
 
-            If Me.GameStatus() = "SCHEDULED" Or
-                Me.GameStatus() = "WARMUP" Or
-                Me.GameStatus() = "PRE-GAME" Or
-                Me.GameStatus().StartsWith("DELAYED") Or
-                Me.GameStatus() = "POSTPONED" Then
+            ' future game
+
+            If MlbGame.CheckGameStatus(Me.GameStatus()) = MlbGame.mGAME_STATUS_FUTURE Then
 
                 Me.mAwaySchedPitcherId = mGameData.SelectToken("probablePitchers.away.id")
                 Me.mHomeSchedPitcherId = mGameData.SelectToken("probablePitchers.home.id")
             End If
 
 
-            If Me.GameStatus() = "FINAL" Or
-                Me.GameStatus() = "COMPLETE" Or
-                Me.GameStatus() = "GAME OVER" Then
+            ' completed game
+
+            If MlbGame.CheckGameStatus(Me.GameStatus()) = MlbGame.mGAME_STATUS_PAST Then
 
                 ' runs
                 Me.mAwayTeamRuns = mLineData.SelectToken("teams.away.runs")
@@ -558,7 +584,7 @@ Public Class Game
         Return matchup
     End Function
 
-    Public Function GetPitchingStats(pitcherId As Integer, ThisTeam As Team) As String
+    Public Function GetPitchingStats(pitcherId As Integer, ThisTeam As MlbTeam) As String
         Dim pitchingStats As String = String.Empty
 
         Try
@@ -585,7 +611,7 @@ Public Class Game
         Return pitchingStats
     End Function
 
-    Public Function GetBatterStats(batterId As Integer, ThisTeam As Team) As String
+    Public Function GetBatterStats(batterId As Integer, ThisTeam As MlbTeam) As String
         Dim batterStats As String = String.Empty
 
         Try
@@ -603,7 +629,7 @@ Public Class Game
                     Dim atBats As String = player.Value.Item("stats").Item("batting").Item("atBats")
                     Dim avg As String = player.Value.Item("seasonStats").Item("batting").Item("avg")
                     batterStats = String.Format(" ({0}-{1}, {2} AVG)", hits, atBats, avg)
-                    Exit for
+                    Exit For
                 End If
             Next
         Catch ex As Exception
@@ -654,7 +680,7 @@ Public Class Game
 
     Public Function GetDueUpBatters() As String
         Dim lastBatterId As String = 0
-        Dim battingTeam As Team
+        Dim battingTeam As MlbTeam
         Dim sb As StringBuilder = New StringBuilder()
         Dim battingTeamLineup As DataTable
 

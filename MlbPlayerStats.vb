@@ -1,10 +1,10 @@
 ﻿Imports System.IO
 Imports Newtonsoft.Json.Linq
 
-Public Class PlayerStats
+Public Class MlbPlayerStats
 
-    Private mAPI As MLB_API = New MLB_API()
-    Private mThisPlayer As Player = Nothing
+    Private mAPI As MlbApi = New MlbApi()
+    Private mThisPlayer As MlbPlayer = Nothing
     Private mLiveData As JObject
     'Private mGameData As JObject
     Private mBoxscoreData As JObject
@@ -21,8 +21,8 @@ Public Class PlayerStats
     Private mFieldingSeasonStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
     Private mFieldingCareerStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
 
-    Property Player As Player
-        Set(ThisPlayer As Player)
+    Property Player As MlbPlayer
+        Set(ThisPlayer As MlbPlayer)
             Me.mThisPlayer = ThisPlayer
         End Set
         Get

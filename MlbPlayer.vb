@@ -2,7 +2,7 @@
 
 Imports Newtonsoft.Json.Linq
 
-Public Class Player
+Public Class MlbPlayer
     Dim mId As String
     Dim mNumber As String
     Dim mFullName As String
@@ -10,7 +10,7 @@ Public Class Player
     Dim mPosition As String
     Dim mShortPosition As String
     Dim mBattingPosition As Integer
-    Private mAPI As MLB_API = New MLB_API()
+    Private mAPI As MlbApi = New MlbApi()
     Private mBattingStats As DataTable = New DataTable("BattingStats")
     Private mPitchingStats As DataTable = New DataTable("PithingStats")
 
@@ -60,8 +60,8 @@ Public Class Player
         End Set
     End Property
 
-    Public Function ConvertToFullObject() As Player
-        Return New Player(Me.mId)
+    Public Function ConvertToFullObject() As MlbPlayer
+        Return New MlbPlayer(Me.mId)
     End Function
 
     Sub New(Id As String)

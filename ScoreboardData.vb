@@ -5,7 +5,7 @@ Imports Newtonsoft.Json.Linq
 
 Public Class ScoreboardData
 
-    Dim API As MLB_API = New MLB_API()
+    Dim API As MlbApi = New MlbApi()
     Dim DB As Database = New Database()
     Dim liveData As JObject
     Dim gamePk As Integer = 0

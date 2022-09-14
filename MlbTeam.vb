@@ -2,7 +2,7 @@
 Imports System.Text
 Imports Newtonsoft.Json.Linq
 
-Public Class Team
+Public Class MlbTeam
 
     Private mId As Integer
     Private mAbbr As String
@@ -10,10 +10,10 @@ Public Class Team
     Private mFullName As String
     Private mWins As String
     Private mLoses As String
-    Private mLineup As List(Of Player) = New List(Of Player)
-    Private mRoster As List(Of Player) = New List(Of Player)
-    Private mBattingOrder As List(Of Player) = New List(Of Player)
-    Private mAPI As MLB_API = New MLB_API()
+    Private mLineup As List(Of MlbPlayer) = New List(Of MlbPlayer)
+    Private mRoster As List(Of MlbPlayer) = New List(Of MlbPlayer)
+    Private mBattingOrder As List(Of MlbPlayer) = New List(Of MlbPlayer)
+    Private mAPI As MlbApi = New MlbApi()
 
     Public ReadOnly Property Id() As Integer
         Get
@@ -57,19 +57,19 @@ Public Class Team
         End Get
     End Property
 
-    Public ReadOnly Property Lineup() As List(Of Player)
+    Public ReadOnly Property Lineup() As List(Of MlbPlayer)
         Get
             Return Me.mLineup
         End Get
     End Property
 
-    Public ReadOnly Property Roster() As List(Of Player)
+    Public ReadOnly Property Roster() As List(Of MlbPlayer)
         Get
             Return Me.mRoster
         End Get
     End Property
 
-    Public ReadOnly Property BattingOrder() As List(Of Player)
+    Public ReadOnly Property BattingOrder() As List(Of MlbPlayer)
         Get
             Return Me.mBattingOrder
         End Get
@@ -100,8 +100,8 @@ Public Class Team
         End Try
     End Sub
 
-    Public Function GetPlayer(Id As String) As Player
-        For Each player As Player In mRoster
+    Public Function GetPlayer(Id As String) As MlbPlayer
+        For Each player As MlbPlayer In mRoster
             If Convert.ToInt32(player.Id()) = Convert.ToInt32(Id) Then
                 Return player
             End If
@@ -109,7 +109,7 @@ Public Class Team
         Return Nothing
     End Function
 
-    Public Sub LoadPlayerData(ThisGame As Game)
+    Public Sub LoadPlayerData(ThisGame As MlbGame)
         If ThisGame Is Nothing Or ThisGame.GamePk = 0 Then
             Return
         End If
@@ -135,7 +135,7 @@ Public Class Team
                 Dim pName As String = Player.Value.Item("person").Item("fullName")
                 pName = pName.Substring(pName.IndexOf(" ") + 1) + ", " + pName.Substring(0, 1)
                 Dim pPosition As String = Player.Value.Item("position").Item("abbreviation")
-                Dim aPlayer As Player = New Player(pId, pNum, pName, pPosition)
+                Dim aPlayer As MlbPlayer = New MlbPlayer(pId, pNum, pName, pPosition)
                 'Dim aPlayer As Player = New Player(pId)
                 mRoster.Add(aPlayer)
 
@@ -152,7 +152,7 @@ Public Class Team
             Dim BODAta As JArray = ThisGame.BoxScoreData().SelectToken($"teams.{AwayOrHome}.battingOrder")
             Dim i As Integer = 1
             For Each playerId As String In BODAta
-                Dim player As Player = GetPlayer(playerId)
+                Dim player As MlbPlayer = GetPlayer(playerId)
                 player.BattingPosition = i.ToString()
                 mBattingOrder.Append(player)
                 i += 1
@@ -202,7 +202,7 @@ Public Class Team
             dt.Columns.Add("Position")
             dt.Columns.Add("BattingOrder")
 
-            For Each player As Player In mLineup
+            For Each player As MlbPlayer In mLineup
                 Dim row As DataRow = dt.NewRow()
                 row("Id") = player.Id()
                 row("Num") = player.Number()
@@ -231,7 +231,7 @@ Public Class Team
             dt.Columns.Add("Name")
             dt.Columns.Add("Position")
 
-            For Each player As Player In mRoster
+            For Each player As MlbPlayer In mRoster
                 Dim row As DataRow = dt.NewRow()
                 row("Id") = player.Id()
                 row("Num") = player.Number()
