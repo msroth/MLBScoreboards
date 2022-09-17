@@ -7,17 +7,21 @@ Public Class SBProperties
     Public mGAME_TIMER_KEY As String = "game_refresh"
     Public mSCOREBOARD_TIMER_KEY As String = "scoreboard_refresh"
     Public mFAVORITE_TEAM_KEY As String = "favorite_team"
-    Public mDATA_FILES_KEY As String = "debug"
+    Public mKEEP_DATA_FILES_KEY As String = "debug"
+    Public mDATA_FILES_PATH_KEY As String = "data_files"
     Public mPROPERTIES_FILE As String = "config.mlb"
 
     Public Sub New()
         ' open file
         Dim fi As FileInfo = New FileInfo(mPROPERTIES_FILE)
         If Not fi.Exists() Then
-            File.WriteAllText(mPROPERTIES_FILE, $"{mGAME_TIMER_KEY}=30 {vbCr} {mSCOREBOARD_TIMER_KEY}=30 {vbCr} {mFAVORITE_TEAM_KEY}=WSH {vbCr} {mDATA_FILES_KEY}=0")
+            File.WriteAllText(mPROPERTIES_FILE, $"{mGAME_TIMER_KEY}=30 {vbCr} {mSCOREBOARD_TIMER_KEY}=30 {vbCr} \
+                                                  {mFAVORITE_TEAM_KEY}=WSH {vbCr} {mKEEP_DATA_FILES_KEY}=0 {vbCr} \
+                                                  {mDATA_FILES_PATH_KEY}=/data")
         End If
 
         Dim sr As New StreamReader(mPROPERTIES_FILE)
+
         ' load properties
         Load(sr)
         sr.Close()
@@ -48,7 +52,6 @@ Public Class SBProperties
 
             Add(key, value)
             'Trace.WriteLine($"read prop {key} = {value}")
-
         Loop
 
     End Sub
@@ -58,7 +61,6 @@ Public Class SBProperties
     End Function
 
     Public Function GetProperty(ByVal key As String, ByVal defValue As String) As String
-
 
         Dim value As String = m_Properties.Item(key)
         If value Is Nothing Then

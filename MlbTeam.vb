@@ -14,6 +14,7 @@ Public Class MlbTeam
     Private mRoster As List(Of MlbPlayer) = New List(Of MlbPlayer)
     Private mBattingOrder As List(Of MlbPlayer) = New List(Of MlbPlayer)
     Private mAPI As MlbApi = New MlbApi()
+    Private mProps As SBProperties = New SBProperties()
 
     Public ReadOnly Property Id() As Integer
         Get
@@ -90,8 +91,11 @@ Public Class MlbTeam
                     Me.mShortName = Team.SelectToken("teamName")
                     Me.mAbbr = Team.SelectToken("abbreviation")
 
-                    File.WriteAllText($"c:\\temp\\{mAbbr}-teamdata.json", Team.ToString())
-
+                    ' save data for debugging
+                    If mProps.GetProperty(mProps.mKEEP_DATA_FILES_KEY) = 1 Then
+                        Dim DataRoot = mProps.GetProperty(mProps.mDATA_FILES_PATH_KEY)
+                        File.WriteAllText($"{DataRoot}\\{mAbbr}-teamdata.json", Team.ToString())
+                    End If
                     Exit For
                 End If
             Next
@@ -246,3 +250,5 @@ Public Class MlbTeam
         Return dt
     End Function
 End Class
+
+'<SDG><

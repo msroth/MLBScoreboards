@@ -1,5 +1,6 @@
 ﻿
 
+Imports System.IO
 Imports Newtonsoft.Json.Linq
 
 Public Class MlbPlayer
@@ -11,8 +12,9 @@ Public Class MlbPlayer
     Dim mShortPosition As String
     Dim mBattingPosition As Integer
     Private mAPI As MlbApi = New MlbApi()
-    Private mBattingStats As DataTable = New DataTable("BattingStats")
-    Private mPitchingStats As DataTable = New DataTable("PithingStats")
+    Private mProps As SBProperties = New SBProperties()
+    'Private mBattingStats As DataTable = New DataTable("BattingStats")
+    'Private mPitchingStats As DataTable = New DataTable("PitchingStats")
 
 
     Public ReadOnly Property Id() As String
@@ -77,6 +79,10 @@ Public Class MlbPlayer
         Me.mShortPosition = ThisPlayer.SelectToken("primaryPosition.abbreviation")
         Me.mPosition = ThisPlayer.SelectToken("primaryPosition.name")
 
+        If mProps.GetProperty(mProps.mKEEP_DATA_FILES_KEY) = 1 Then
+            Dim DataRoot As String = mProps.GetProperty(mProps.mDATA_FILES_PATH_KEY)
+            File.WriteAllText($"{DataRoot}\\{Me.Id}-{Me.ShortName}_playerdata.json", ThisPlayer.ToString())
+        End If
     End Sub
 
     Sub New(Id As String, Number As String, Name As String, Position As String)

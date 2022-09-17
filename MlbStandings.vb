@@ -4,6 +4,7 @@ Imports Newtonsoft.Json.Linq
 Public Class MlbStandings
     Private mAPI As MlbApi = New MlbApi()
     Private mYear As String
+    Private mData As JObject
 
     Property Year As String
         Set(Year As String)
@@ -18,16 +19,21 @@ Public Class MlbStandings
     Private Sub Standings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
         ' get standings data
-        Dim data As JObject = Me.mAPI.ReturnSeasonStandings(Year)
+        Me.mData = Me.mAPI.ReturnSeasonStandings(Year)
+
+        LoadGrids()
+    End Sub
+
+    Private Sub LoadGrids()
 
         Dim dtDivisionStandings As DataTable
-        For i = 0 To data.SelectToken("records").Count - 1
+        For i = 0 To Me.mData.SelectToken("records").Count - 1
 
             ' create dt for this division
             dtDivisionStandings = initDivStandingDataTable()
 
             ' get divison data
-            Dim DivisionData As JObject = data.SelectToken("records").Item(i)
+            Dim DivisionData As JObject = Me.mData.SelectToken("records").Item(i)
             Dim DivisionId As String = DivisionData.SelectToken("division.id")
 
             ' get records for each team in division
@@ -126,3 +132,5 @@ Public Class MlbStandings
     End Function
 
 End Class
+
+'<SDG><

@@ -6,11 +6,9 @@ Public Class MlbPlayerStats
     Private mAPI As MlbApi = New MlbApi()
     Private mThisPlayer As MlbPlayer = Nothing
     Private mLiveData As JObject
-    'Private mGameData As JObject
     Private mBoxscoreData As JObject
     Private mGamePk As Integer = 0
     Private mAwayOrHome As String = ""
-    'Private mStatsTable As DataTable
     Private mBattingGameStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
     Private mBattingSeasonStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
     Private mBattingCareerStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
@@ -67,6 +65,7 @@ Public Class MlbPlayerStats
         Me.mBoxscoreData = mLiveData.SelectToken("boxscore")
         Me.Cursor = Cursors.Default
 
+        ' parse stats and load into grids
         LoadStats()
 
     End Sub
@@ -107,10 +106,6 @@ Public Class MlbPlayerStats
                                              "strikeoutsPer9Inn", "walksPer9Inn", "hitsPer9Inn", "runsScoredPer9", "homeRunsPer9",
                                              "inheritedRunners", "inheritedRunnersScored", "catchersInterference", "sacBunts", "sacFlies",
                                              "passedBall"}
-
-
-        Dim StatsDict As Dictionary(Of String, String)
-
 
         ' == Game Stats ==
         Dim BattingGameStatsData As JObject
@@ -180,6 +175,8 @@ Public Class MlbPlayerStats
             Next
         End If
 
+        ' only pulls stats for primary postion
+        ' TODO - pull stats for all positions played.  Will require different UI
         If FieldingSeasonStatsData IsNot Nothing Then
             Dim stats As JArray = FieldingSeasonStatsData.SelectToken("people[0].stats[0].splits")
             For i = 0 To stats.Count - 1
@@ -194,6 +191,7 @@ Public Class MlbPlayerStats
             Next
         End If
 
+        ' ditto above
         If FieldingCareerStatsData IsNot Nothing Then
             Dim stats As JArray = FieldingCareerStatsData.SelectToken("people[0].stats[0].splits")
             For i = 0 To stats.Count - 1
@@ -225,7 +223,6 @@ Public Class MlbPlayerStats
         Next
         dgvFieldingStats.DataSource = dt
 
-
         ' load batting stats
 
         If BattingGameStatsData IsNot Nothing Then
@@ -242,13 +239,10 @@ Public Class MlbPlayerStats
             Dim stats As JArray = BattingSeasonStatsData.SelectToken("people[0].stats[0].splits")
             For i = 0 To stats.Count - 1
                 Dim statsdata As JObject = stats.Item(i)
-                'Dim position As String = statsdata.SelectToken("position.abbreviation")
-                'If position.ToUpper() = Me.mThisPlayer.ShortPosition Then
                 For Each key As String In BattingStatsKeys
                     Dim value As String = statsdata.SelectToken($"stat.{key}")
                     Me.mBattingSeasonStats.Add(key, value)
                 Next
-                'End If
             Next
         End If
 
@@ -256,13 +250,10 @@ Public Class MlbPlayerStats
             Dim stats As JArray = BattingCareerStatsData.SelectToken("people[0].stats[0].splits")
             For i = 0 To stats.Count - 1
                 Dim statsdata As JObject = stats.Item(i)
-                'Dim position As String = statsdata.SelectToken("position.abbreviation")
-                'If position.ToUpper() = Me.mThisPlayer.ShortPosition Then
                 For Each key As String In BattingStatsKeys
                     Dim value As String = statsdata.SelectToken($"stat.{key}")
                     Me.mBattingCareerStats.Add(key, value)
                 Next
-                'End If
             Next
         End If
 
@@ -282,7 +273,6 @@ Public Class MlbPlayerStats
             dt.Rows.Add(dr)
         Next
         dgvBattingStats.DataSource = dt
-
 
         ' load pitching stats
 
@@ -351,3 +341,6 @@ Public Class MlbPlayerStats
 
 
 End Class
+
+'<SDG><
+

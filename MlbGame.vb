@@ -67,7 +67,6 @@ Public Class MlbGame
         Return -100
     End Function
 
-
     Public ReadOnly Property GamePk() As Integer
         Get
             Return Me.mGamePk
@@ -293,13 +292,8 @@ Public Class MlbGame
     Public Sub LoadGameData()
 
         Try
+            ' get fresh data
             RefreshMLBData()
-
-            If mProperties.GetProperty(mProperties.mDATA_FILES_KEY, "0") = "1" Then
-                File.WriteAllText($"c:\\temp\\{Me.GamePk()}-gamedata.json", mData.ToString())
-                File.WriteAllText($"c:\\temp\\{Me.GamePk()}-boxdata.json", mBoxData.ToString())
-                File.WriteAllText($"c:\\temp\\{Me.GamePk()}-linedata.json", mLineData.ToString())
-            End If
 
             ' get teams
             Me.mAwayTeam = New MlbTeam(Convert.ToInt32(mBoxData.SelectToken("teams.away.team.id")))
@@ -409,6 +403,15 @@ Public Class MlbGame
                 End If
 
             End If
+
+            ' save data for debugging
+            If mProperties.GetProperty(mProperties.mKEEP_DATA_FILES_KEY, "0") = "1" Then
+                Dim DataRoot As String = mProperties.GetProperty(mProperties.mDATA_FILES_PATH_KEY)
+                File.WriteAllText($"{DataRoot}\\{Me.GamePk()}-{Me.AwayTeam.Abbr}-{Me.HomeTeam.Abbr}_gamedata.json", mData.ToString())
+                File.WriteAllText($"{DataRoot}\\{Me.GamePk()}-{Me.AwayTeam.Abbr}-{Me.HomeTeam.Abbr}_boxdata.json", mBoxData.ToString())
+                File.WriteAllText($"{DataRoot}\\{Me.GamePk()}-{Me.AwayTeam.Abbr}-{Me.HomeTeam.Abbr}_linedata.json", mLineData.ToString())
+            End If
+
             Trace.WriteLine($"Loading game {Me.GamePk} {Me.AwayTeam.Abbr} @ {Me.HomeTeam.Abbr} data")
         Catch ex As Exception
             Trace.WriteLine($"ERROR: LoadGameData - {ex}")
@@ -639,34 +642,34 @@ Public Class MlbGame
     End Function
 
 
-    Function ConvertDateTimeToLocalTimeZone() As String
+    'Function ConvertDateTimeToLocalTimeZone() As String
 
-        Dim gameTime As String = mGameData.SelectToken("datetime.dateTime").ToString()
-        Dim gameTZ As String = mGameData.SelectToken("venue.timeZone.tz").ToString()
-        Dim gameTZI As TimeZoneInfo
-        If gameTZ = "EDT" Then
-            gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time")
-        ElseIf gameTZ = "EST" Then
-            gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time")
-        ElseIf gameTZ = "CDT" Then
-            gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time")
-        ElseIf gameTZ = "CST" Then
-            gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time")
-        ElseIf gameTZ = "MDT" Then
-            gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Mountain Standard Time")
-        ElseIf gameTZ = "MST" Then
-            gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Mountain Standard Time")
-        ElseIf gameTZ = "PDT" Then
-            gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time")
-        ElseIf gameTZ = "PST" Then
-            gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time")
-        End If
+    '    Dim gameTime As String = mGameData.SelectToken("datetime.dateTime").ToString()
+    '    Dim gameTZ As String = mGameData.SelectToken("venue.timeZone.tz").ToString()
+    '    Dim gameTZI As TimeZoneInfo
+    '    If gameTZ = "EDT" Then
+    '        gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time")
+    '    ElseIf gameTZ = "EST" Then
+    '        gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time")
+    '    ElseIf gameTZ = "CDT" Then
+    '        gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time")
+    '    ElseIf gameTZ = "CST" Then
+    '        gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time")
+    '    ElseIf gameTZ = "MDT" Then
+    '        gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Mountain Standard Time")
+    '    ElseIf gameTZ = "MST" Then
+    '        gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Mountain Standard Time")
+    '    ElseIf gameTZ = "PDT" Then
+    '        gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time")
+    '    ElseIf gameTZ = "PST" Then
+    '        gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time")
+    '    End If
 
-        Dim gt As DateTime = DateTime.Parse(gameTime)
-        Dim ds As String = TimeZoneInfo.ConvertTime(gt, gameTZI, TimeZoneInfo.Local)
+    '    Dim gt As DateTime = DateTime.Parse(gameTime)
+    '    Dim ds As String = TimeZoneInfo.ConvertTime(gt, gameTZI, TimeZoneInfo.Local)
 
-        Return ds
-    End Function
+    '    Return ds
+    'End Function
 
     Function GetCurrentBatterId() As String
         Dim batterId As String = Me.mCurrentPlayData.SelectToken("matchup.batter.id").ToString
@@ -709,13 +712,6 @@ Public Class MlbGame
             If lastInning > 0 Then
                 'Dim jsonPath As String
                 Dim allPlayData As JObject = Me.LiveData().SelectToken("plays")
-
-                ' build path to last innings plays
-                'If Me.AwayTeam.Id = battingTeam.Id Then
-                'jsonPath = $"playsByInning[{lastInning}].top"
-                'Else
-                'jsonPath = $"playsByInning[{lastInning}].bottom"
-                'End If
 
                 ' get play data
                 Dim data As JArray = allPlayData.SelectToken(jsonPath)
@@ -853,4 +849,8 @@ Public Class MlbGame
         End Try
         Return matchup
     End Function
+
 End Class
+
+'<SDG><
+

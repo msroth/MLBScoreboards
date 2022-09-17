@@ -4,18 +4,10 @@ Imports Newtonsoft.Json.Linq
 
 Public Class MlbScoreboard
 
-    'Private mSBData As ScoreboardData = New ScoreboardData()
     Private mAPI As MlbApi = New MlbApi()
     Private mProperties As SBProperties = New SBProperties()
     Private mCurrentGame As MlbGame = Nothing
     Private mAllGames As Dictionary(Of String, MlbGame) = New Dictionary(Of String, MlbGame)
-
-    'Private ReadOnly mGAME_STATUS_FUTURE_LABELS As String() = {"SCHEDULED", "WARMUP", "PRE-GAME", "DELAYED", "POSTPONED"}
-    'Private ReadOnly mGAME_STATUS_PRESENT_LABLES As String() = {"IN PROGRESS", "MANAGER", "OFFICIAL"}
-    'Private ReadOnly mGAME_STATUS_PAST_LABELS As String() = {"FINAL", "COMPLETE", "GAME OVER", "COMPLETED"}
-    'Private ReadOnly mGAME_STATUS_FUTURE = 1
-    'Private ReadOnly mGAME_STATUS_PRESENT = 0
-    'Private ReadOnly mGAME_STATUS_PAST = -1
 
     Private Sub MLBScoreboard_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
@@ -138,9 +130,9 @@ Public Class MlbScoreboard
                 lblAwayLineup.Visible = True
                 lblHomeLineup.Visible = True
                 lblWeather.Visible = True
-                lblBalls.Visible = True
-                lblStrikes.Visible = True
-                lblOuts.Visible = True
+                lblBalls.Visible = False
+                lblStrikes.Visible = False
+                lblOuts.Visible = False
                 lblPitchCount.Visible = False
                 imgDiamond.Visible = True
                 lblAwayWinnerLoser.Visible = False
@@ -621,12 +613,10 @@ Public Class MlbScoreboard
     End Sub
 
     Private Sub calDatePicker_CloseUp(sender As Object, e As EventArgs) Handles calDatePicker.CloseUp
-        'Dim gameDate As String = Me.calDatePicker.Value.ToString("MM/dd/yyyy")
         Me.mCurrentGame = Nothing
         Me.GameUpdateTimer.Stop()
         Me.ResetScreenControls()
         Me.mAllGames.Clear()
-        'mAllGames = mSBData.LoadAllGamesData(gameDate)
         Me.RunScoreboard()
     End Sub
 
@@ -731,7 +721,7 @@ Public Class MlbScoreboard
     End Sub
 
     Private Sub ConfigureToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ConfigureToolStripMenuItem.Click
-        Dim frmConfig = New Configure
+        Dim frmConfig = New SBConfigure
         frmConfig.ShowDialog()
         SetScoreboardTimerInterval(Convert.ToInt32(mProperties.GetProperty(mProperties.mGAME_TIMER_KEY, "20")))
     End Sub
@@ -803,9 +793,6 @@ Public Class MlbScoreboard
         frmStandings.ShowDialog()
     End Sub
 
-    Private Sub ToolStripContainer1_ContentPanel_Load(sender As Object, e As EventArgs)
-
-    End Sub
 
 
     ' ===============================================
@@ -933,4 +920,17 @@ Public Class MlbScoreboard
 
 
 
+    'Official Score
+    '=================
+    'liveData.plays.allPlays[].runners[].credit[].position.code
+    'liveData.plays.allPlays[].result.event
+
+    '- will need map of events to scoring marks
+    '- look for f_assist, f_fielded_ball, f_fielding_error, and f_putout for credit
+    '- will need to string all this together for each runner to make official score
+    '- positions repeated in multiplayer players like 6-4-3 will be 6-4, 4-3
+
+
 End Class
+
+'<SDG><

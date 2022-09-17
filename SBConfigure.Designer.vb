@@ -1,5 +1,5 @@
 ﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
-Partial Class Configure
+Partial Class SBConfigure
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
@@ -31,6 +31,7 @@ Partial Class Configure
         Me.chxWriteFiles = New System.Windows.Forms.CheckBox()
         Me.Label4 = New System.Windows.Forms.Label()
         Me.numGameRefreshTime = New System.Windows.Forms.NumericUpDown()
+        Me.lblData = New System.Windows.Forms.Label()
         CType(Me.numSBRefreshTime, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.numGameRefreshTime, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -73,7 +74,7 @@ Partial Class Configure
         '
         'btnSave
         '
-        Me.btnSave.Location = New System.Drawing.Point(663, 197)
+        Me.btnSave.Location = New System.Drawing.Point(663, 239)
         Me.btnSave.Name = "btnSave"
         Me.btnSave.Size = New System.Drawing.Size(94, 29)
         Me.btnSave.TabIndex = 6
@@ -82,7 +83,7 @@ Partial Class Configure
         '
         'btnCancel
         '
-        Me.btnCancel.Location = New System.Drawing.Point(554, 197)
+        Me.btnCancel.Location = New System.Drawing.Point(554, 239)
         Me.btnCancel.Name = "btnCancel"
         Me.btnCancel.Size = New System.Drawing.Size(94, 29)
         Me.btnCancel.TabIndex = 7
@@ -118,11 +119,21 @@ Partial Class Configure
         Me.numGameRefreshTime.TabIndex = 10
         Me.numGameRefreshTime.Value = New Decimal(New Integer() {20, 0, 0, 0})
         '
-        'Configure
+        'lblData
+        '
+        Me.lblData.AutoSize = True
+        Me.lblData.Location = New System.Drawing.Point(40, 190)
+        Me.lblData.Name = "lblData"
+        Me.lblData.Size = New System.Drawing.Size(73, 20)
+        Me.lblData.TabIndex = 12
+        Me.lblData.Text = "Data Path"
+        '
+        'SBConfigure
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(800, 258)
+        Me.ClientSize = New System.Drawing.Size(800, 290)
+        Me.Controls.Add(Me.lblData)
         Me.Controls.Add(Me.Label4)
         Me.Controls.Add(Me.numGameRefreshTime)
         Me.Controls.Add(Me.chxWriteFiles)
@@ -132,7 +143,7 @@ Partial Class Configure
         Me.Controls.Add(Me.Label3)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.numSBRefreshTime)
-        Me.Name = "Configure"
+        Me.Name = "SBConfigure"
         Me.Text = "Configure"
         CType(Me.numSBRefreshTime, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.numGameRefreshTime, System.ComponentModel.ISupportInitialize).EndInit()
@@ -150,4 +161,5 @@ Partial Class Configure
     Friend WithEvents chxWriteFiles As CheckBox
     Friend WithEvents Label4 As Label
     Friend WithEvents numGameRefreshTime As NumericUpDown
+    Friend WithEvents lblData As Label
 End Class
