@@ -10,12 +10,12 @@ Public Class MlbScoreboard
     Private mCurrentGame As MlbGame = Nothing
     Private mAllGames As Dictionary(Of String, MlbGame) = New Dictionary(Of String, MlbGame)
 
-    Private ReadOnly mGAME_STATUS_FUTURE_LABELS As String() = {"SCHEDULED", "WARMUP", "PRE-GAME", "DELAYED", "POSTPONED"}
-    Private ReadOnly mGAME_STATUS_PRESENT_LABLES As String() = {"IN PROGRESS", "MANAGER", "OFFICIAL"}
-    Private ReadOnly mGAME_STATUS_PAST_LABELS As String() = {"FINAL", "COMPLETE", "GAME OVER", "COMPLETED"}
-    Private ReadOnly mGAME_STATUS_FUTURE = 1
-    Private ReadOnly mGAME_STATUS_PRESENT = 0
-    Private ReadOnly mGAME_STATUS_PAST = -1
+    'Private ReadOnly mGAME_STATUS_FUTURE_LABELS As String() = {"SCHEDULED", "WARMUP", "PRE-GAME", "DELAYED", "POSTPONED"}
+    'Private ReadOnly mGAME_STATUS_PRESENT_LABLES As String() = {"IN PROGRESS", "MANAGER", "OFFICIAL"}
+    'Private ReadOnly mGAME_STATUS_PAST_LABELS As String() = {"FINAL", "COMPLETE", "GAME OVER", "COMPLETED"}
+    'Private ReadOnly mGAME_STATUS_FUTURE = 1
+    'Private ReadOnly mGAME_STATUS_PRESENT = 0
+    'Private ReadOnly mGAME_STATUS_PAST = -1
 
     Private Sub MLBScoreboard_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
@@ -78,7 +78,7 @@ Public Class MlbScoreboard
             End If
 
             ' update status bar
-            Me.ToolStripStatusLabel1.Text = "All Games Data Updated " + Date.Now
+            Me.AllGamesUpdateData.Text = $"All Games Data Updated {Date.Now}  "
 
         Catch ex As Exception
             Trace.WriteLine($"ERROR: RunScoreboard - {ex}")
@@ -93,17 +93,19 @@ Public Class MlbScoreboard
                 Me.PlayRecapToolStripMenuItem.Enabled = False
                 Return
             Else
-                ' this forces a refresch of MLB data from API
+                ' this forces a refresh of MLB data from API
                 Me.mCurrentGame.LoadGameData()
                 ' update status bar
-                Me.ToolStripStatusLabel1.Text = $"Current Game ({Me.mCurrentGame.AwayTeam.Abbr} @ {Me.mCurrentGame.HomeTeam.Abbr}) Data Updated {Date.Now}"
+                Me.ThisGameUpdateData.Text = $"  Current Game ({Me.mCurrentGame.AwayTeam.Abbr} @ {Me.mCurrentGame.HomeTeam.Abbr}) Data Updated {Date.Now}"
+
+                ' enable menu item
                 Me.PlayRecapToolStripMenuItem.Enabled = True
             End If
 
             Trace.WriteLine("=== Run Game ===>")
             Trace.WriteLine(Me.mCurrentGame.ToString())
-            Trace.WriteLine(Me.mCurrentGame.AwayTeam.ToString())
-            Trace.WriteLine(Me.mCurrentGame.HomeTeam.ToString())
+            'Trace.WriteLine(Me.mCurrentGame.AwayTeam.ToString())
+            'Trace.WriteLine(Me.mCurrentGame.HomeTeam.ToString())
             Trace.WriteLine("<=== Run Game ===")
 
             ' load line up data
@@ -349,27 +351,6 @@ Public Class MlbScoreboard
         End Try
     End Sub
 
-    'Private Function CheckGameStatus(GameStatus As String) As Integer
-    '    For Each label As String In mGAME_STATUS_FUTURE_LABELS
-    '        If GameStatus.ToUpper().Contains(label.ToUpper()) Then
-    '            Return mGAME_STATUS_FUTURE
-    '        End If
-    '    Next
-
-    '    For Each label As String In mGAME_STATUS_PRESENT_LABLES
-    '        If GameStatus.ToUpper().Contains(label.ToUpper()) Then
-    '            Return mGAME_STATUS_PRESENT
-    '        End If
-    '    Next
-
-    '    For Each label As String In mGAME_STATUS_PAST_LABELS
-    '        If GameStatus.ToUpper().Contains(label.ToUpper()) Then
-    '            Return mGAME_STATUS_PAST
-    '        End If
-    '    Next
-    '    Return -100
-    'End Function
-
     Private Sub LoadTeamLogos()
         Try
             Me.imgAwayLogo.Image = My.Resources.ResourceManager().GetObject(Me.mCurrentGame.AwayTeam.Abbr)
@@ -527,6 +508,8 @@ Public Class MlbScoreboard
                     Dim gamePk As String = game.SelectToken("gamePk")
                     Dim oGame As MlbGame = New MlbGame(gamePk)
                     ListOfGames.Add(gamePk, oGame)
+                    Me.AllGamesUpdateData.Text = $"Loading game {oGame.GamePk} {oGame.AwayTeam.Abbr} @ {oGame.HomeTeam.Abbr} data...  "
+                    Me.StatusStrip1.Refresh()
                 Next
             Next
         Catch ex As Exception
@@ -818,6 +801,10 @@ Public Class MlbScoreboard
         Dim frmStandings As MlbStandings = New MlbStandings()
         frmStandings.Year = year
         frmStandings.ShowDialog()
+    End Sub
+
+    Private Sub ToolStripContainer1_ContentPanel_Load(sender As Object, e As EventArgs)
+
     End Sub
 
 

@@ -4,13 +4,7 @@ Imports Newtonsoft.Json.Linq
 Public Class MlbStandings
     Private mAPI As MlbApi = New MlbApi()
     Private mYear As String
-    Private mLeagueNames As New Dictionary(Of String, String) From {{"200", "American League West"},
-                                                                  {"201", "American League East"},
-                                                                  {"202", "American League West"},
-                                                                  {"203", "National League Central"},
-                                                                  {"204", "National League East"},
-                                                                  {"205", "National League Central"}}
- 
+
     Property Year As String
         Set(Year As String)
             Me.mYear = Year

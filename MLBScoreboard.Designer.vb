@@ -30,7 +30,8 @@ Partial Class MlbScoreboard
         Dim DataGridViewCellStyle5 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle6 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.StatusStrip1 = New System.Windows.Forms.StatusStrip()
-        Me.ToolStripStatusLabel1 = New System.Windows.Forms.ToolStripStatusLabel()
+        Me.AllGamesUpdateData = New System.Windows.Forms.ToolStripStatusLabel()
+        Me.ThisGameUpdateData = New System.Windows.Forms.ToolStripStatusLabel()
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.FileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ConfigureToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -79,19 +80,27 @@ Partial Class MlbScoreboard
         'StatusStrip1
         '
         Me.StatusStrip1.ImageScalingSize = New System.Drawing.Size(20, 20)
-        Me.StatusStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripStatusLabel1})
-        Me.StatusStrip1.Location = New System.Drawing.Point(0, 667)
+        Me.StatusStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.AllGamesUpdateData, Me.ThisGameUpdateData})
+        Me.StatusStrip1.Location = New System.Drawing.Point(0, 665)
         Me.StatusStrip1.Name = "StatusStrip1"
         Me.StatusStrip1.Padding = New System.Windows.Forms.Padding(1, 0, 16, 0)
-        Me.StatusStrip1.Size = New System.Drawing.Size(1838, 22)
+        Me.StatusStrip1.Size = New System.Drawing.Size(1838, 24)
         Me.StatusStrip1.TabIndex = 0
         Me.StatusStrip1.Text = "StatusStrip1"
         '
-        'ToolStripStatusLabel1
+        'AllGamesUpdateData
         '
-        Me.ToolStripStatusLabel1.BackColor = System.Drawing.Color.White
-        Me.ToolStripStatusLabel1.Name = "ToolStripStatusLabel1"
-        Me.ToolStripStatusLabel1.Size = New System.Drawing.Size(0, 16)
+        Me.AllGamesUpdateData.BackColor = System.Drawing.Color.White
+        Me.AllGamesUpdateData.Name = "AllGamesUpdateData"
+        Me.AllGamesUpdateData.Size = New System.Drawing.Size(0, 18)
+        Me.AllGamesUpdateData.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'ThisGameUpdateData
+        '
+        Me.ThisGameUpdateData.BackColor = System.Drawing.Color.White
+        Me.ThisGameUpdateData.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Left
+        Me.ThisGameUpdateData.Name = "ThisGameUpdateData"
+        Me.ThisGameUpdateData.Size = New System.Drawing.Size(4, 18)
         '
         'MenuStrip1
         '
@@ -525,7 +534,7 @@ Partial Class MlbScoreboard
         Me.lblPitchCount.TabIndex = 36
         Me.lblPitchCount.Text = "Pitches: 0"
         '
-        'MLBScoreboard
+        'MlbScoreboard
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
@@ -558,7 +567,7 @@ Partial Class MlbScoreboard
         Me.Controls.Add(Me.MenuStrip1)
         Me.MainMenuStrip = Me.MenuStrip1
         Me.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
-        Me.Name = "MLBScoreboard"
+        Me.Name = "MlbScoreboard"
         Me.Text = "MLB Live Scoreboards (C) 2022 MSRoth"
         Me.StatusStrip1.ResumeLayout(False)
         Me.StatusStrip1.PerformLayout()
@@ -588,7 +597,7 @@ Partial Class MlbScoreboard
     Friend WithEvents lblBalls As Label
     Friend WithEvents lblStrikes As Label
     Friend WithEvents lblOuts As Label
-    Friend WithEvents ToolStripStatusLabel1 As ToolStripStatusLabel
+    Friend WithEvents AllGamesUpdateData As ToolStripStatusLabel
     Friend WithEvents dgvAwayLineup As DataGridView
     Friend WithEvents dgvHomeLineup As DataGridView
     Friend WithEvents lblAwayLineup As Label
@@ -612,4 +621,5 @@ Partial Class MlbScoreboard
     Friend WithEvents GameUpdateTimer As Timer
     Friend WithEvents StandingsToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents lblPitchCount As Label
+    Friend WithEvents ThisGameUpdateData As ToolStripStatusLabel
 End Class

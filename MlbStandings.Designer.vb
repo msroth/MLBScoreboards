@@ -121,6 +121,7 @@ Partial Class MlbStandings
         Me.dgvALWest.DefaultCellStyle = DataGridViewCellStyle2
         Me.dgvALWest.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
         Me.dgvALWest.Location = New System.Drawing.Point(23, 495)
+        Me.dgvALWest.MultiSelect = False
         Me.dgvALWest.Name = "dgvALWest"
         Me.dgvALWest.RowHeadersVisible = False
         Me.dgvALWest.RowHeadersWidth = 51
@@ -128,6 +129,7 @@ Partial Class MlbStandings
         DataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
         Me.dgvALWest.RowsDefaultCellStyle = DataGridViewCellStyle3
         Me.dgvALWest.RowTemplate.Height = 29
+        Me.dgvALWest.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.dgvALWest.Size = New System.Drawing.Size(763, 172)
         Me.dgvALWest.TabIndex = 5
         '
@@ -170,6 +172,7 @@ Partial Class MlbStandings
         Me.dgvALCentral.DefaultCellStyle = DataGridViewCellStyle5
         Me.dgvALCentral.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
         Me.dgvALCentral.Location = New System.Drawing.Point(23, 269)
+        Me.dgvALCentral.MultiSelect = False
         Me.dgvALCentral.Name = "dgvALCentral"
         Me.dgvALCentral.RowHeadersVisible = False
         Me.dgvALCentral.RowHeadersWidth = 51
@@ -177,6 +180,7 @@ Partial Class MlbStandings
         DataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
         Me.dgvALCentral.RowsDefaultCellStyle = DataGridViewCellStyle6
         Me.dgvALCentral.RowTemplate.Height = 29
+        Me.dgvALCentral.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.dgvALCentral.Size = New System.Drawing.Size(763, 172)
         Me.dgvALCentral.TabIndex = 3
         '
@@ -219,6 +223,7 @@ Partial Class MlbStandings
         Me.dgvALEast.DefaultCellStyle = DataGridViewCellStyle8
         Me.dgvALEast.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
         Me.dgvALEast.Location = New System.Drawing.Point(23, 52)
+        Me.dgvALEast.MultiSelect = False
         Me.dgvALEast.Name = "dgvALEast"
         Me.dgvALEast.RowHeadersVisible = False
         Me.dgvALEast.RowHeadersWidth = 51
@@ -226,6 +231,7 @@ Partial Class MlbStandings
         DataGridViewCellStyle9.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
         Me.dgvALEast.RowsDefaultCellStyle = DataGridViewCellStyle9
         Me.dgvALEast.RowTemplate.Height = 29
+        Me.dgvALEast.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.dgvALEast.Size = New System.Drawing.Size(763, 172)
         Me.dgvALEast.TabIndex = 1
         '
@@ -284,6 +290,7 @@ Partial Class MlbStandings
         Me.dgvNLWest.DefaultCellStyle = DataGridViewCellStyle11
         Me.dgvNLWest.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
         Me.dgvNLWest.Location = New System.Drawing.Point(24, 503)
+        Me.dgvNLWest.MultiSelect = False
         Me.dgvNLWest.Name = "dgvNLWest"
         Me.dgvNLWest.RowHeadersVisible = False
         Me.dgvNLWest.RowHeadersWidth = 51
@@ -291,6 +298,7 @@ Partial Class MlbStandings
         DataGridViewCellStyle12.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
         Me.dgvNLWest.RowsDefaultCellStyle = DataGridViewCellStyle12
         Me.dgvNLWest.RowTemplate.Height = 29
+        Me.dgvNLWest.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.dgvNLWest.Size = New System.Drawing.Size(763, 172)
         Me.dgvNLWest.TabIndex = 11
         '
@@ -333,6 +341,7 @@ Partial Class MlbStandings
         Me.dgvNLCentral.DefaultCellStyle = DataGridViewCellStyle14
         Me.dgvNLCentral.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
         Me.dgvNLCentral.Location = New System.Drawing.Point(24, 277)
+        Me.dgvNLCentral.MultiSelect = False
         Me.dgvNLCentral.Name = "dgvNLCentral"
         Me.dgvNLCentral.RowHeadersVisible = False
         Me.dgvNLCentral.RowHeadersWidth = 51
@@ -340,6 +349,7 @@ Partial Class MlbStandings
         DataGridViewCellStyle15.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
         Me.dgvNLCentral.RowsDefaultCellStyle = DataGridViewCellStyle15
         Me.dgvNLCentral.RowTemplate.Height = 29
+        Me.dgvNLCentral.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.dgvNLCentral.Size = New System.Drawing.Size(763, 172)
         Me.dgvNLCentral.TabIndex = 9
         '
@@ -382,6 +392,7 @@ Partial Class MlbStandings
         Me.dgvNLEast.DefaultCellStyle = DataGridViewCellStyle17
         Me.dgvNLEast.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
         Me.dgvNLEast.Location = New System.Drawing.Point(24, 60)
+        Me.dgvNLEast.MultiSelect = False
         Me.dgvNLEast.Name = "dgvNLEast"
         Me.dgvNLEast.RowHeadersVisible = False
         Me.dgvNLEast.RowHeadersWidth = 51
@@ -389,6 +400,7 @@ Partial Class MlbStandings
         DataGridViewCellStyle18.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
         Me.dgvNLEast.RowsDefaultCellStyle = DataGridViewCellStyle18
         Me.dgvNLEast.RowTemplate.Height = 29
+        Me.dgvNLEast.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.dgvNLEast.Size = New System.Drawing.Size(763, 172)
         Me.dgvNLEast.TabIndex = 7
         '
@@ -402,13 +414,13 @@ Partial Class MlbStandings
         Me.Label6.TabIndex = 6
         Me.Label6.Text = "National League East"
         '
-        'Standings
+        'MlbStandings
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(881, 790)
         Me.Controls.Add(Me.TabControl1)
-        Me.Name = "Standings"
+        Me.Name = "MlbStandings"
         Me.Text = "Standings"
         Me.TabControl1.ResumeLayout(False)
         Me.TabPage1.ResumeLayout(False)
