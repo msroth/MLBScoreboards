@@ -850,9 +850,31 @@ Public Class MlbGame
         Return matchup
     End Function
 
-    Public Function CreateScorebookEntry() As String
+    Public Function LastPlayScorebookEntry() As String
+        Dim Scorebook As String = ""
+        Dim currentPlayIdx As Integer = Me.LiveData.SelectToken("plays.currentPlay.atBatIndex")
+        currentPlayIdx -= 1
+        If currentPlayIdx <= 0 Then
+            Return ""
+        Else
+            Scorebook = CreateScorebookEntry(currentPlayIdx)
+        End If
+        Return Scorebook
+
+    End Function
+    Public Function CreateScorebookEntry(PlayIndex As Integer) As String
 
         Dim OfficialScoring As String = ""
+
+        'Dim currentPlayIdx As Integer = Me.LiveData.SelectToken("plays.currentPlay.atBatIndex")
+        'If currentPlayIdx = 0 Then
+        '    Return ""
+        'End If
+
+        Dim allPlaysData As JArray = Me.LiveData.SelectToken("plays.allPlays")
+        Dim lastPlayData = allPlaysData(PlayIndex)
+
+
         'Dim EventDic As New Dictionary(Of String, List(Of String))
         'Dim PlaysDic As New Dictionary(Of String, String)
 
@@ -868,18 +890,22 @@ Public Class MlbGame
         '    Trace.WriteLine($"{json.SelectToken("gameData.game.id")}")
 
         '    Dim AllPlaysData As JArray = json.SelectToken("liveData.plays.allPlays")
-        Dim PlayData As JObject = Me.mCurrentPlayData
+        'Dim PlayData As JObject = Me.mCurrentPlayData
         'File.WriteAllText($"c:\\temp\\{BaseGamePk + i}-alldata.json", json.ToString)
 
         'For p As Integer = 0 To AllPlaysData.Count - 1
         '        Dim PlayData As JObject = AllPlaysData.Item(p)
         '        Trace.WriteLine($"Play: {p}")
-        Dim EventName As String = PlayData.SelectToken("result.event")
+        Dim EventName As String = lastPlayData.SelectToken("result.event")
+        If EventName = "" Then
+            Return ""
+        End If
+
         Trace.WriteLine($"  Event: {EventName}")
 
         Dim Details As New List(Of String)
-        For r As Integer = 0 To PlayData.SelectToken("runners").Count - 1
-            Dim RunnersData As JObject = PlayData.SelectToken("runners").Item(r)
+        For r As Integer = 0 To lastPlayData.SelectToken("runners").Count - 1
+            Dim RunnersData As JObject = lastPlayData.SelectToken("runners").Item(r)
             Trace.WriteLine($" runner: {r}")
             Dim Credits As JArray = RunnersData.SelectToken("credits")
 

@@ -23,12 +23,14 @@ Public Class MlbPlaySummary
             Dim Out As String = play.SelectToken("count.outs")
             Dim Commentary As String = play.SelectToken("result.description")
             Dim Index As String = play.SelectToken("about.atBatIndex")
+            Dim Scorebook As String = Me.mCurrentGame.CreateScorebookEntry(Convert.ToInt32(Index))
 
             Dim row As DataRow = dt.NewRow()
             row.Item("Index") = Index
             row.Item("Inning") = Inning
             row.Item("Half") = Half.ToUpper()
             row.Item("Out") = Out
+            row.Item("Scorebook") = Scorebook
             row.Item("Commentary") = Commentary
 
             dt.Rows.Add(row)
@@ -52,6 +54,9 @@ Public Class MlbPlaySummary
         dt.Columns.Add(col)
         col = New DataColumn()
         col.ColumnName = "Out"
+        dt.Columns.Add(col)
+        col = New DataColumn()
+        col.ColumnName = "Scorebook"
         dt.Columns.Add(col)
         col = New DataColumn()
         col.ColumnName = "Commentary"
