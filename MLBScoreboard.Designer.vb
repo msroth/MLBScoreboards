@@ -66,6 +66,7 @@ Partial Class MlbScoreboard
         Me.lblHomeWinnerLoser = New System.Windows.Forms.Label()
         Me.GameUpdateTimer = New System.Windows.Forms.Timer(Me.components)
         Me.lblPitchCount = New System.Windows.Forms.Label()
+        Me.lblScorebook = New System.Windows.Forms.Label()
         Me.StatusStrip1.SuspendLayout()
         Me.MenuStrip1.SuspendLayout()
         CType(Me.dgvInnings, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -81,10 +82,10 @@ Partial Class MlbScoreboard
         '
         Me.StatusStrip1.ImageScalingSize = New System.Drawing.Size(20, 20)
         Me.StatusStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.AllGamesUpdateData, Me.ThisGameUpdateData})
-        Me.StatusStrip1.Location = New System.Drawing.Point(0, 665)
+        Me.StatusStrip1.Location = New System.Drawing.Point(0, 667)
         Me.StatusStrip1.Name = "StatusStrip1"
         Me.StatusStrip1.Padding = New System.Windows.Forms.Padding(1, 0, 16, 0)
-        Me.StatusStrip1.Size = New System.Drawing.Size(1838, 24)
+        Me.StatusStrip1.Size = New System.Drawing.Size(1838, 22)
         Me.StatusStrip1.TabIndex = 0
         Me.StatusStrip1.Text = "StatusStrip1"
         '
@@ -92,7 +93,7 @@ Partial Class MlbScoreboard
         '
         Me.AllGamesUpdateData.BackColor = System.Drawing.Color.White
         Me.AllGamesUpdateData.Name = "AllGamesUpdateData"
-        Me.AllGamesUpdateData.Size = New System.Drawing.Size(0, 18)
+        Me.AllGamesUpdateData.Size = New System.Drawing.Size(0, 16)
         Me.AllGamesUpdateData.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
         'ThisGameUpdateData
@@ -100,7 +101,7 @@ Partial Class MlbScoreboard
         Me.ThisGameUpdateData.BackColor = System.Drawing.Color.White
         Me.ThisGameUpdateData.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Left
         Me.ThisGameUpdateData.Name = "ThisGameUpdateData"
-        Me.ThisGameUpdateData.Size = New System.Drawing.Size(4, 18)
+        Me.ThisGameUpdateData.Size = New System.Drawing.Size(4, 16)
         '
         'MenuStrip1
         '
@@ -534,6 +535,17 @@ Partial Class MlbScoreboard
         Me.lblPitchCount.TabIndex = 36
         Me.lblPitchCount.Text = "Pitches: 0"
         '
+        'lblScorebook
+        '
+        Me.lblScorebook.AutoSize = True
+        Me.lblScorebook.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
+        Me.lblScorebook.ForeColor = System.Drawing.SystemColors.ControlLightLight
+        Me.lblScorebook.Location = New System.Drawing.Point(855, 423)
+        Me.lblScorebook.Name = "lblScorebook"
+        Me.lblScorebook.Size = New System.Drawing.Size(103, 20)
+        Me.lblScorebook.TabIndex = 37
+        Me.lblScorebook.Text = "Scorebook:"
+        '
         'MlbScoreboard
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 20.0!)
@@ -541,6 +553,7 @@ Partial Class MlbScoreboard
         Me.BackColor = System.Drawing.Color.Green
         Me.CausesValidation = False
         Me.ClientSize = New System.Drawing.Size(1838, 689)
+        Me.Controls.Add(Me.lblScorebook)
         Me.Controls.Add(Me.lblPitchCount)
         Me.Controls.Add(Me.lblHomeWinnerLoser)
         Me.Controls.Add(Me.lblAwayWinnerLoser)
@@ -622,4 +635,5 @@ Partial Class MlbScoreboard
     Friend WithEvents StandingsToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents lblPitchCount As Label
     Friend WithEvents ThisGameUpdateData As ToolStripStatusLabel
+    Friend WithEvents lblScorebook As Label
 End Class

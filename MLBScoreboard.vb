@@ -139,6 +139,7 @@ Public Class MlbScoreboard
                 lblHomeWinnerLoser.Visible = False
                 lblMatchup.Text = Me.mCurrentGame.GetPitchingMatchup()
                 lblMatchup.Visible = True
+                lblScorebook.Visible = False
 
                 ' load team roster
                 Me.LoadTeamRosterGrids()
@@ -159,6 +160,7 @@ Public Class MlbScoreboard
                 lblWeather.Visible = False
                 lblAwayWinnerLoser.Visible = True
                 lblHomeWinnerLoser.Visible = True
+                lblScorebook.Visible = False
 
                 lblMatchup.Text = UpdateWinnerLoserPitchers()
                 lblMatchup.Visible = True
@@ -199,6 +201,7 @@ Public Class MlbScoreboard
                 lblWeather.Visible = True
                 lblHomeWinnerLoser.Visible = False
                 lblAwayWinnerLoser.Visible = False
+                lblScorebook.Visible = True
 
                 ' update inning label in inning table
                 If Me.mCurrentGame.Innings.Columns.Count > 1 Then
@@ -225,6 +228,9 @@ Public Class MlbScoreboard
 
                 ' update last play
                 Me.UpdatePlayCommentary()
+
+                'update scorebook
+                Me.lblScorebook.Text = $"Scorebook: {Me.mCurrentGame.CreateScorebookEntry()}"
 
                 'update base runners image
                 Me.UpdateBaseRunners()
@@ -287,6 +293,8 @@ Public Class MlbScoreboard
         lblGamePk.Visible = True
         lblStatus.Text = "Game Status"
         lblStatus.Visible = True
+        lblScorebook.Visible = True
+        lblScorebook.Text = "Scorebook: "
         Me.mCurrentGame = Nothing
     End Sub
 

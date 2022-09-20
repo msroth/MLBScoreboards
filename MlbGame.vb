@@ -850,6 +850,171 @@ Public Class MlbGame
         Return matchup
     End Function
 
+    Public Function CreateScorebookEntry() As String
+
+        Dim OfficialScoring As String = ""
+        'Dim EventDic As New Dictionary(Of String, List(Of String))
+        'Dim PlaysDic As New Dictionary(Of String, String)
+
+
+        'Dim BaseURL As String = "https://statsapi.mlb.com/api/v1.1/game/{0}/feed/live"
+        'Dim BaseGamePk = 565997
+        'For i As Integer = 0 To 10
+        '    Dim url As String = String.Format(BaseURL, BaseGamePk + i)
+        '    Dim response As String '= get_data(url)
+        '    Dim json As JObject = JObject.Parse(response)
+
+        '    Trace.WriteLine($"{vbCr}GamePk={BaseGamePk + i}")
+        '    Trace.WriteLine($"{json.SelectToken("gameData.game.id")}")
+
+        '    Dim AllPlaysData As JArray = json.SelectToken("liveData.plays.allPlays")
+        Dim PlayData As JObject = Me.mCurrentPlayData
+        'File.WriteAllText($"c:\\temp\\{BaseGamePk + i}-alldata.json", json.ToString)
+
+        'For p As Integer = 0 To AllPlaysData.Count - 1
+        '        Dim PlayData As JObject = AllPlaysData.Item(p)
+        '        Trace.WriteLine($"Play: {p}")
+        Dim EventName As String = PlayData.SelectToken("result.event")
+        Trace.WriteLine($"  Event: {EventName}")
+
+        Dim Details As New List(Of String)
+        For r As Integer = 0 To PlayData.SelectToken("runners").Count - 1
+            Dim RunnersData As JObject = PlayData.SelectToken("runners").Item(r)
+            Trace.WriteLine($" runner: {r}")
+            Dim Credits As JArray = RunnersData.SelectToken("credits")
+
+            If Credits IsNot Nothing Then
+                For c As Integer = 0 To Credits.Count - 1
+                    Dim PositionCode As String = Credits.Item(c).SelectToken("position.code")
+                    Dim CreditType As String = Credits.Item(c).SelectToken("credit")
+                    Trace.WriteLine($"  [{c}] position: {PositionCode}, type: {CreditType}")
+                    Details.Add(PositionCode)
+
+                Next
+            End If
+
+        Next
+
+        'Dim OfficialScoring As String = ""
+        If EventName.ToUpper.Contains("STRIKEOUT") Then
+            OfficialScoring = "K"
+        ElseIf EventName.ToUpper.Contains("WALK") Then
+            OfficialScoring = "BB"
+        ElseIf EventName.ToUpper.Contains("HIT BY PITCH") Then
+            OfficialScoring = "HBP"
+        ElseIf EventName.ToUpper.Contains("INTENT WALK") Then
+            OfficialScoring = "IBB"
+        ElseIf EventName.ToUpper.Contains("SINGLE") Then
+            OfficialScoring = $"SINGLE"
+        ElseIf EventName.ToUpper.Contains("DOUBLE") Then
+            OfficialScoring = $"DOUBLE"
+        ElseIf EventName.ToUpper.Contains("TRIPLE") Then
+            OfficialScoring = $"TRIPLE"
+        ElseIf EventName.ToUpper.Contains("HOME RUN") Then
+            OfficialScoring = "HR"
+        ElseIf EventName.ToUpper.Contains("FLYOUT") Or EventName.ToUpper.Contains("SAV FLY") Then
+            OfficialScoring = $"{Details(0)}"
+        ElseIf EventName.ToUpper.Contains("FOUL") Then
+            OfficialScoring = $"F{Details(0)}"
+        ElseIf EventName.ToUpper.Contains("LINEOUT") Then
+            OfficialScoring = $"L{Details(0)}"
+        ElseIf EventName.ToUpper.Contains("RUNNER OUT") Or EventName.ToUpper.Contains("FORCEOUT") Then
+            OfficialScoring = $"{Details(0)}"
+            For cnt As Integer = 1 To Details.Count - 1
+                If Details(cnt) <> Details(cnt - 1) Then
+                    OfficialScoring = $"{OfficialScoring}-{Details(cnt)}"
+                End If
+            Next
+        ElseIf EventName.ToUpper.Contains("POP OUT") Then
+            OfficialScoring = $"P{Details(0)}"
+        ElseIf EventName.ToUpper.Contains("DOUBLE PLAY") Or EventName.ToUpper.Contains("DP") Then
+            OfficialScoring = $"DP{Details(0)}"
+            For cnt As Integer = 1 To Details.Count - 1
+                If Details(cnt) <> Details(cnt - 1) Then
+                    OfficialScoring = $"{OfficialScoring}-{Details(cnt)}"
+                End If
+            Next
+        ElseIf EventName.ToUpper.Contains("TRIPLE PLAY") Or EventName.ToUpper.Contains("TP") Then
+            OfficialScoring = $"TP{Details(0)}"
+            For cnt As Integer = 1 To Details.Count - 1
+                If Details(cnt) <> Details(cnt - 1) Then
+                    OfficialScoring = $"{OfficialScoring}-{Details(cnt)}"
+                End If
+            Next
+        ElseIf EventName.ToUpper.Contains("CAUGHT STEALING") Then
+            OfficialScoring = $"CS{Details(0)}"
+            For cnt As Integer = 1 To Details.Count - 1
+                If Details(cnt) <> Details(cnt - 1) Then
+                    OfficialScoring = $"{OfficialScoring}-{Details(cnt)}"
+                End If
+            Next
+        ElseIf EventName.ToUpper.Contains("GROUNDOUT") Then
+            OfficialScoring = $"G{Details(0)}"
+            For cnt As Integer = 1 To Details.Count - 1
+                If Details(cnt) <> Details(cnt - 1) Then
+                    OfficialScoring = $"{OfficialScoring}-{Details(cnt)}"
+                End If
+            Next
+        ElseIf EventName.ToUpper.Contains("SAC") Then
+            OfficialScoring = $"SAC{Details(0)}"
+            For cnt As Integer = 1 To Details.Count - 1
+                If Details(cnt) <> Details(cnt - 1) Then
+                    OfficialScoring = $"{OfficialScoring}-{Details(cnt)}"
+                End If
+            Next
+        ElseIf EventName.ToUpper.Contains("FIELDERS CHOICE") Then
+            OfficialScoring = $"FC{Details(0)}"
+            For cnt As Integer = 1 To Details.Count - 1
+                If Details(cnt) <> Details(cnt - 1) Then
+                    OfficialScoring = $"{OfficialScoring}-{Details(cnt)}"
+                End If
+            Next
+        ElseIf EventName.ToUpper.Contains("ERROR") Then
+            OfficialScoring = $"E{Details(0)}"
+        Else
+            OfficialScoring = $"UNK ({EventName}-"
+            For cnt As Integer = 1 To Details.Count - 1
+                If Details(cnt) <> Details(cnt - 1) Then
+                    OfficialScoring = $"{OfficialScoring}-{Details(cnt)}"
+                End If
+            Next
+            OfficialScoring = $"{OfficialScoring})"
+        End If
+
+
+        Trace.WriteLine($"Official Scoring = {OfficialScoring}")
+
+
+        'If Not EventDic.ContainsKey(EventName) Then
+        '    EventDic.Add(EventName, Details)
+        '    'Trace.WriteLine($"added {EventName}")
+        'Else
+        '    'Trace.WriteLine($"skipped {EventName}")
+        'End If
+
+        '    Next
+
+        'Next
+
+        'Trace.WriteLine($"{vbCr}{vbCr}{vbCr}EVENTS DICTIONARY")
+        'For Each key As String In EventDic.Keys
+        '    Dim credits As List(Of String) = EventDic(key)
+        '    Dim credit As String = ""
+        '    If credits IsNot Nothing Then
+        '        For Each line In credits
+        '            credit = $"{credit}{line}{vbCr}"
+        '        Next
+        '    End If
+
+        '    Trace.WriteLine($"{key} -> {credit}")
+        'Next
+
+        Return OfficialScoring
+
+    End Function
+
+
+
 End Class
 
 '<SDG><
