@@ -25,29 +25,30 @@ Partial Class MlbPlayerStats
         Me.lblPlayer = New System.Windows.Forms.Label()
         Me.lblPosition = New System.Windows.Forms.Label()
         Me.TabControl1 = New System.Windows.Forms.TabControl()
-        Me.TabPage1 = New System.Windows.Forms.TabPage()
+        Me.Batting = New System.Windows.Forms.TabPage()
         Me.dgvBattingStats = New System.Windows.Forms.DataGridView()
-        Me.TabPage3 = New System.Windows.Forms.TabPage()
-        Me.dgvPitchingStats = New System.Windows.Forms.DataGridView()
-        Me.TabPage2 = New System.Windows.Forms.TabPage()
+        Me.Fielding = New System.Windows.Forms.TabPage()
         Me.dgvFieldingStats = New System.Windows.Forms.DataGridView()
+        Me.Pitching = New System.Windows.Forms.TabPage()
+        Me.dgvPitchingStats = New System.Windows.Forms.DataGridView()
         Me.lblPlayerID = New System.Windows.Forms.Label()
         Me.TabControl1.SuspendLayout()
-        Me.TabPage1.SuspendLayout()
+        Me.Batting.SuspendLayout()
         CType(Me.dgvBattingStats, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.TabPage3.SuspendLayout()
-        CType(Me.dgvPitchingStats, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.TabPage2.SuspendLayout()
+        Me.Fielding.SuspendLayout()
         CType(Me.dgvFieldingStats, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.Pitching.SuspendLayout()
+        CType(Me.dgvPitchingStats, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'lblPlayer
         '
         Me.lblPlayer.AutoSize = True
         Me.lblPlayer.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
-        Me.lblPlayer.Location = New System.Drawing.Point(32, 19)
+        Me.lblPlayer.ForeColor = System.Drawing.SystemColors.ControlLightLight
+        Me.lblPlayer.Location = New System.Drawing.Point(28, 14)
         Me.lblPlayer.Name = "lblPlayer"
-        Me.lblPlayer.Size = New System.Drawing.Size(73, 25)
+        Me.lblPlayer.Size = New System.Drawing.Size(58, 20)
         Me.lblPlayer.TabIndex = 1
         Me.lblPlayer.Text = "Player"
         '
@@ -55,33 +56,36 @@ Partial Class MlbPlayerStats
         '
         Me.lblPosition.AutoSize = True
         Me.lblPosition.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        Me.lblPosition.Location = New System.Drawing.Point(32, 55)
+        Me.lblPosition.ForeColor = System.Drawing.SystemColors.ControlLightLight
+        Me.lblPosition.Location = New System.Drawing.Point(28, 41)
         Me.lblPosition.Name = "lblPosition"
-        Me.lblPosition.Size = New System.Drawing.Size(69, 20)
+        Me.lblPosition.Size = New System.Drawing.Size(58, 17)
         Me.lblPosition.TabIndex = 2
         Me.lblPosition.Text = "Position"
         '
         'TabControl1
         '
-        Me.TabControl1.Controls.Add(Me.TabPage1)
-        Me.TabControl1.Controls.Add(Me.TabPage3)
-        Me.TabControl1.Controls.Add(Me.TabPage2)
-        Me.TabControl1.Location = New System.Drawing.Point(32, 101)
+        Me.TabControl1.Controls.Add(Me.Batting)
+        Me.TabControl1.Controls.Add(Me.Fielding)
+        Me.TabControl1.Controls.Add(Me.Pitching)
+        Me.TabControl1.Location = New System.Drawing.Point(28, 76)
+        Me.TabControl1.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.TabControl1.Name = "TabControl1"
         Me.TabControl1.SelectedIndex = 0
-        Me.TabControl1.Size = New System.Drawing.Size(519, 323)
+        Me.TabControl1.Size = New System.Drawing.Size(454, 362)
         Me.TabControl1.TabIndex = 3
         '
-        'TabPage1
+        'Batting
         '
-        Me.TabPage1.Controls.Add(Me.dgvBattingStats)
-        Me.TabPage1.Location = New System.Drawing.Point(4, 29)
-        Me.TabPage1.Name = "TabPage1"
-        Me.TabPage1.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage1.Size = New System.Drawing.Size(511, 290)
-        Me.TabPage1.TabIndex = 0
-        Me.TabPage1.Text = "Batting"
-        Me.TabPage1.UseVisualStyleBackColor = True
+        Me.Batting.Controls.Add(Me.dgvBattingStats)
+        Me.Batting.Location = New System.Drawing.Point(4, 24)
+        Me.Batting.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
+        Me.Batting.Name = "Batting"
+        Me.Batting.Padding = New System.Windows.Forms.Padding(3, 2, 3, 2)
+        Me.Batting.Size = New System.Drawing.Size(446, 334)
+        Me.Batting.TabIndex = 0
+        Me.Batting.Text = "Batting"
+        Me.Batting.UseVisualStyleBackColor = True
         '
         'dgvBattingStats
         '
@@ -90,58 +94,31 @@ Partial Class MlbPlayerStats
         Me.dgvBattingStats.AllowUserToOrderColumns = True
         Me.dgvBattingStats.AllowUserToResizeColumns = False
         Me.dgvBattingStats.AllowUserToResizeRows = False
+        Me.dgvBattingStats.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
         Me.dgvBattingStats.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvBattingStats.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
-        Me.dgvBattingStats.Location = New System.Drawing.Point(6, 6)
+        Me.dgvBattingStats.Location = New System.Drawing.Point(5, 4)
+        Me.dgvBattingStats.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.dgvBattingStats.MultiSelect = False
         Me.dgvBattingStats.Name = "dgvBattingStats"
         Me.dgvBattingStats.ReadOnly = True
         Me.dgvBattingStats.RowHeadersVisible = False
         Me.dgvBattingStats.RowHeadersWidth = 51
         Me.dgvBattingStats.RowTemplate.Height = 29
-        Me.dgvBattingStats.Size = New System.Drawing.Size(492, 278)
+        Me.dgvBattingStats.Size = New System.Drawing.Size(430, 326)
         Me.dgvBattingStats.TabIndex = 1
         '
-        'TabPage3
+        'Fielding
         '
-        Me.TabPage3.Controls.Add(Me.dgvPitchingStats)
-        Me.TabPage3.Location = New System.Drawing.Point(4, 29)
-        Me.TabPage3.Name = "TabPage3"
-        Me.TabPage3.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage3.Size = New System.Drawing.Size(511, 290)
-        Me.TabPage3.TabIndex = 2
-        Me.TabPage3.Text = "Pitching"
-        Me.TabPage3.UseVisualStyleBackColor = True
-        '
-        'dgvPitchingStats
-        '
-        Me.dgvPitchingStats.AllowUserToAddRows = False
-        Me.dgvPitchingStats.AllowUserToDeleteRows = False
-        Me.dgvPitchingStats.AllowUserToOrderColumns = True
-        Me.dgvPitchingStats.AllowUserToResizeColumns = False
-        Me.dgvPitchingStats.AllowUserToResizeRows = False
-        Me.dgvPitchingStats.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvPitchingStats.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
-        Me.dgvPitchingStats.Location = New System.Drawing.Point(9, 6)
-        Me.dgvPitchingStats.MultiSelect = False
-        Me.dgvPitchingStats.Name = "dgvPitchingStats"
-        Me.dgvPitchingStats.ReadOnly = True
-        Me.dgvPitchingStats.RowHeadersVisible = False
-        Me.dgvPitchingStats.RowHeadersWidth = 51
-        Me.dgvPitchingStats.RowTemplate.Height = 29
-        Me.dgvPitchingStats.Size = New System.Drawing.Size(492, 278)
-        Me.dgvPitchingStats.TabIndex = 2
-        '
-        'TabPage2
-        '
-        Me.TabPage2.Controls.Add(Me.dgvFieldingStats)
-        Me.TabPage2.Location = New System.Drawing.Point(4, 29)
-        Me.TabPage2.Name = "TabPage2"
-        Me.TabPage2.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage2.Size = New System.Drawing.Size(511, 290)
-        Me.TabPage2.TabIndex = 1
-        Me.TabPage2.Text = "Fielding"
-        Me.TabPage2.UseVisualStyleBackColor = True
+        Me.Fielding.Controls.Add(Me.dgvFieldingStats)
+        Me.Fielding.Location = New System.Drawing.Point(4, 24)
+        Me.Fielding.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
+        Me.Fielding.Name = "Fielding"
+        Me.Fielding.Padding = New System.Windows.Forms.Padding(3, 2, 3, 2)
+        Me.Fielding.Size = New System.Drawing.Size(446, 334)
+        Me.Fielding.TabIndex = 1
+        Me.Fielding.Text = "Fielding"
+        Me.Fielding.UseVisualStyleBackColor = True
         '
         'dgvFieldingStats
         '
@@ -150,47 +127,84 @@ Partial Class MlbPlayerStats
         Me.dgvFieldingStats.AllowUserToOrderColumns = True
         Me.dgvFieldingStats.AllowUserToResizeColumns = False
         Me.dgvFieldingStats.AllowUserToResizeRows = False
+        Me.dgvFieldingStats.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
         Me.dgvFieldingStats.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvFieldingStats.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
-        Me.dgvFieldingStats.Location = New System.Drawing.Point(9, 6)
+        Me.dgvFieldingStats.Location = New System.Drawing.Point(8, 4)
+        Me.dgvFieldingStats.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.dgvFieldingStats.MultiSelect = False
         Me.dgvFieldingStats.Name = "dgvFieldingStats"
         Me.dgvFieldingStats.ReadOnly = True
         Me.dgvFieldingStats.RowHeadersVisible = False
         Me.dgvFieldingStats.RowHeadersWidth = 51
         Me.dgvFieldingStats.RowTemplate.Height = 29
-        Me.dgvFieldingStats.Size = New System.Drawing.Size(492, 278)
+        Me.dgvFieldingStats.Size = New System.Drawing.Size(430, 326)
         Me.dgvFieldingStats.TabIndex = 2
+        '
+        'Pitching
+        '
+        Me.Pitching.Controls.Add(Me.dgvPitchingStats)
+        Me.Pitching.Location = New System.Drawing.Point(4, 24)
+        Me.Pitching.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
+        Me.Pitching.Name = "Pitching"
+        Me.Pitching.Padding = New System.Windows.Forms.Padding(3, 2, 3, 2)
+        Me.Pitching.Size = New System.Drawing.Size(446, 334)
+        Me.Pitching.TabIndex = 2
+        Me.Pitching.Text = "Pitching"
+        Me.Pitching.UseVisualStyleBackColor = True
+        '
+        'dgvPitchingStats
+        '
+        Me.dgvPitchingStats.AllowUserToAddRows = False
+        Me.dgvPitchingStats.AllowUserToDeleteRows = False
+        Me.dgvPitchingStats.AllowUserToOrderColumns = True
+        Me.dgvPitchingStats.AllowUserToResizeColumns = False
+        Me.dgvPitchingStats.AllowUserToResizeRows = False
+        Me.dgvPitchingStats.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
+        Me.dgvPitchingStats.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.dgvPitchingStats.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
+        Me.dgvPitchingStats.Location = New System.Drawing.Point(8, 4)
+        Me.dgvPitchingStats.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
+        Me.dgvPitchingStats.MultiSelect = False
+        Me.dgvPitchingStats.Name = "dgvPitchingStats"
+        Me.dgvPitchingStats.ReadOnly = True
+        Me.dgvPitchingStats.RowHeadersVisible = False
+        Me.dgvPitchingStats.RowHeadersWidth = 51
+        Me.dgvPitchingStats.RowTemplate.Height = 29
+        Me.dgvPitchingStats.Size = New System.Drawing.Size(430, 326)
+        Me.dgvPitchingStats.TabIndex = 2
         '
         'lblPlayerID
         '
         Me.lblPlayerID.AutoSize = True
         Me.lblPlayerID.Font = New System.Drawing.Font("Segoe UI", 7.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        Me.lblPlayerID.Location = New System.Drawing.Point(498, 24)
+        Me.lblPlayerID.Location = New System.Drawing.Point(436, 18)
         Me.lblPlayerID.Name = "lblPlayerID"
-        Me.lblPlayerID.Size = New System.Drawing.Size(54, 17)
+        Me.lblPlayerID.Size = New System.Drawing.Size(47, 13)
         Me.lblPlayerID.TabIndex = 4
         Me.lblPlayerID.Text = "PlayerId"
         Me.lblPlayerID.TextAlign = System.Drawing.ContentAlignment.TopRight
         '
-        'PlayerStats
+        'MlbPlayerStats
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 20.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(579, 450)
+        Me.BackColor = System.Drawing.Color.Green
+        Me.ClientSize = New System.Drawing.Size(507, 460)
         Me.Controls.Add(Me.lblPlayerID)
         Me.Controls.Add(Me.TabControl1)
         Me.Controls.Add(Me.lblPosition)
         Me.Controls.Add(Me.lblPlayer)
-        Me.Name = "PlayerStats"
+        Me.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
+        Me.Name = "MlbPlayerStats"
         Me.Text = "PlayerStats"
         Me.TabControl1.ResumeLayout(False)
-        Me.TabPage1.ResumeLayout(False)
+        Me.Batting.ResumeLayout(False)
         CType(Me.dgvBattingStats, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.TabPage3.ResumeLayout(False)
-        CType(Me.dgvPitchingStats, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.TabPage2.ResumeLayout(False)
+        Me.Fielding.ResumeLayout(False)
         CType(Me.dgvFieldingStats, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.Pitching.ResumeLayout(False)
+        CType(Me.dgvPitchingStats, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -198,11 +212,11 @@ Partial Class MlbPlayerStats
     Friend WithEvents lblPlayer As Label
     Friend WithEvents lblPosition As Label
     Friend WithEvents TabControl1 As TabControl
-    Friend WithEvents TabPage1 As TabPage
+    Friend WithEvents Batting As TabPage
     Friend WithEvents dgvBattingStats As DataGridView
-    Friend WithEvents TabPage2 As TabPage
+    Friend WithEvents Fielding As TabPage
     Friend WithEvents dgvFieldingStats As DataGridView
-    Friend WithEvents TabPage3 As TabPage
+    Friend WithEvents Pitching As TabPage
     Friend WithEvents dgvPitchingStats As DataGridView
     Friend WithEvents lblPlayerID As Label
 End Class

@@ -71,10 +71,11 @@ Partial Class MlbStandings
         '
         Me.TabControl1.Controls.Add(Me.TabPage1)
         Me.TabControl1.Controls.Add(Me.TabPage2)
-        Me.TabControl1.Location = New System.Drawing.Point(32, 29)
+        Me.TabControl1.Location = New System.Drawing.Point(28, 22)
+        Me.TabControl1.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.TabControl1.Name = "TabControl1"
         Me.TabControl1.SelectedIndex = 0
-        Me.TabControl1.Size = New System.Drawing.Size(818, 736)
+        Me.TabControl1.Size = New System.Drawing.Size(716, 552)
         Me.TabControl1.TabIndex = 0
         '
         'TabPage1
@@ -85,10 +86,11 @@ Partial Class MlbStandings
         Me.TabPage1.Controls.Add(Me.Label2)
         Me.TabPage1.Controls.Add(Me.dgvALEast)
         Me.TabPage1.Controls.Add(Me.Label1)
-        Me.TabPage1.Location = New System.Drawing.Point(4, 29)
+        Me.TabPage1.Location = New System.Drawing.Point(4, 24)
+        Me.TabPage1.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.TabPage1.Name = "TabPage1"
-        Me.TabPage1.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage1.Size = New System.Drawing.Size(810, 703)
+        Me.TabPage1.Padding = New System.Windows.Forms.Padding(3, 2, 3, 2)
+        Me.TabPage1.Size = New System.Drawing.Size(708, 524)
         Me.TabPage1.TabIndex = 0
         Me.TabPage1.Text = "American League"
         Me.TabPage1.UseVisualStyleBackColor = True
@@ -122,7 +124,8 @@ Partial Class MlbStandings
         Me.dgvALWest.DefaultCellStyle = DataGridViewCellStyle2
         Me.dgvALWest.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
         Me.dgvALWest.EnableHeadersVisualStyles = False
-        Me.dgvALWest.Location = New System.Drawing.Point(23, 495)
+        Me.dgvALWest.Location = New System.Drawing.Point(20, 371)
+        Me.dgvALWest.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.dgvALWest.MultiSelect = False
         Me.dgvALWest.Name = "dgvALWest"
         Me.dgvALWest.ReadOnly = True
@@ -139,7 +142,7 @@ Partial Class MlbStandings
         Me.dgvALWest.ShowCellToolTips = False
         Me.dgvALWest.ShowEditingIcon = False
         Me.dgvALWest.ShowRowErrors = False
-        Me.dgvALWest.Size = New System.Drawing.Size(763, 172)
+        Me.dgvALWest.Size = New System.Drawing.Size(668, 129)
         Me.dgvALWest.TabIndex = 5
         '
         'Label3
@@ -148,11 +151,11 @@ Partial Class MlbStandings
         Me.Label3.BackColor = System.Drawing.Color.FromArgb(CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer))
         Me.Label3.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.Label3.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.Label3.Location = New System.Drawing.Point(23, 459)
+        Me.Label3.Location = New System.Drawing.Point(20, 344)
         Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(204, 20)
+        Me.Label3.Size = New System.Drawing.Size(185, 17)
         Me.Label3.TabIndex = 4
-        Me.Label3.Text = "American League West" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10)
+        Me.Label3.Text = " American League West " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10)
         '
         'dgvALCentral
         '
@@ -183,7 +186,8 @@ Partial Class MlbStandings
         Me.dgvALCentral.DefaultCellStyle = DataGridViewCellStyle5
         Me.dgvALCentral.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
         Me.dgvALCentral.EnableHeadersVisualStyles = False
-        Me.dgvALCentral.Location = New System.Drawing.Point(23, 269)
+        Me.dgvALCentral.Location = New System.Drawing.Point(20, 202)
+        Me.dgvALCentral.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.dgvALCentral.MultiSelect = False
         Me.dgvALCentral.Name = "dgvALCentral"
         Me.dgvALCentral.ReadOnly = True
@@ -200,7 +204,7 @@ Partial Class MlbStandings
         Me.dgvALCentral.ShowCellToolTips = False
         Me.dgvALCentral.ShowEditingIcon = False
         Me.dgvALCentral.ShowRowErrors = False
-        Me.dgvALCentral.Size = New System.Drawing.Size(763, 172)
+        Me.dgvALCentral.Size = New System.Drawing.Size(668, 129)
         Me.dgvALCentral.TabIndex = 3
         '
         'Label2
@@ -209,11 +213,11 @@ Partial Class MlbStandings
         Me.Label2.BackColor = System.Drawing.Color.FromArgb(CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer))
         Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.Label2.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.Label2.Location = New System.Drawing.Point(23, 237)
+        Me.Label2.Location = New System.Drawing.Point(20, 178)
         Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(222, 20)
+        Me.Label2.Size = New System.Drawing.Size(201, 17)
         Me.Label2.TabIndex = 2
-        Me.Label2.Text = "American League Central"
+        Me.Label2.Text = " American League Central "
         '
         'dgvALEast
         '
@@ -244,7 +248,8 @@ Partial Class MlbStandings
         Me.dgvALEast.DefaultCellStyle = DataGridViewCellStyle8
         Me.dgvALEast.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
         Me.dgvALEast.EnableHeadersVisualStyles = False
-        Me.dgvALEast.Location = New System.Drawing.Point(23, 52)
+        Me.dgvALEast.Location = New System.Drawing.Point(20, 39)
+        Me.dgvALEast.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.dgvALEast.MultiSelect = False
         Me.dgvALEast.Name = "dgvALEast"
         Me.dgvALEast.ReadOnly = True
@@ -269,7 +274,7 @@ Partial Class MlbStandings
         Me.dgvALEast.ShowCellToolTips = False
         Me.dgvALEast.ShowEditingIcon = False
         Me.dgvALEast.ShowRowErrors = False
-        Me.dgvALEast.Size = New System.Drawing.Size(763, 172)
+        Me.dgvALEast.Size = New System.Drawing.Size(668, 129)
         Me.dgvALEast.TabIndex = 1
         '
         'Label1
@@ -278,11 +283,11 @@ Partial Class MlbStandings
         Me.Label1.BackColor = System.Drawing.Color.FromArgb(CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer))
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.Label1.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.Label1.Location = New System.Drawing.Point(23, 20)
+        Me.Label1.Location = New System.Drawing.Point(20, 15)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(199, 20)
+        Me.Label1.Size = New System.Drawing.Size(181, 17)
         Me.Label1.TabIndex = 0
-        Me.Label1.Text = "American League East"
+        Me.Label1.Text = " American League East "
         '
         'TabPage2
         '
@@ -292,10 +297,11 @@ Partial Class MlbStandings
         Me.TabPage2.Controls.Add(Me.Label5)
         Me.TabPage2.Controls.Add(Me.dgvNLEast)
         Me.TabPage2.Controls.Add(Me.Label6)
-        Me.TabPage2.Location = New System.Drawing.Point(4, 29)
+        Me.TabPage2.Location = New System.Drawing.Point(4, 24)
+        Me.TabPage2.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.TabPage2.Name = "TabPage2"
-        Me.TabPage2.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage2.Size = New System.Drawing.Size(810, 703)
+        Me.TabPage2.Padding = New System.Windows.Forms.Padding(3, 2, 3, 2)
+        Me.TabPage2.Size = New System.Drawing.Size(708, 524)
         Me.TabPage2.TabIndex = 1
         Me.TabPage2.Text = "National League"
         Me.TabPage2.UseVisualStyleBackColor = True
@@ -329,7 +335,8 @@ Partial Class MlbStandings
         Me.dgvNLWest.DefaultCellStyle = DataGridViewCellStyle12
         Me.dgvNLWest.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
         Me.dgvNLWest.EnableHeadersVisualStyles = False
-        Me.dgvNLWest.Location = New System.Drawing.Point(23, 495)
+        Me.dgvNLWest.Location = New System.Drawing.Point(20, 371)
+        Me.dgvNLWest.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.dgvNLWest.MultiSelect = False
         Me.dgvNLWest.Name = "dgvNLWest"
         Me.dgvNLWest.ReadOnly = True
@@ -346,7 +353,7 @@ Partial Class MlbStandings
         Me.dgvNLWest.ShowCellToolTips = False
         Me.dgvNLWest.ShowEditingIcon = False
         Me.dgvNLWest.ShowRowErrors = False
-        Me.dgvNLWest.Size = New System.Drawing.Size(763, 172)
+        Me.dgvNLWest.Size = New System.Drawing.Size(668, 129)
         Me.dgvNLWest.TabIndex = 11
         '
         'Label4
@@ -355,11 +362,11 @@ Partial Class MlbStandings
         Me.Label4.BackColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
         Me.Label4.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.Label4.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.Label4.Location = New System.Drawing.Point(23, 459)
+        Me.Label4.Location = New System.Drawing.Point(20, 344)
         Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(194, 20)
+        Me.Label4.Size = New System.Drawing.Size(178, 17)
         Me.Label4.TabIndex = 10
-        Me.Label4.Text = "National League West" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10)
+        Me.Label4.Text = " National League West "
         '
         'dgvNLCentral
         '
@@ -390,7 +397,8 @@ Partial Class MlbStandings
         Me.dgvNLCentral.DefaultCellStyle = DataGridViewCellStyle15
         Me.dgvNLCentral.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
         Me.dgvNLCentral.EnableHeadersVisualStyles = False
-        Me.dgvNLCentral.Location = New System.Drawing.Point(23, 269)
+        Me.dgvNLCentral.Location = New System.Drawing.Point(20, 202)
+        Me.dgvNLCentral.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.dgvNLCentral.MultiSelect = False
         Me.dgvNLCentral.Name = "dgvNLCentral"
         Me.dgvNLCentral.ReadOnly = True
@@ -407,7 +415,7 @@ Partial Class MlbStandings
         Me.dgvNLCentral.ShowCellToolTips = False
         Me.dgvNLCentral.ShowEditingIcon = False
         Me.dgvNLCentral.ShowRowErrors = False
-        Me.dgvNLCentral.Size = New System.Drawing.Size(763, 172)
+        Me.dgvNLCentral.Size = New System.Drawing.Size(668, 129)
         Me.dgvNLCentral.TabIndex = 9
         '
         'Label5
@@ -416,11 +424,11 @@ Partial Class MlbStandings
         Me.Label5.BackColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
         Me.Label5.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.Label5.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.Label5.Location = New System.Drawing.Point(23, 237)
+        Me.Label5.Location = New System.Drawing.Point(20, 178)
         Me.Label5.Name = "Label5"
-        Me.Label5.Size = New System.Drawing.Size(212, 20)
+        Me.Label5.Size = New System.Drawing.Size(194, 17)
         Me.Label5.TabIndex = 8
-        Me.Label5.Text = "National League Central"
+        Me.Label5.Text = " National League Central "
         '
         'dgvNLEast
         '
@@ -451,7 +459,8 @@ Partial Class MlbStandings
         Me.dgvNLEast.DefaultCellStyle = DataGridViewCellStyle18
         Me.dgvNLEast.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
         Me.dgvNLEast.EnableHeadersVisualStyles = False
-        Me.dgvNLEast.Location = New System.Drawing.Point(23, 52)
+        Me.dgvNLEast.Location = New System.Drawing.Point(20, 39)
+        Me.dgvNLEast.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.dgvNLEast.MultiSelect = False
         Me.dgvNLEast.Name = "dgvNLEast"
         Me.dgvNLEast.ReadOnly = True
@@ -468,7 +477,7 @@ Partial Class MlbStandings
         Me.dgvNLEast.ShowCellToolTips = False
         Me.dgvNLEast.ShowEditingIcon = False
         Me.dgvNLEast.ShowRowErrors = False
-        Me.dgvNLEast.Size = New System.Drawing.Size(763, 172)
+        Me.dgvNLEast.Size = New System.Drawing.Size(668, 129)
         Me.dgvNLEast.TabIndex = 7
         '
         'Label6
@@ -477,18 +486,20 @@ Partial Class MlbStandings
         Me.Label6.BackColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
         Me.Label6.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.Label6.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.Label6.Location = New System.Drawing.Point(23, 20)
+        Me.Label6.Location = New System.Drawing.Point(20, 15)
         Me.Label6.Name = "Label6"
-        Me.Label6.Size = New System.Drawing.Size(189, 20)
+        Me.Label6.Size = New System.Drawing.Size(174, 17)
         Me.Label6.TabIndex = 6
-        Me.Label6.Text = "National League East"
+        Me.Label6.Text = " National League East "
         '
         'MlbStandings
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 20.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(881, 790)
+        Me.BackColor = System.Drawing.Color.Green
+        Me.ClientSize = New System.Drawing.Size(771, 592)
         Me.Controls.Add(Me.TabControl1)
+        Me.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.Name = "MlbStandings"
         Me.Text = "Standings"
         Me.TabControl1.ResumeLayout(False)

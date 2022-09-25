@@ -69,6 +69,14 @@ Public Class MlbScoreboard
                 End If
             End If
 
+            If Me.mCurrentGame Is Nothing Or MlbGame.CheckGameStatus(Me.mCurrentGame.GameStatus) = MlbGame.mGAME_STATUS_FUTURE Then
+                PlayRecapToolStripMenuItem.Enabled = False
+                BoxscoreToolStripMenuItem.Enabled = False
+            Else
+                PlayRecapToolStripMenuItem.Enabled = True
+                BoxscoreToolStripMenuItem.Enabled = True
+            End If
+
             ' update status bar
             Me.AllGamesUpdateData.Text = $"All Games Data Updated {Date.Now}  "
 
@@ -602,13 +610,21 @@ Public Class MlbScoreboard
 
             ' get the gamePk for the clicked row
             Dim id As String = dgvGames.Rows(e.RowIndex).Cells("Id").Value.ToString
-            'Me.mCurrentGame = FindSelectedGame(id)
             Me.mCurrentGame = Me.mAllGames(id)
             Me.GameUpdateTimer.Start()
 
             ' force repaint which should highlight current selected game
             dgvGames.ClearSelection()
             dgvGames.InvalidateRow(e.RowIndex)
+
+            ' disable menu items not applicable to future games
+            If MlbGame.CheckGameStatus(Me.mCurrentGame.GameStatus) = MlbGame.mGAME_STATUS_FUTURE Then
+                PlayRecapToolStripMenuItem.Enabled = False
+                BoxscoreToolStripMenuItem.Enabled = False
+            Else
+                PlayRecapToolStripMenuItem.Enabled = True
+                BoxscoreToolStripMenuItem.Enabled = True
+            End If
 
             ' run the selected game
             Me.RunGame()
@@ -786,16 +802,22 @@ Public Class MlbScoreboard
         If Me.mCurrentGame Is Nothing Or MlbGame.CheckGameStatus(Me.mCurrentGame.GameStatus) = MlbGame.mGAME_STATUS_FUTURE Then
             Return
         End If
-        Dim frmPlaySummary As MlbPlaySummary = New MlbPlaySummary()
+        Dim frmPlaySummary = New MlbPlaySummary()
         frmPlaySummary.Game = Me.mCurrentGame
         frmPlaySummary.ShowDialog()
     End Sub
 
     Private Sub StandingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StandingsToolStripMenuItem.Click
         Dim year As String = DateTime.Parse(Me.calDatePicker.Text).Year.ToString()
-        Dim frmStandings As MlbStandings = New MlbStandings()
+        Dim frmStandings = New MlbStandings()
         frmStandings.Year = year
         frmStandings.ShowDialog()
+    End Sub
+
+    Private Sub BoxscoreToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles BoxscoreToolStripMenuItem.Click
+        Dim frmBoxscore As New MlbBoxscore()
+        frmBoxscore.Game = Me.mCurrentGame
+        frmBoxscore.ShowDialog()
     End Sub
 
 
@@ -922,18 +944,6 @@ Public Class MlbScoreboard
     '    End Function
     'End Class
 
-
-
-
-    'Official Score
-    '=================
-    'liveData.plays.allPlays[].runners[].credit[].position.code
-    'liveData.plays.allPlays[].result.event
-
-    '- will need map of events to scoring marks
-    '- look for f_assist, f_fielded_ball, f_fielding_error, and f_putout for credit
-    '- will need to string all this together for each runner to make official score
-    '- positions repeated in multiplayer players like 6-4-3 will be 6-4, 4-3
 
 
 End Class

@@ -407,9 +407,11 @@ Public Class MlbGame
             ' save data for debugging
             If mProperties.GetProperty(mProperties.mKEEP_DATA_FILES_KEY, "0") = "1" Then
                 Dim DataRoot As String = mProperties.GetProperty(mProperties.mDATA_FILES_PATH_KEY)
-                File.WriteAllText($"{DataRoot}\\{Me.GamePk()}-{Me.AwayTeam.Abbr}-{Me.HomeTeam.Abbr}_gamedata.json", mData.ToString())
-                File.WriteAllText($"{DataRoot}\\{Me.GamePk()}-{Me.AwayTeam.Abbr}-{Me.HomeTeam.Abbr}_boxdata.json", mBoxData.ToString())
-                File.WriteAllText($"{DataRoot}\\{Me.GamePk()}-{Me.AwayTeam.Abbr}-{Me.HomeTeam.Abbr}_linedata.json", mLineData.ToString())
+                'File.WriteAllText($"{DataRoot}\\{Me.GamePk()}-{Me.AwayTeam.Abbr}-{Me.HomeTeam.Abbr}_gamedata.json", mGameData.ToString())
+                'File.WriteAllText($"{DataRoot}\\{Me.GamePk()}-{Me.AwayTeam.Abbr}-{Me.HomeTeam.Abbr}_boxdata.json", mBoxData.ToString())
+                'File.WriteAllText($"{DataRoot}\\{Me.GamePk()}-{Me.AwayTeam.Abbr}-{Me.HomeTeam.Abbr}_linedata.json", mLineData.ToString())
+                'File.WriteAllText($"{DataRoot}\\{Me.GamePk()}-{Me.AwayTeam.Abbr}-{Me.HomeTeam.Abbr}_livedata.json", mLiveData.ToString())
+                File.WriteAllText($"{DataRoot}\\{Me.GamePk()}-{Me.AwayTeam.Abbr}-{Me.HomeTeam.Abbr}_data.json", mData.ToString())
             End If
 
             Trace.WriteLine($"Loading game {Me.GamePk} {Me.AwayTeam.Abbr} @ {Me.HomeTeam.Abbr} data")
@@ -746,7 +748,6 @@ Public Class MlbGame
 
                 For Each row As DataRow In battingTeamLineup.Rows()
                     If battingPosition = row("BattingOrder") Then
-                        'DueUpBatters.Add(battingTeam.GetPlayer(row("Id")))
                         sb.Append($"  {row("Name")} {Me.GetBatterStats(row("Id"), battingTeam)}")
                         sb.Append(vbCr)
                     End If
@@ -865,37 +866,9 @@ Public Class MlbGame
     Public Function CreateScorebookEntry(PlayIndex As Integer) As String
 
         Dim OfficialScoring As String = ""
-
-        'Dim currentPlayIdx As Integer = Me.LiveData.SelectToken("plays.currentPlay.atBatIndex")
-        'If currentPlayIdx = 0 Then
-        '    Return ""
-        'End If
-
         Dim allPlaysData As JArray = Me.LiveData.SelectToken("plays.allPlays")
         Dim lastPlayData = allPlaysData(PlayIndex)
 
-
-        'Dim EventDic As New Dictionary(Of String, List(Of String))
-        'Dim PlaysDic As New Dictionary(Of String, String)
-
-
-        'Dim BaseURL As String = "https://statsapi.mlb.com/api/v1.1/game/{0}/feed/live"
-        'Dim BaseGamePk = 565997
-        'For i As Integer = 0 To 10
-        '    Dim url As String = String.Format(BaseURL, BaseGamePk + i)
-        '    Dim response As String '= get_data(url)
-        '    Dim json As JObject = JObject.Parse(response)
-
-        '    Trace.WriteLine($"{vbCr}GamePk={BaseGamePk + i}")
-        '    Trace.WriteLine($"{json.SelectToken("gameData.game.id")}")
-
-        '    Dim AllPlaysData As JArray = json.SelectToken("liveData.plays.allPlays")
-        'Dim PlayData As JObject = Me.mCurrentPlayData
-        'File.WriteAllText($"c:\\temp\\{BaseGamePk + i}-alldata.json", json.ToString)
-
-        'For p As Integer = 0 To AllPlaysData.Count - 1
-        '        Dim PlayData As JObject = AllPlaysData.Item(p)
-        '        Trace.WriteLine($"Play: {p}")
         Dim EventName As String = lastPlayData.SelectToken("result.event")
         If EventName = "" Then
             Return ""
@@ -1009,32 +982,6 @@ Public Class MlbGame
 
 
         Trace.WriteLine($"Official Scoring = {OfficialScoring}")
-
-
-        'If Not EventDic.ContainsKey(EventName) Then
-        '    EventDic.Add(EventName, Details)
-        '    'Trace.WriteLine($"added {EventName}")
-        'Else
-        '    'Trace.WriteLine($"skipped {EventName}")
-        'End If
-
-        '    Next
-
-        'Next
-
-        'Trace.WriteLine($"{vbCr}{vbCr}{vbCr}EVENTS DICTIONARY")
-        'For Each key As String In EventDic.Keys
-        '    Dim credits As List(Of String) = EventDic(key)
-        '    Dim credit As String = ""
-        '    If credits IsNot Nothing Then
-        '        For Each line In credits
-        '            credit = $"{credit}{line}{vbCr}"
-        '        Next
-        '    End If
-
-        '    Trace.WriteLine($"{key} -> {credit}")
-        'Next
-
         Return OfficialScoring
 
     End Function

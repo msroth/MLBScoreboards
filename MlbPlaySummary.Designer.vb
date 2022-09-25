@@ -47,32 +47,33 @@ Partial Class MlbPlaySummary
         DataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
         Me.dgvPlays.DefaultCellStyle = DataGridViewCellStyle1
         Me.dgvPlays.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
-        Me.dgvPlays.Location = New System.Drawing.Point(25, 92)
+        Me.dgvPlays.Location = New System.Drawing.Point(22, 69)
+        Me.dgvPlays.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.dgvPlays.MultiSelect = False
         Me.dgvPlays.Name = "dgvPlays"
         Me.dgvPlays.ReadOnly = True
         Me.dgvPlays.RowHeadersVisible = False
         Me.dgvPlays.RowHeadersWidth = 51
         Me.dgvPlays.RowTemplate.Height = 29
-        Me.dgvPlays.Size = New System.Drawing.Size(754, 346)
+        Me.dgvPlays.Size = New System.Drawing.Size(660, 450)
         Me.dgvPlays.TabIndex = 0
         '
         'Label1
         '
         Me.Label1.AutoSize = True
         Me.Label1.Font = New System.Drawing.Font("MS Reference Sans Serif", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
-        Me.Label1.Location = New System.Drawing.Point(25, 21)
+        Me.Label1.Location = New System.Drawing.Point(22, 16)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(171, 26)
+        Me.Label1.Size = New System.Drawing.Size(136, 20)
         Me.Label1.TabIndex = 1
         Me.Label1.Text = "Play Summary"
         '
         'lblGameTitle
         '
         Me.lblGameTitle.AutoSize = True
-        Me.lblGameTitle.Location = New System.Drawing.Point(25, 55)
+        Me.lblGameTitle.Location = New System.Drawing.Point(22, 41)
         Me.lblGameTitle.Name = "lblGameTitle"
-        Me.lblGameTitle.Size = New System.Drawing.Size(81, 20)
+        Me.lblGameTitle.Size = New System.Drawing.Size(63, 15)
         Me.lblGameTitle.TabIndex = 2
         Me.lblGameTitle.Text = "Game Title"
         '
@@ -81,23 +82,24 @@ Partial Class MlbPlaySummary
         Me.lblGamePk.AutoSize = True
         Me.lblGamePk.Font = New System.Drawing.Font("MS Reference Sans Serif", 7.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
         Me.lblGamePk.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.lblGamePk.Location = New System.Drawing.Point(638, 55)
+        Me.lblGamePk.Location = New System.Drawing.Point(558, 41)
         Me.lblGamePk.Name = "lblGamePk"
-        Me.lblGamePk.Size = New System.Drawing.Size(58, 16)
+        Me.lblGamePk.Size = New System.Drawing.Size(55, 15)
         Me.lblGamePk.TabIndex = 3
         Me.lblGamePk.Text = "GamePk"
         Me.lblGamePk.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'PlaySummary
+        'MlbPlaySummary
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 20.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(800, 450)
+        Me.ClientSize = New System.Drawing.Size(700, 530)
         Me.Controls.Add(Me.lblGamePk)
         Me.Controls.Add(Me.lblGameTitle)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.dgvPlays)
-        Me.Name = "PlaySummary"
+        Me.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
+        Me.Name = "MlbPlaySummary"
         Me.Text = "PlaySummary"
         CType(Me.dgvPlays, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)

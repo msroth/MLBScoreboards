@@ -93,6 +93,7 @@ Public Class MlbPlayerStats
         Dim FieldingStatsKeys As String() = {"gamesPlayed", "assists", "putOuts", "errors", "chances", "fielding", "innings", "doublePlays",
                                              "triplePlays", "throwingErrors"}
 
+        ' TOTO need to add AVG and OPS
         Dim BattingStatsKeys As String() = {"runs", "doubles", "triples", "homeRuns", "strikeOuts", "baseOnBalls", "hits", "hitByPitch",
                                             "avg", "atBats", "obp", "slg", "ops", "caughtStealing", "stolenBases", "stolenBasePercentage",
                                             "plateAppearances", "totalBases", "rbi", "sacBunts", "babip", "atBatsPerHomeRun"}
@@ -143,18 +144,6 @@ Public Class MlbPlayerStats
                 FieldingSeasonStatsData = Me.mAPI.ReturnPlayerStats(Me.mThisPlayer.Id, "season", "fielding")
                 FieldingGameStatsData = aPlayer.Value.Item("stats").Item("fielding")
                 FieldingCareerStatsData = Me.mAPI.ReturnPlayerStats(Me.mThisPlayer.Id, "career", "fielding")
-
-                'File.WriteAllText("c:\\temp\\battingseasonstatsdata.json", BattingSeasonStatsData.ToString)
-                'File.WriteAllText("c:\\temp\\battinggamestatsdata.json", BattingGameStatsData.ToString)
-                'File.WriteAllText("c:\\temp\\battingcareerstatsdata.json", BattingCareerStatsData.ToString)
-                'File.WriteAllText("c:\\temp\\fieldinggamestatsdata.json", FieldingGameStatsData.ToString)
-                'File.WriteAllText("c:\\temp\\fieldingseasonstatsdata.json", FieldingSeasonStatsData.ToString)
-                'File.WriteAllText("c:\\temp\\fieldingcareerstatsdata.json", FieldingCareerStatsData.ToString)
-                'If PitchingCareerStatsData IsNot Nothing And PitchingGameStatsData IsNot Nothing And PitchingSeasonStatsData IsNot Nothing Then
-                '    File.WriteAllText("c:\\temp\\pitchinggamestatsdata.json", PitchingGameStatsData.ToString)
-                '    File.WriteAllText("c:\\temp\\pitchingseasonstatsdata.json", PitchingSeasonStatsData.ToString)
-                '    File.WriteAllText("c:\\temp\\pitchingcareerstatsdata.json", PitchingCareerStatsData.ToString)
-                'End If
 
                 Exit For
             End If
@@ -334,7 +323,7 @@ Public Class MlbPlayerStats
             dgvPitchingStats.DataSource = dt
 
         Else
-            Me.TabControl1.TabPages(1).Visible = False
+            Me.TabControl1.TabPages("Pitching").Hide() ' this does not work
         End If
 
     End Sub

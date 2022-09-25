@@ -11,10 +11,13 @@ Public Class MlbPlayer
     Dim mPosition As String
     Dim mShortPosition As String
     Dim mBattingPosition As Integer
+    Dim mAvg As String  ' season
+    Dim mOps As String  ' season
+    Dim mObp As String  ' season
+    Dim mEra As String  ' season
+
     Private mAPI As MlbApi = New MlbApi()
     Private mProps As SBProperties = New SBProperties()
-    'Private mBattingStats As DataTable = New DataTable("BattingStats")
-    'Private mPitchingStats As DataTable = New DataTable("PitchingStats")
 
 
     Public ReadOnly Property Id() As String
@@ -53,6 +56,31 @@ Public Class MlbPlayer
         End Get
     End Property
 
+    Public ReadOnly Property Avg() As String
+        Get
+            Return Me.mAvg
+        End Get
+    End Property
+
+    Public ReadOnly Property ERA() As String
+        Get
+            Return Me.mEra
+        End Get
+    End Property
+
+    Public ReadOnly Property OPS() As String
+        Get
+            Return Me.mOps
+        End Get
+    End Property
+
+    Public ReadOnly Property OBP() As String
+        Get
+            Return Me.mObp
+        End Get
+    End Property
+
+
     Public Property BattingPosition() As Integer
         Get
             Return Me.mBattingPosition
@@ -79,6 +107,28 @@ Public Class MlbPlayer
         Me.mShortPosition = ThisPlayer.SelectToken("primaryPosition.abbreviation")
         Me.mPosition = ThisPlayer.SelectToken("primaryPosition.name")
 
+        ' batting stats
+        Dim BattingSeasonStatsData As JObject = Me.mAPI.ReturnPlayerStats(Me.mId, "season", "hitting")
+        Dim stats As JArray = BattingSeasonStatsData.SelectToken("people[0].stats[0].splits")
+        If stats IsNot Nothing Then
+            For i = 0 To stats.Count - 1
+                Dim statsdata As JObject = stats.Item(i)
+                Me.mAvg = statsdata.SelectToken("stat.avg")
+                Me.mObp = statsdata.SelectToken("stat.obp")
+                Me.mOps = statsdata.SelectToken("stat.ops")
+            Next
+        End If
+
+        ' pitching stats
+        Dim PitchingSeasonStatsData As JObject = Me.mAPI.ReturnPlayerStats(Me.mId, "season", "pitching")
+        stats = BattingSeasonStatsData.SelectToken("people[0].stats[0].splits")
+        If stats IsNot Nothing Then
+            For i = 0 To stats.Count - 1
+                Dim statsdata As JObject = stats.Item(i)
+                Me.mAvg = statsdata.SelectToken("stat.era")
+            Next
+        End If
+
         If mProps.GetProperty(mProps.mKEEP_DATA_FILES_KEY) = 1 Then
             Dim DataRoot As String = mProps.GetProperty(mProps.mDATA_FILES_PATH_KEY)
             File.WriteAllText($"{DataRoot}\\{Me.Id}-{Me.ShortName}_playerdata.json", ThisPlayer.ToString())
@@ -92,6 +142,5 @@ Public Class MlbPlayer
         Me.mFullName = Name
         Me.mShortPosition = Position
     End Sub
-
 
 End Class

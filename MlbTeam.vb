@@ -107,7 +107,7 @@ Public Class MlbTeam
     Public Function GetPlayer(Id As String) As MlbPlayer
         For Each player As MlbPlayer In mRoster
             If Convert.ToInt32(player.Id()) = Convert.ToInt32(Id) Then
-                Return player
+                Return player.ConvertToFullObject()
             End If
         Next
         Return Nothing

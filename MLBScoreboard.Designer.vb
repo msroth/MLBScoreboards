@@ -66,6 +66,7 @@ Partial Class MlbScoreboard
         Me.lblHomeWinnerLoser = New System.Windows.Forms.Label()
         Me.GameUpdateTimer = New System.Windows.Forms.Timer(Me.components)
         Me.lblPitchCount = New System.Windows.Forms.Label()
+        Me.BoxscoreToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.StatusStrip1.SuspendLayout()
         Me.MenuStrip1.SuspendLayout()
         CType(Me.dgvInnings, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -134,7 +135,7 @@ Partial Class MlbScoreboard
         '
         'ViewToolStripMenuItem
         '
-        Me.ViewToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripSeparator1, Me.PlayRecapToolStripMenuItem, Me.StandingsToolStripMenuItem})
+        Me.ViewToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripSeparator1, Me.PlayRecapToolStripMenuItem, Me.StandingsToolStripMenuItem, Me.BoxscoreToolStripMenuItem})
         Me.ViewToolStripMenuItem.Name = "ViewToolStripMenuItem"
         Me.ViewToolStripMenuItem.Size = New System.Drawing.Size(55, 24)
         Me.ViewToolStripMenuItem.Text = "View"
@@ -142,18 +143,18 @@ Partial Class MlbScoreboard
         'ToolStripSeparator1
         '
         Me.ToolStripSeparator1.Name = "ToolStripSeparator1"
-        Me.ToolStripSeparator1.Size = New System.Drawing.Size(161, 6)
+        Me.ToolStripSeparator1.Size = New System.Drawing.Size(221, 6)
         '
         'PlayRecapToolStripMenuItem
         '
         Me.PlayRecapToolStripMenuItem.Name = "PlayRecapToolStripMenuItem"
-        Me.PlayRecapToolStripMenuItem.Size = New System.Drawing.Size(164, 26)
+        Me.PlayRecapToolStripMenuItem.Size = New System.Drawing.Size(224, 26)
         Me.PlayRecapToolStripMenuItem.Text = "Play Recap"
         '
         'StandingsToolStripMenuItem
         '
         Me.StandingsToolStripMenuItem.Name = "StandingsToolStripMenuItem"
-        Me.StandingsToolStripMenuItem.Size = New System.Drawing.Size(164, 26)
+        Me.StandingsToolStripMenuItem.Size = New System.Drawing.Size(224, 26)
         Me.StandingsToolStripMenuItem.Text = "Standings"
         '
         'AboutToolStripMenuItem1
@@ -534,6 +535,12 @@ Partial Class MlbScoreboard
         Me.lblPitchCount.TabIndex = 36
         Me.lblPitchCount.Text = "Pitches: 0"
         '
+        'BoxscoreToolStripMenuItem
+        '
+        Me.BoxscoreToolStripMenuItem.Name = "BoxscoreToolStripMenuItem"
+        Me.BoxscoreToolStripMenuItem.Size = New System.Drawing.Size(224, 26)
+        Me.BoxscoreToolStripMenuItem.Text = "Boxscore"
+        '
         'MlbScoreboard
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 20.0!)
@@ -622,4 +629,5 @@ Partial Class MlbScoreboard
     Friend WithEvents StandingsToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents lblPitchCount As Label
     Friend WithEvents ThisGameUpdateData As ToolStripStatusLabel
+    Friend WithEvents BoxscoreToolStripMenuItem As ToolStripMenuItem
 End Class
