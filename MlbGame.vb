@@ -407,10 +407,6 @@ Public Class MlbGame
             ' save data for debugging
             If mProperties.GetProperty(mProperties.mKEEP_DATA_FILES_KEY, "0") = "1" Then
                 Dim DataRoot As String = mProperties.GetProperty(mProperties.mDATA_FILES_PATH_KEY)
-                'File.WriteAllText($"{DataRoot}\\{Me.GamePk()}-{Me.AwayTeam.Abbr}-{Me.HomeTeam.Abbr}_gamedata.json", mGameData.ToString())
-                'File.WriteAllText($"{DataRoot}\\{Me.GamePk()}-{Me.AwayTeam.Abbr}-{Me.HomeTeam.Abbr}_boxdata.json", mBoxData.ToString())
-                'File.WriteAllText($"{DataRoot}\\{Me.GamePk()}-{Me.AwayTeam.Abbr}-{Me.HomeTeam.Abbr}_linedata.json", mLineData.ToString())
-                'File.WriteAllText($"{DataRoot}\\{Me.GamePk()}-{Me.AwayTeam.Abbr}-{Me.HomeTeam.Abbr}_livedata.json", mLiveData.ToString())
                 File.WriteAllText($"{DataRoot}\\{Me.GamePk()}-{Me.AwayTeam.Abbr}-{Me.HomeTeam.Abbr}_data.json", mData.ToString())
             End If
 
@@ -421,7 +417,7 @@ Public Class MlbGame
     End Sub
 
 
-    Public Function ToString() As String
+    Public Overrides Function ToString() As String
         Dim sb As StringBuilder = New StringBuilder()
         sb.Append(vbCr + "======" + vbCr)
         sb.Append($"Game Id: {Me.GamePk()}")
@@ -444,9 +440,7 @@ Public Class MlbGame
             sb.Append($"Winning PitcherId: {Me.WinningPitcherId()}")
             sb.Append(vbCr)
         End If
-
         Return sb.ToString()
-
     End Function
 
     Private Sub LoadInnings()
@@ -879,14 +873,14 @@ Public Class MlbGame
         Dim Details As New List(Of String)
         For r As Integer = 0 To lastPlayData.SelectToken("runners").Count - 1
             Dim RunnersData As JObject = lastPlayData.SelectToken("runners").Item(r)
-            Trace.WriteLine($" runner: {r}")
+            'Trace.WriteLine($" runner: {r}")
             Dim Credits As JArray = RunnersData.SelectToken("credits")
 
             If Credits IsNot Nothing Then
                 For c As Integer = 0 To Credits.Count - 1
                     Dim PositionCode As String = Credits.Item(c).SelectToken("position.code")
                     Dim CreditType As String = Credits.Item(c).SelectToken("credit")
-                    Trace.WriteLine($"  [{c}] position: {PositionCode}, type: {CreditType}")
+                    ' Trace.WriteLine($"  [{c}] position: {PositionCode}, type: {CreditType}")
                     Details.Add(PositionCode)
 
                 Next
@@ -979,7 +973,6 @@ Public Class MlbGame
             Next
             OfficialScoring = $"{OfficialScoring})"
         End If
-
 
         Trace.WriteLine($"Official Scoring = {OfficialScoring}")
         Return OfficialScoring

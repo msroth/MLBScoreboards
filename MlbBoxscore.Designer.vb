@@ -72,12 +72,17 @@ Partial Class MlbBoxscore
         Me.dgvAwayBatting.ShowCellToolTips = False
         Me.dgvAwayBatting.ShowEditingIcon = False
         Me.dgvAwayBatting.ShowRowErrors = False
-        Me.dgvAwayBatting.Size = New System.Drawing.Size(525, 302)
+        Me.dgvAwayBatting.Size = New System.Drawing.Size(569, 302)
         Me.dgvAwayBatting.TabIndex = 0
         '
         'dgvHomeBatting
         '
+        Me.dgvHomeBatting.AllowUserToAddRows = False
+        Me.dgvHomeBatting.AllowUserToDeleteRows = False
+        Me.dgvHomeBatting.AllowUserToResizeColumns = False
+        Me.dgvHomeBatting.AllowUserToResizeRows = False
         Me.dgvHomeBatting.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
+        Me.dgvHomeBatting.BackgroundColor = System.Drawing.SystemColors.Control
         Me.dgvHomeBatting.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvHomeBatting.Location = New System.Drawing.Point(21, 31)
         Me.dgvHomeBatting.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
@@ -94,7 +99,7 @@ Partial Class MlbBoxscore
         Me.rtbAwayBattingFieldingDetails.Location = New System.Drawing.Point(16, 339)
         Me.rtbAwayBattingFieldingDetails.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.rtbAwayBattingFieldingDetails.Name = "rtbAwayBattingFieldingDetails"
-        Me.rtbAwayBattingFieldingDetails.Size = New System.Drawing.Size(526, 91)
+        Me.rtbAwayBattingFieldingDetails.Size = New System.Drawing.Size(569, 91)
         Me.rtbAwayBattingFieldingDetails.TabIndex = 2
         Me.rtbAwayBattingFieldingDetails.Text = ""
         '
@@ -110,6 +115,12 @@ Partial Class MlbBoxscore
         '
         'dgvAwayPitchers
         '
+        Me.dgvAwayPitchers.AllowUserToAddRows = False
+        Me.dgvAwayPitchers.AllowUserToDeleteRows = False
+        Me.dgvAwayPitchers.AllowUserToResizeColumns = False
+        Me.dgvAwayPitchers.AllowUserToResizeRows = False
+        Me.dgvAwayPitchers.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
+        Me.dgvAwayPitchers.BackgroundColor = System.Drawing.SystemColors.Control
         Me.dgvAwayPitchers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvAwayPitchers.Location = New System.Drawing.Point(16, 471)
         Me.dgvAwayPitchers.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
@@ -117,11 +128,17 @@ Partial Class MlbBoxscore
         Me.dgvAwayPitchers.RowHeadersVisible = False
         Me.dgvAwayPitchers.RowHeadersWidth = 51
         Me.dgvAwayPitchers.RowTemplate.Height = 29
-        Me.dgvAwayPitchers.Size = New System.Drawing.Size(525, 141)
+        Me.dgvAwayPitchers.Size = New System.Drawing.Size(569, 141)
         Me.dgvAwayPitchers.TabIndex = 4
         '
         'dgvHomePitchers
         '
+        Me.dgvHomePitchers.AllowUserToAddRows = False
+        Me.dgvHomePitchers.AllowUserToDeleteRows = False
+        Me.dgvHomePitchers.AllowUserToResizeColumns = False
+        Me.dgvHomePitchers.AllowUserToResizeRows = False
+        Me.dgvHomePitchers.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
+        Me.dgvHomePitchers.BackgroundColor = System.Drawing.SystemColors.Control
         Me.dgvHomePitchers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvHomePitchers.Location = New System.Drawing.Point(21, 467)
         Me.dgvHomePitchers.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
@@ -134,10 +151,10 @@ Partial Class MlbBoxscore
         '
         'rtbGameInfo
         '
-        Me.rtbGameInfo.Location = New System.Drawing.Point(12, 736)
+        Me.rtbGameInfo.Location = New System.Drawing.Point(12, 744)
         Me.rtbGameInfo.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.rtbGameInfo.Name = "rtbGameInfo"
-        Me.rtbGameInfo.Size = New System.Drawing.Size(558, 91)
+        Me.rtbGameInfo.Size = New System.Drawing.Size(606, 91)
         Me.rtbGameInfo.TabIndex = 6
         Me.rtbGameInfo.Text = ""
         '
@@ -185,7 +202,7 @@ Partial Class MlbBoxscore
         '
         Me.lblGameInfo.AutoSize = True
         Me.lblGameInfo.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
-        Me.lblGameInfo.Location = New System.Drawing.Point(16, 716)
+        Me.lblGameInfo.Location = New System.Drawing.Point(16, 724)
         Me.lblGameInfo.Name = "lblGameInfo"
         Me.lblGameInfo.Size = New System.Drawing.Size(77, 16)
         Me.lblGameInfo.TabIndex = 11
@@ -198,7 +215,7 @@ Partial Class MlbBoxscore
         Me.TabControl1.Location = New System.Drawing.Point(12, 68)
         Me.TabControl1.Name = "TabControl1"
         Me.TabControl1.SelectedIndex = 0
-        Me.TabControl1.Size = New System.Drawing.Size(562, 645)
+        Me.TabControl1.Size = New System.Drawing.Size(610, 645)
         Me.TabControl1.TabIndex = 12
         '
         'Away
@@ -211,7 +228,7 @@ Partial Class MlbBoxscore
         Me.Away.Location = New System.Drawing.Point(4, 24)
         Me.Away.Name = "Away"
         Me.Away.Padding = New System.Windows.Forms.Padding(3)
-        Me.Away.Size = New System.Drawing.Size(554, 617)
+        Me.Away.Size = New System.Drawing.Size(602, 617)
         Me.Away.TabIndex = 0
         Me.Away.Text = "Away"
         Me.Away.UseVisualStyleBackColor = True
@@ -226,7 +243,7 @@ Partial Class MlbBoxscore
         Me.Home.Location = New System.Drawing.Point(4, 24)
         Me.Home.Name = "Home"
         Me.Home.Padding = New System.Windows.Forms.Padding(3)
-        Me.Home.Size = New System.Drawing.Size(554, 621)
+        Me.Home.Size = New System.Drawing.Size(602, 617)
         Me.Home.TabIndex = 1
         Me.Home.Text = "Home"
         Me.Home.UseVisualStyleBackColor = True
@@ -256,7 +273,7 @@ Partial Class MlbBoxscore
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.Green
-        Me.ClientSize = New System.Drawing.Size(591, 875)
+        Me.ClientSize = New System.Drawing.Size(634, 853)
         Me.Controls.Add(Me.lblGamePk)
         Me.Controls.Add(Me.lblTitle)
         Me.Controls.Add(Me.TabControl1)

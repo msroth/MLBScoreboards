@@ -1,6 +1,7 @@
 ﻿
 
 Imports System.IO
+Imports System.Text
 Imports Newtonsoft.Json.Linq
 
 Public Class MlbPlayer
@@ -91,6 +92,7 @@ Public Class MlbPlayer
     End Property
 
     Public Function ConvertToFullObject() As MlbPlayer
+        ' convert a 'lite' player object to one with full data
         Return New MlbPlayer(Me.mId)
     End Function
 
@@ -98,9 +100,12 @@ Public Class MlbPlayer
         ' Create new Player object by querying API
 
         Me.mId = Id
+
+        ' get data
         Dim Data As JObject = mAPI.ReturnPlayerData(Id)
         Dim PlayerData As JProperty = Data.Property("people")
         Dim ThisPlayer As JObject = PlayerData.Value(0)
+
         Me.mNumber = ThisPlayer.SelectToken("primaryNumber")
         Me.mFullName = ThisPlayer.SelectToken("fullName")
         Me.mShortName = ThisPlayer.SelectToken("lastInitName")
@@ -129,6 +134,7 @@ Public Class MlbPlayer
             Next
         End If
 
+        ' write data file
         If mProps.GetProperty(mProps.mKEEP_DATA_FILES_KEY) = 1 Then
             Dim DataRoot As String = mProps.GetProperty(mProps.mDATA_FILES_PATH_KEY)
             File.WriteAllText($"{DataRoot}\\{Me.Id}-{Me.ShortName}_playerdata.json", ThisPlayer.ToString())
@@ -136,11 +142,24 @@ Public Class MlbPlayer
     End Sub
 
     Sub New(Id As String, Number As String, Name As String, Position As String)
-        ' Create new Player object with known data
+        ' Create new 'lite' Player object with known data
         Me.mId = Id
         Me.mNumber = Number
         Me.mFullName = Name
         Me.mShortPosition = Position
     End Sub
+
+    Public Overrides Function ToString() As String
+        Dim sb As StringBuilder = New StringBuilder()
+        sb.Append(Id)
+        sb.Append(vbTab)
+        sb.Append(FullName)
+        sb.Append(vbTab)
+        sb.Append(Number)
+        sb.Append(vbTab)
+        sb.Append(ShortPosition)
+        Return sb.ToString()
+    End Function
+
 
 End Class

@@ -503,20 +503,40 @@ Public Class MlbScoreboard
         Dim ListOfGames As Dictionary(Of String, MlbGame) = New Dictionary(Of String, MlbGame)
 
         Try
+
+
+            Dim frmLoad As New Loading()
+
             Dim schedule As JObject = Me.mAPI.ReturnScheduleData(gameDate)
             Dim gameDates As JArray = schedule.SelectToken("dates")
+
+            frmLoad.Show()
 
             For Each gDate As JObject In gameDates
                 Dim games As JArray = gDate.SelectToken("games")
 
                 For Each game As JObject In games
+
+                    frmLoad.SetProgressMax(games.Count)
+
+
                     Dim gamePk As String = game.SelectToken("gamePk")
                     Dim oGame As MlbGame = New MlbGame(gamePk)
                     ListOfGames.Add(gamePk, oGame)
+
+
+                    frmLoad.SetLabel($"Loading game {oGame.GamePk} {oGame.AwayTeam.Abbr} @ {oGame.HomeTeam.Abbr} data...  ")
+                    frmLoad.DoStep()
+
                     Me.AllGamesUpdateData.Text = $"Loading game {oGame.GamePk} {oGame.AwayTeam.Abbr} @ {oGame.HomeTeam.Abbr} data...  "
                     Me.StatusStrip1.Refresh()
                 Next
             Next
+
+
+            frmLoad.Close()
+
+
         Catch ex As Exception
             Trace.WriteLine($"ERROR: LoadAllTeamsData - {ex}")
         End Try
@@ -633,12 +653,14 @@ Public Class MlbScoreboard
         End Try
     End Sub
 
-    Private Sub calDatePicker_CloseUp(sender As Object, e As EventArgs) Handles calDatePicker.CloseUp
-        Me.mCurrentGame = Nothing
-        Me.GameUpdateTimer.Stop()
-        Me.ResetScreenControls()
-        Me.mAllGames.Clear()
-        Me.RunScoreboard()
+    Private Sub calDatePicker_CloseUp(sender As Object, e As EventArgs) Handles calDatePicker.ValueChanged
+        'Me.calDatePicker.Refresh()
+        'Me.GameUpdateTimer.Stop()
+        'Me.mCurrentGame = Nothing
+        'Me.ResetScreenControls()
+        'Me.ThisGameUpdateData.Text = ""
+        'Me.mAllGames.Clear()
+        'Me.RunScoreboard()
     End Sub
 
     Private Sub ScoreboardUpdateTimer_Tick(sender As Object, e As EventArgs) Handles ScoreboardUpdateTimer.Tick
@@ -818,6 +840,16 @@ Public Class MlbScoreboard
         Dim frmBoxscore As New MlbBoxscore()
         frmBoxscore.Game = Me.mCurrentGame
         frmBoxscore.ShowDialog()
+    End Sub
+
+    Private Sub btnFindGames_Click(sender As Object, e As EventArgs) Handles btnFindGames.Click
+        Me.GameUpdateTimer.Stop()
+        Me.mCurrentGame = Nothing
+        Me.ResetScreenControls()
+        Me.Refresh()
+        Me.ThisGameUpdateData.Text = ""
+        Me.mAllGames.Clear()
+        Me.RunScoreboard()
     End Sub
 
 

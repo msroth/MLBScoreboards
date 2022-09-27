@@ -167,7 +167,7 @@ Public Class MlbTeam
         End Try
     End Sub
 
-    Public Function ToString() As String
+    Public Overrides Function ToString() As String
         Dim sb As StringBuilder = New StringBuilder()
         sb.Append(vbCr)
         sb.Append($"Team Id: {Me.Id()}")
@@ -178,19 +178,11 @@ Public Class MlbTeam
         sb.Append(vbCr)
         sb.Append($"Team Abbr: {Me.Abbr()}")
         sb.Append(vbCr)
-        sb.Append("Players:")
-        sb.Append(vbCr)
         If mLineup.Count > 0 Then
+            sb.Append("Players:")
+            sb.Append(vbCr)
             For Each Player In mLineup
-                sb.Append(vbTab)
-                sb.Append(Player.Id())
-                sb.Append(vbTab)
-                sb.Append(Player.FullName())
-                sb.Append(vbTab)
-                sb.Append(Player.Number())
-                sb.Append(vbTab)
-                sb.Append(Player.ShortPosition())
-                sb.Append(vbCr)
+                sb.Append(Player.ToString())
             Next
         End If
         Return sb.ToString()
@@ -247,6 +239,7 @@ Public Class MlbTeam
         Catch ex As Exception
             Trace.WriteLine($"ERROR: GetRoster - {ex}")
         End Try
+        dt = dt.Select("", "Position").CopyToDataTable()
         Return dt
     End Function
 End Class
