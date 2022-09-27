@@ -328,8 +328,8 @@ Public Class MlbGame
             Me.LoadInnings()
 
             ' load team player data
-            Me.AwayTeam.LoadPlayerData(Me)
-            Me.HomeTeam.LoadPlayerData(Me)
+            'Me.AwayTeam.LoadPlayerData(Me)
+            'Me.HomeTeam.LoadPlayerData(Me)
 
             'current game
 

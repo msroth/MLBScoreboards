@@ -82,6 +82,14 @@ Public Class MlbStandings
             End If
         Next
 
+        ' format data grids
+        dgvALEast.ColumnHeadersDefaultCellStyle.Font = New Font(dgvALEast.DefaultFont, FontStyle.Bold)
+        dgvALCentral.ColumnHeadersDefaultCellStyle.Font = New Font(dgvALCentral.DefaultFont, FontStyle.Bold)
+        dgvALWest.ColumnHeadersDefaultCellStyle.Font = New Font(dgvALWest.DefaultFont, FontStyle.Bold)
+        dgvNLEast.ColumnHeadersDefaultCellStyle.Font = New Font(dgvNLEast.DefaultFont, FontStyle.Bold)
+        dgvNLCentral.ColumnHeadersDefaultCellStyle.Font = New Font(dgvNLCentral.DefaultFont, FontStyle.Bold)
+        dgvNLWest.ColumnHeadersDefaultCellStyle.Font = New Font(dgvNLWest.DefaultFont, FontStyle.Bold)
+
     End Sub
 
     Function initDivStandingDataTable() As DataTable

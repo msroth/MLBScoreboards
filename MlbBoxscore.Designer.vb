@@ -39,6 +39,7 @@ Partial Class MlbBoxscore
         Me.Home = New System.Windows.Forms.TabPage()
         Me.lblTitle = New System.Windows.Forms.Label()
         Me.lblGamePk = New System.Windows.Forms.Label()
+        Me.Label1 = New System.Windows.Forms.Label()
         CType(Me.dgvAwayBatting, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgvHomeBatting, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgvAwayPitchers, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -151,7 +152,7 @@ Partial Class MlbBoxscore
         '
         'rtbGameInfo
         '
-        Me.rtbGameInfo.Location = New System.Drawing.Point(12, 744)
+        Me.rtbGameInfo.Location = New System.Drawing.Point(12, 767)
         Me.rtbGameInfo.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.rtbGameInfo.Name = "rtbGameInfo"
         Me.rtbGameInfo.Size = New System.Drawing.Size(606, 91)
@@ -202,7 +203,7 @@ Partial Class MlbBoxscore
         '
         Me.lblGameInfo.AutoSize = True
         Me.lblGameInfo.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
-        Me.lblGameInfo.Location = New System.Drawing.Point(16, 724)
+        Me.lblGameInfo.Location = New System.Drawing.Point(16, 747)
         Me.lblGameInfo.Name = "lblGameInfo"
         Me.lblGameInfo.Size = New System.Drawing.Size(77, 16)
         Me.lblGameInfo.TabIndex = 11
@@ -212,7 +213,7 @@ Partial Class MlbBoxscore
         '
         Me.TabControl1.Controls.Add(Me.Away)
         Me.TabControl1.Controls.Add(Me.Home)
-        Me.TabControl1.Location = New System.Drawing.Point(12, 68)
+        Me.TabControl1.Location = New System.Drawing.Point(12, 91)
         Me.TabControl1.Name = "TabControl1"
         Me.TabControl1.SelectedIndex = 0
         Me.TabControl1.Size = New System.Drawing.Size(610, 645)
@@ -251,29 +252,41 @@ Partial Class MlbBoxscore
         'lblTitle
         '
         Me.lblTitle.AutoSize = True
-        Me.lblTitle.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
-        Me.lblTitle.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.lblTitle.Location = New System.Drawing.Point(14, 32)
+        Me.lblTitle.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+        Me.lblTitle.ForeColor = System.Drawing.SystemColors.ControlText
+        Me.lblTitle.Location = New System.Drawing.Point(16, 50)
         Me.lblTitle.Name = "lblTitle"
-        Me.lblTitle.Size = New System.Drawing.Size(83, 16)
+        Me.lblTitle.Size = New System.Drawing.Size(67, 15)
         Me.lblTitle.TabIndex = 13
         Me.lblTitle.Text = "Game Title"
         '
         'lblGamePk
         '
         Me.lblGamePk.AutoSize = True
-        Me.lblGamePk.Location = New System.Drawing.Point(488, 24)
+        Me.lblGamePk.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+        Me.lblGamePk.Location = New System.Drawing.Point(493, 50)
         Me.lblGamePk.Name = "lblGamePk"
-        Me.lblGamePk.Size = New System.Drawing.Size(51, 15)
+        Me.lblGamePk.Size = New System.Drawing.Size(55, 15)
         Me.lblGamePk.TabIndex = 14
         Me.lblGamePk.Text = "GamePk"
+        '
+        'Label1
+        '
+        Me.Label1.AutoSize = True
+        Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
+        Me.Label1.Location = New System.Drawing.Point(16, 21)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(83, 20)
+        Me.Label1.TabIndex = 15
+        Me.Label1.Text = "Boxscore"
         '
         'MlbBoxscore
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.BackColor = System.Drawing.Color.Green
-        Me.ClientSize = New System.Drawing.Size(634, 853)
+        Me.BackColor = System.Drawing.SystemColors.Control
+        Me.ClientSize = New System.Drawing.Size(634, 879)
+        Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.lblGamePk)
         Me.Controls.Add(Me.lblTitle)
         Me.Controls.Add(Me.TabControl1)
@@ -313,4 +326,5 @@ Partial Class MlbBoxscore
     Friend WithEvents Home As TabPage
     Friend WithEvents lblTitle As Label
     Friend WithEvents lblGamePk As Label
+    Friend WithEvents Label1 As Label
 End Class

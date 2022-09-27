@@ -37,6 +37,8 @@ Public Class MlbPlaySummary
         Next
 
         dgvPlays.DataSource = dt
+        dgvPlays.ColumnHeadersDefaultCellStyle.Font = New Font(dgvPlays.DefaultFont, FontStyle.Bold)
+        dgvPlays.ClearSelection()
 
     End Sub
 
@@ -73,7 +75,7 @@ Public Class MlbPlaySummary
 
     Private Sub dgvPlays_Paint(sender As Object, e As PaintEventArgs) Handles dgvPlays.Paint
 
-        ' paint bottom halves blue
+        ' paint bottom half innings blue
         Try
             For Each row As DataGridViewRow In dgvPlays.Rows
                 If row.Cells("Half").Value.ToString.ToUpper() = "BOTTOM" Then

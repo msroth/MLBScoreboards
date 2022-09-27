@@ -1,4 +1,5 @@
+data_files=data
 game_refresh=20
-scoreboard_refresh=30
+scoreboard_refresh=60
 favorite_team=WSH
 debug=0

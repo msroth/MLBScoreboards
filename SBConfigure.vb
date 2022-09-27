@@ -41,7 +41,7 @@ Public Class SBConfigure
     Private Sub Configure_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         mAllTeams = Me.LoadTeamsData()
         LoadTeamsComboBox()
-        numSBRefreshTime.Value = Convert.ToInt32(mProps.GetProperty(mProps.mSCOREBOARD_TIMER_KEY, "30"))
+        numSBRefreshTime.Value = Convert.ToInt32(mProps.GetProperty(mProps.mSCOREBOARD_TIMER_KEY, "60"))
         numGameRefreshTime.Value = Convert.ToInt32(mProps.GetProperty(mProps.mGAME_TIMER_KEY, "20"))
         cbxTeams.SelectedValue = mProps.GetProperty(mProps.mFAVORITE_TEAM_KEY, "WSH")
 
@@ -112,6 +112,12 @@ Public Class SBConfigure
         End If
     End Sub
 
+    Private Sub chxWriteFiles_Click(sender As Object, e As EventArgs) Handles chxWriteFiles.Click
+        If chxWriteFiles.Checked = True Then
+            MessageBox.Show("Enabling data file writes can effect performance.", "Warning")
+        End If
+
+    End Sub
 End Class
 
 '<SDG><

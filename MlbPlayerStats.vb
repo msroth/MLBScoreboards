@@ -326,6 +326,10 @@ Public Class MlbPlayerStats
             Me.TabControl1.TabPages("Pitching").Hide() ' this does not work
         End If
 
+        dgvBattingStats.ColumnHeadersDefaultCellStyle.Font = New Font(dgvBattingStats.DefaultFont, FontStyle.Bold)
+        dgvFieldingStats.ColumnHeadersDefaultCellStyle.Font = New Font(dgvFieldingStats.DefaultFont, FontStyle.Bold)
+        dgvPitchingStats.ColumnHeadersDefaultCellStyle.Font = New Font(dgvPitchingStats.DefaultFont, FontStyle.Bold)
+
     End Sub
 
 

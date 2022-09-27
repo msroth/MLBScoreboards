@@ -71,16 +71,17 @@ Partial Class MlbPlaySummary
         'lblGameTitle
         '
         Me.lblGameTitle.AutoSize = True
+        Me.lblGameTitle.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
         Me.lblGameTitle.Location = New System.Drawing.Point(22, 41)
         Me.lblGameTitle.Name = "lblGameTitle"
-        Me.lblGameTitle.Size = New System.Drawing.Size(63, 15)
+        Me.lblGameTitle.Size = New System.Drawing.Size(67, 15)
         Me.lblGameTitle.TabIndex = 2
         Me.lblGameTitle.Text = "Game Title"
         '
         'lblGamePk
         '
         Me.lblGamePk.AutoSize = True
-        Me.lblGamePk.Font = New System.Drawing.Font("MS Reference Sans Serif", 7.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+        Me.lblGamePk.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
         Me.lblGamePk.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
         Me.lblGamePk.Location = New System.Drawing.Point(558, 41)
         Me.lblGamePk.Name = "lblGamePk"

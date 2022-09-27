@@ -56,6 +56,7 @@ Partial Class MlbStandings
         Me.Label5 = New System.Windows.Forms.Label()
         Me.dgvNLEast = New System.Windows.Forms.DataGridView()
         Me.Label6 = New System.Windows.Forms.Label()
+        Me.Label7 = New System.Windows.Forms.Label()
         Me.TabControl1.SuspendLayout()
         Me.TabPage1.SuspendLayout()
         CType(Me.dgvALWest, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -71,7 +72,7 @@ Partial Class MlbStandings
         '
         Me.TabControl1.Controls.Add(Me.TabPage1)
         Me.TabControl1.Controls.Add(Me.TabPage2)
-        Me.TabControl1.Location = New System.Drawing.Point(28, 22)
+        Me.TabControl1.Location = New System.Drawing.Point(24, 77)
         Me.TabControl1.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.TabControl1.Name = "TabControl1"
         Me.TabControl1.SelectedIndex = 0
@@ -492,12 +493,23 @@ Partial Class MlbStandings
         Me.Label6.TabIndex = 6
         Me.Label6.Text = " National League East "
         '
+        'Label7
+        '
+        Me.Label7.AutoSize = True
+        Me.Label7.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
+        Me.Label7.Location = New System.Drawing.Point(31, 29)
+        Me.Label7.Name = "Label7"
+        Me.Label7.Size = New System.Drawing.Size(155, 20)
+        Me.Label7.TabIndex = 1
+        Me.Label7.Text = "League Standings"
+        '
         'MlbStandings
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.BackColor = System.Drawing.Color.Green
-        Me.ClientSize = New System.Drawing.Size(771, 592)
+        Me.BackColor = System.Drawing.SystemColors.Control
+        Me.ClientSize = New System.Drawing.Size(771, 640)
+        Me.Controls.Add(Me.Label7)
         Me.Controls.Add(Me.TabControl1)
         Me.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.Name = "MlbStandings"
@@ -514,6 +526,7 @@ Partial Class MlbStandings
         CType(Me.dgvNLCentral, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.dgvNLEast, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
+        Me.PerformLayout()
 
     End Sub
 
@@ -532,4 +545,5 @@ Partial Class MlbStandings
     Friend WithEvents Label5 As Label
     Friend WithEvents dgvNLEast As DataGridView
     Friend WithEvents Label6 As Label
+    Friend WithEvents Label7 As Label
 End Class

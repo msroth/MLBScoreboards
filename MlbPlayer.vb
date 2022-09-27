@@ -126,11 +126,11 @@ Public Class MlbPlayer
 
         ' pitching stats
         Dim PitchingSeasonStatsData As JObject = Me.mAPI.ReturnPlayerStats(Me.mId, "season", "pitching")
-        stats = BattingSeasonStatsData.SelectToken("people[0].stats[0].splits")
+        stats = PitchingSeasonStatsData.SelectToken("people[0].stats[0].splits")
         If stats IsNot Nothing Then
             For i = 0 To stats.Count - 1
                 Dim statsdata As JObject = stats.Item(i)
-                Me.mAvg = statsdata.SelectToken("stat.era")
+                Me.mEra = statsdata.SelectToken("stat.era")
             Next
         End If
 

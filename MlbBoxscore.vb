@@ -18,6 +18,8 @@ Public Class MlbBoxscore
             Return
         End If
 
+        Me.Cursor = Cursors.WaitCursor
+
         ' set titles
         Me.lblTitle.Text = $"{Me.mThisGame.AwayTeam.FullName} @ {Me.mThisGame.HomeTeam.FullName}"
         Me.lblGamePk.Text = Me.mThisGame.GamePk
@@ -29,6 +31,7 @@ Public Class MlbBoxscore
         Me.dgvHomeBatting.DataSource = InitBattingStatsTable(mThisGame.HomeTeam.ShortName)
         'Me.dgvAwayBatting.Columns("Id").Visible = False
         'Me.dgvHomeBatting.Columns("Id").Visible = False
+
 
         ' init pitching tables
         Me.lblAwayPitchers.Text = $"{Me.mThisGame.AwayTeam.ShortName} Pitchers"
@@ -51,6 +54,15 @@ Public Class MlbBoxscore
         ' load game summary info
         LoadGameInfo()
 
+        ' format data grids
+        dgvAwayBatting.ColumnHeadersDefaultCellStyle.Font = New Font(dgvAwayBatting.DefaultFont, FontStyle.Bold)
+        dgvHomeBatting.ColumnHeadersDefaultCellStyle.Font = New Font(dgvHomeBatting.DefaultFont, FontStyle.Bold)
+        dgvAwayBatting.ClearSelection()
+        dgvAwayPitchers.ColumnHeadersDefaultCellStyle.Font = New Font(dgvAwayPitchers.DefaultFont, FontStyle.Bold)
+        dgvHomePitchers.ColumnHeadersDefaultCellStyle.Font = New Font(dgvHomePitchers.DefaultFont, FontStyle.Bold)
+        dgvAwayPitchers.ClearSelection()
+
+        Me.Cursor = Cursors.Default
     End Sub
 
     Private Sub LoadPitchingStats(team As MlbTeam)
@@ -70,9 +82,9 @@ Public Class MlbBoxscore
             thisTeam = Me.mThisGame.HomeTeam
         End If
 
+        ' TODO - could loop through obj team.roster looking for pitchers
 
-        ' load sorted dic with pitchers ids in order
-        Dim dicPitchersOrder = New SortedDictionary(Of String, String)
+
         Dim pitcherIds As JArray = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.pitchers")
         For i As Integer = 0 To pitcherIds.Count - 1
             Dim pId As String = pitcherIds(i)
@@ -94,9 +106,6 @@ Public Class MlbBoxscore
             dt.Rows.Add(row)
 
         Next
-        For Each key In dicPitchersOrder.Keys
-            'Trace.WriteLine($"key={key}, value={dicPitherOrder(key)}")
-        Next
 
     End Sub
 
@@ -106,8 +115,9 @@ Public Class MlbBoxscore
         Dim dt As DataTable
         Dim row As DataRow
         Dim thisTeam As MlbTeam
-        Dim NoteLabels As String() = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
-        Dim CurrentNoteLabelIndex As Integer = 0
+        'Dim NoteLabelLetters As String() = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
+        Dim NoteLabelLettersIndex As Integer = 1
+        Dim NoteLabelNumbersIndex = 1
 
         ' setup away or home
         If Me.mThisGame.AwayTeam.Id = team.Id Then
@@ -119,6 +129,8 @@ Public Class MlbBoxscore
             dt = dgvHomeBatting.DataSource
             thisTeam = Me.mThisGame.HomeTeam
         End If
+
+        ' TODO - loop thorugh obj team.lineup
 
         ' load sorted dic with batter ids in batting order order, including subs
         Dim dicBattingOrder = New SortedDictionary(Of String, String)
@@ -148,10 +160,17 @@ Public Class MlbBoxscore
 
             ' determine if sub
             ' if the batting order number does not end in "0", then a sub
+            ' if AB = 0, pinch runner and note is number, else pinch hitter and note is letter
             Dim PlayerName As String = $"{thisPlayer.ShortName} ({thisPlayer.ShortPosition})"
             If bId.Substring(bId.Length - 1, 1) <> "0" Then
-                row.Item(1) = $"   {NoteLabels(CurrentNoteLabelIndex)}-{PlayerName}"
-                CurrentNoteLabelIndex += 1
+                Dim noteId As String = ""
+                If Integer.Parse(BattingStats.Item("atBats")) = 0 Then
+                    row.Item(1) = $"   {NoteLabelNumbersIndex}-{PlayerName}"
+                    NoteLabelNumbersIndex += 1
+                Else
+                    row.Item(1) = $"   {Chr(97 + NoteLabelLettersIndex)}-{PlayerName}"
+                    NoteLabelLettersIndex += 1
+                End If
             Else
                 row.Item(1) = PlayerName
             End If
@@ -163,10 +182,10 @@ Public Class MlbBoxscore
             row.Item("BB") = BattingStats.Item("baseOnBalls")
             row.Item("K") = BattingStats.Item("strikeOuts")
             row.Item("LOB") = BattingStats.Item("leftOnBase")
-            row.Item("AVG") = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.players.ID{pId}.seasonStats.batting.avg")
-            row.Item("OPS") = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.players.ID{pId}.seasonStats.batting.ops")
-            'row.Item("AVG") = thisPlayer.Avg
-            'row.Item("OPS") = thisPlayer.OPS
+            'row.Item("AVG") = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.players.ID{pId}.seasonStats.batting.avg")
+            'row.Item("OPS") = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.players.ID{pId}.seasonStats.batting.ops")
+            row.Item("AVG") = thisPlayer.Avg
+            row.Item("OPS") = thisPlayer.OPS
             dt.Rows.Add(row)
         Next
 
@@ -174,7 +193,6 @@ Public Class MlbBoxscore
         ' team totals
         row = dt.NewRow()
         Dim TeamBattingStats As JObject = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.teamStats.batting")
-
         row.Item(0) = ""
         row.Item(1) = "Team Totals"
         row.Item("AB") = TeamBattingStats.Item("atBats")
@@ -228,7 +246,6 @@ Public Class MlbBoxscore
                 Dim label As String = field.SelectToken("label")
                 Dim value As String = field.SelectToken("value")
                 sb.Append($"{label} - {value}")
-                sb.Append(vbCr)
                 sb.Append(vbCr)
             Next
         Next
@@ -340,9 +357,13 @@ Public Class MlbBoxscore
         If TabControl1.SelectedIndex = 0 Then
             'Me.dgvAwayBatting.Columns("Id").Visible = False
             'Me.dgvAwayPitchers.Columns("Id").Visible = False
+            Me.dgvAwayBatting.ClearSelection()
+            Me.dgvAwayPitchers.ClearSelection()
         Else
             'Me.dgvHomeBatting.Columns("Id").Visible = False
             'Me.dgvHomePitchers.Columns("Id").Visible = False
+            Me.dgvHomeBatting.ClearSelection()
+            Me.dgvHomePitchers.ClearSelection()
         End If
     End Sub
 End Class

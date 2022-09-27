@@ -17,9 +17,9 @@ Public Class MlbScoreboard
             Dim gameDate As String = Me.calDatePicker.Value.ToString("MM/dd/yyyy")
             Me.mAllGames = Me.LoadAllGamesData(gameDate)
 
-            ' set scoreboard timer for every 30 sec or as configured, and start it
+            ' set scoreboard timer for every 60 sec or as configured, and start it
             ' this time updates the list of games
-            Dim SBUpdateSeconds As Integer = Convert.ToInt32(mProperties.GetProperty(mProperties.mSCOREBOARD_TIMER_KEY, "30"))
+            Dim SBUpdateSeconds As Integer = Convert.ToInt32(mProperties.GetProperty(mProperties.mSCOREBOARD_TIMER_KEY, "60"))
             SetScoreboardTimerInterval(SBUpdateSeconds)
 
             ' set game time for every 30 sec or as configured - do not start it yet
@@ -95,6 +95,11 @@ Public Class MlbScoreboard
             Else
                 ' this forces a refresh of MLB data from API
                 Me.mCurrentGame.LoadGameData()
+
+                ' load team players
+                Me.mCurrentGame.AwayTeam.LoadPlayerData(Me.mCurrentGame)
+                Me.mCurrentGame.HomeTeam.LoadPlayerData(Me.mCurrentGame)
+
                 ' update status bar
                 Me.ThisGameUpdateData.Text = $"  Current Game ({Me.mCurrentGame.AwayTeam.Abbr} @ {Me.mCurrentGame.HomeTeam.Abbr}) Data Updated {Date.Now}"
 
@@ -301,6 +306,11 @@ Public Class MlbScoreboard
         lblStatus.Text = "Game Status"
         lblStatus.Visible = True
         Me.mCurrentGame = Nothing
+        dgvGames.DataSource = Nothing
+        BoxscoreToolStripMenuItem.Enabled = False
+        PlayRecapToolStripMenuItem.Enabled = False
+        StandingsToolStripMenuItem.Enabled = True
+
     End Sub
 
     Private Function BlankInningsTable() As DataTable
@@ -504,7 +514,6 @@ Public Class MlbScoreboard
 
         Try
 
-
             Dim frmLoad As New Loading()
 
             Dim schedule As JObject = Me.mAPI.ReturnScheduleData(gameDate)
@@ -514,16 +523,13 @@ Public Class MlbScoreboard
 
             For Each gDate As JObject In gameDates
                 Dim games As JArray = gDate.SelectToken("games")
+                frmLoad.SetProgressMax(games.Count)
 
                 For Each game As JObject In games
-
-                    frmLoad.SetProgressMax(games.Count)
-
 
                     Dim gamePk As String = game.SelectToken("gamePk")
                     Dim oGame As MlbGame = New MlbGame(gamePk)
                     ListOfGames.Add(gamePk, oGame)
-
 
                     frmLoad.SetLabel($"Loading game {oGame.GamePk} {oGame.AwayTeam.Abbr} @ {oGame.HomeTeam.Abbr} data...  ")
                     frmLoad.DoStep()

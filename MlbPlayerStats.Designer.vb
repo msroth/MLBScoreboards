@@ -45,7 +45,7 @@ Partial Class MlbPlayerStats
         '
         Me.lblPlayer.AutoSize = True
         Me.lblPlayer.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
-        Me.lblPlayer.ForeColor = System.Drawing.SystemColors.ControlLightLight
+        Me.lblPlayer.ForeColor = System.Drawing.SystemColors.ControlText
         Me.lblPlayer.Location = New System.Drawing.Point(28, 14)
         Me.lblPlayer.Name = "lblPlayer"
         Me.lblPlayer.Size = New System.Drawing.Size(58, 20)
@@ -56,7 +56,7 @@ Partial Class MlbPlayerStats
         '
         Me.lblPosition.AutoSize = True
         Me.lblPosition.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        Me.lblPosition.ForeColor = System.Drawing.SystemColors.ControlLightLight
+        Me.lblPosition.ForeColor = System.Drawing.SystemColors.ControlText
         Me.lblPosition.Location = New System.Drawing.Point(28, 41)
         Me.lblPosition.Name = "lblPosition"
         Me.lblPosition.Size = New System.Drawing.Size(58, 17)
@@ -177,10 +177,10 @@ Partial Class MlbPlayerStats
         'lblPlayerID
         '
         Me.lblPlayerID.AutoSize = True
-        Me.lblPlayerID.Font = New System.Drawing.Font("Segoe UI", 7.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        Me.lblPlayerID.Location = New System.Drawing.Point(436, 18)
+        Me.lblPlayerID.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+        Me.lblPlayerID.Location = New System.Drawing.Point(424, 18)
         Me.lblPlayerID.Name = "lblPlayerID"
-        Me.lblPlayerID.Size = New System.Drawing.Size(47, 13)
+        Me.lblPlayerID.Size = New System.Drawing.Size(51, 15)
         Me.lblPlayerID.TabIndex = 4
         Me.lblPlayerID.Text = "PlayerId"
         Me.lblPlayerID.TextAlign = System.Drawing.ContentAlignment.TopRight
@@ -189,7 +189,7 @@ Partial Class MlbPlayerStats
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.BackColor = System.Drawing.Color.Green
+        Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(507, 460)
         Me.Controls.Add(Me.lblPlayerID)
         Me.Controls.Add(Me.TabControl1)

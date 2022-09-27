@@ -15,7 +15,7 @@ Public Class SBProperties
         ' open file
         Dim fi As FileInfo = New FileInfo(mPROPERTIES_FILE)
         If Not fi.Exists() Then
-            File.WriteAllText(mPROPERTIES_FILE, $"{mGAME_TIMER_KEY}=30 {vbCr} {mSCOREBOARD_TIMER_KEY}=30 {vbCr} \
+            File.WriteAllText(mPROPERTIES_FILE, $"{mGAME_TIMER_KEY}=30 {vbCr} {mSCOREBOARD_TIMER_KEY}=60 {vbCr} \
                                                   {mFAVORITE_TEAM_KEY}=WSH {vbCr} {mKEEP_DATA_FILES_KEY}=0 {vbCr} \
                                                   {mDATA_FILES_PATH_KEY}=/data")
         End If
@@ -66,7 +66,7 @@ Public Class SBProperties
         If value Is Nothing Then
             value = defValue
         End If
-        'Trace.WriteLine($"got property {key}={value}")
+        Trace.WriteLine($"got property {key}={value}")
         Return value
     End Function
 
@@ -75,7 +75,7 @@ Public Class SBProperties
         For Each key As String In m_Properties.Keys()
             If Not key Is Nothing Then
                 sw.WriteLine($"{key}={GetProperty(key)}")
-                'Trace.WriteLine($"propery {key} saved as {GetProperty(key)}")
+                Trace.WriteLine($"propery {key} saved as {GetProperty(key)}")
             End If
         Next
         sw.Close()
