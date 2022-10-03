@@ -230,7 +230,12 @@ Public Class MlbPlayerStats
                 Dim statsdata As JObject = stats.Item(i)
                 For Each key As String In BattingStatsKeys
                     Dim value As String = statsdata.SelectToken($"stat.{key}")
-                    Me.mBattingSeasonStats.Add(key, value)
+                    If mBattingSeasonStats.ContainsKey(key) Then
+                        mBattingSeasonStats(key) = value
+                    Else
+                        Me.mBattingSeasonStats.Add(key, value)
+                    End If
+
                 Next
             Next
         End If
@@ -241,7 +246,12 @@ Public Class MlbPlayerStats
                 Dim statsdata As JObject = stats.Item(i)
                 For Each key As String In BattingStatsKeys
                     Dim value As String = statsdata.SelectToken($"stat.{key}")
-                    Me.mBattingCareerStats.Add(key, value)
+                    If mBattingCareerStats.ContainsKey(key) Then
+                        Me.mBattingCareerStats(key) = value
+                    Else
+                        Me.mBattingCareerStats.Add(key, value)
+                    End If
+
                 Next
             Next
         End If
@@ -265,9 +275,7 @@ Public Class MlbPlayerStats
 
         ' load pitching stats
 
-        If Me.mThisPlayer.ShortPosition = "P" Then
-
-            If PitchingGameStatsData IsNot Nothing Then
+        If PitchingGameStatsData IsNot Nothing Then
                 For Each key As String In PitchingStatsKeys
                     Dim value = ""
                     If PitchingGameStatsData.ContainsKey(key) Then
@@ -322,9 +330,6 @@ Public Class MlbPlayerStats
             Next
             dgvPitchingStats.DataSource = dt
 
-        Else
-            Me.TabControl1.TabPages("Pitching").Hide() ' this does not work
-        End If
 
         dgvBattingStats.ColumnHeadersDefaultCellStyle.Font = New Font(dgvBattingStats.DefaultFont, FontStyle.Bold)
         dgvFieldingStats.ColumnHeadersDefaultCellStyle.Font = New Font(dgvFieldingStats.DefaultFont, FontStyle.Bold)

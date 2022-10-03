@@ -66,7 +66,7 @@ Public Class SBProperties
         If value Is Nothing Then
             value = defValue
         End If
-        Trace.WriteLine($"got property {key}={value}")
+        'Trace.WriteLine($"got property {key}={value}")
         Return value
     End Function
 
@@ -75,7 +75,7 @@ Public Class SBProperties
         For Each key As String In m_Properties.Keys()
             If Not key Is Nothing Then
                 sw.WriteLine($"{key}={GetProperty(key)}")
-                Trace.WriteLine($"propery {key} saved as {GetProperty(key)}")
+                'Trace.WriteLine($"propery {key} saved as {GetProperty(key)}")
             End If
         Next
         sw.Close()

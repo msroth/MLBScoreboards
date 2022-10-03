@@ -1,4 +1,5 @@
 ﻿Imports System.IO
+Imports System.Numerics
 Imports System.Text
 Imports Newtonsoft.Json.Linq
 
@@ -10,9 +11,10 @@ Public Class MlbTeam
     Private mFullName As String
     Private mWins As String
     Private mLoses As String
-    Private mLineup As List(Of MlbPlayer) = New List(Of MlbPlayer)
+    'Private mLineup As List(Of MlbPlayer) = New List(Of MlbPlayer)
+    Private mLineup As Dictionary(Of Integer, MlbPlayer) = New Dictionary(Of Integer, MlbPlayer)
     Private mRoster As List(Of MlbPlayer) = New List(Of MlbPlayer)
-    Private mBattingOrder As List(Of MlbPlayer) = New List(Of MlbPlayer)
+    'Private mBattingOrder As List(Of MlbPlayer) = New List(Of MlbPlayer)
     Private mAPI As MlbApi = New MlbApi()
     Private mProps As SBProperties = New SBProperties()
 
@@ -58,7 +60,13 @@ Public Class MlbTeam
         End Get
     End Property
 
-    Public ReadOnly Property Lineup() As List(Of MlbPlayer)
+    'Public ReadOnly Property Lineup() As List(Of MlbPlayer)
+    '    Get
+    '        Return Me.mLineup
+    '    End Get
+    'End Property
+
+    Public ReadOnly Property Lineup() As Dictionary(Of Integer, MlbPlayer)
         Get
             Return Me.mLineup
         End Get
@@ -70,11 +78,11 @@ Public Class MlbTeam
         End Get
     End Property
 
-    Public ReadOnly Property BattingOrder() As List(Of MlbPlayer)
-        Get
-            Return Me.mBattingOrder
-        End Get
-    End Property
+    'Public ReadOnly Property BattingOrder() As List(Of MlbPlayer)
+    '    Get
+    '        Return Me.mBattingOrder
+    '    End Get
+    'End Property
 
     Public Sub New(TeamId As Integer)
         Me.mId = TeamId
@@ -114,58 +122,130 @@ Public Class MlbTeam
     End Function
 
     Public Sub LoadPlayerData(ThisGame As MlbGame)
+
         If ThisGame Is Nothing Or ThisGame.GamePk = 0 Then
             Return
         End If
+
+        Me.LoadRoster(ThisGame)
+
+        Me.LoadLineup(ThisGame)
+
+        End Sub
+
+    Private Sub LoadRoster(ThisGame As MlbGame)
+        Dim ThisTeam As MlbTeam
 
         Try
             ' determine if team is away or home
             Dim AwayOrHome As String
             If Me.Id = ThisGame.AwayTeam.Id Then
                 AwayOrHome = "away"
+                ThisTeam = ThisGame.AwayTeam
             Else
                 AwayOrHome = "home"
+                ThisTeam = ThisGame.HomeTeam
             End If
 
-            ' clear lineup and roster lists before update
-            mLineup.Clear()
+            ' clear roster lists before update
             mRoster.Clear()
-            mBattingOrder.Clear()
 
             ' use boxscore data to create Player objects
-            For Each Player As JProperty In ThisGame.BoxScoreData().SelectToken($"teams.{AwayOrHome}.players")
+            Dim playerData As JObject = ThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.players")
+
+            For Each Player In playerData
                 Dim pId As String = Player.Value.Item("person").Item("id")
                 Dim pNum As String = Player.Value.Item("jerseyNumber")
                 Dim pName As String = Player.Value.Item("person").Item("fullName")
                 pName = pName.Substring(pName.IndexOf(" ") + 1) + ", " + pName.Substring(0, 1)
                 Dim pPosition As String = Player.Value.Item("position").Item("abbreviation")
+
+                ' load lite player object of refresh takes too long
                 Dim aPlayer As MlbPlayer = New MlbPlayer(pId, pNum, pName, pPosition)
-                'Dim aPlayer As Player = New Player(pId)
+
+                ' add player to roster
                 mRoster.Add(aPlayer)
-
-                ' get active batters and pitchers for game i.e. the line up
-                For Each Id As String In ThisGame.BoxScoreData().SelectToken($"teams.{AwayOrHome}.batters")
-                    ' add player obj to lineup table
-                    If Player.Value.Item("person").Item("id").ToString().Equals(Id) Then
-                        mLineup.Add(aPlayer)
-                    End If
-                Next
-            Next
-
-            ' load batting order
-            Dim BODAta As JArray = ThisGame.BoxScoreData().SelectToken($"teams.{AwayOrHome}.battingOrder")
-            Dim i As Integer = 1
-            For Each playerId As String In BODAta
-                Dim player As MlbPlayer = GetPlayer(playerId)
-                player.BattingPosition = i.ToString()
-                mBattingOrder.Append(player)
-                i += 1
             Next
 
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: LoadLineupAndRosterData - {ex}")
+            Trace.WriteLine($"ERROR: LoadRoster - {ex}")
         End Try
     End Sub
+
+
+    Private Sub LoadLineup(ThisGame As MlbGame)
+        Dim ThisTeam As MlbTeam
+
+        Try
+            ' determine if team is away or home
+            Dim AwayOrHome As String
+            If Me.Id = ThisGame.AwayTeam.Id Then
+                AwayOrHome = "away"
+                ThisTeam = ThisGame.AwayTeam
+            Else
+                AwayOrHome = "home"
+                ThisTeam = ThisGame.HomeTeam
+            End If
+
+            ' clear lineup before update
+            mLineup.Clear()
+
+            ' load list of players in batting order
+            Dim battingOrder As List(Of String) = New List(Of String)
+            Dim battingOrderData As JArray = ThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.battingOrder")
+            For i As Integer = 0 To battingOrderData.Count - 1
+                battingOrder.Add(battingOrderData.Item(i).ToString)
+            Next
+
+            ' load list of players in pitching order
+            Dim pitchingOrder As List(Of String) = New List(Of String)
+            Dim pitchingOrderData As JArray = ThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.pitchers")
+            For i As Integer = 0 To pitchingOrderData.Count - 1
+                pitchingOrder.Add(pitchingOrderData.Item(i).ToString)
+            Next
+            Dim currentPitcherId = pitchingOrder.Item(pitchingOrder.Count - 1)
+
+
+            ' load batters - which is everyone in the game
+            Dim battersOrder As List(Of String) = New List(Of String)
+            Dim battersOrderData As JArray = ThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.batters")
+            For i As Integer = 0 To battersOrderData.Count - 1
+                battersOrder.Add(battersOrderData.Item(i).ToString)
+            Next
+
+
+            For Each batterId As String In battersOrder
+                Dim json As String = $"teams.{AwayOrHome}.players.ID{batterId}"
+                Dim pId As String = ThisGame.BoxScoreData.SelectToken($"{json}.person.id")
+                Dim pNum As String = ThisGame.BoxScoreData.SelectToken($"{json}.jerseyNumber")
+                Dim pName As String = ThisGame.BoxScoreData.SelectToken($"{json}.person.fullName")
+                pName = pName.Substring(pName.IndexOf(" ") + 1) + ", " + pName.Substring(0, 1)
+                Dim pPosition As String = ThisGame.BoxScoreData.SelectToken($"{json}.position.abbreviation")
+                Dim pBattingOrder As String = ThisGame.BoxScoreData.SelectToken($"{json}.battingOrder")
+
+                ' load lite player object of refresh takes too long
+                Dim aPlayer As MlbPlayer = New MlbPlayer(pId, pNum, pName, pPosition)
+
+
+                ' add player to lineup
+                Dim pitcherOffset As Integer = 20
+                If battingOrder.Contains(pId) Then
+                    Dim BattingOrderId As String = pBattingOrder
+                    If BattingOrderId IsNot Nothing And BattingOrderId <> "" Then
+                        BattingOrderId = BattingOrderId.Substring(0, 1)
+                        mLineup.Add(Integer.Parse(BattingOrderId), aPlayer)
+                    End If
+                ElseIf pId = currentPitcherId Then
+                    mLineup.Add(pitcherOffset, aPlayer)
+                End If
+            Next
+
+        Catch ex As Exception
+            Trace.WriteLine($"ERROR: LoadPlayerData - {ex}")
+        End Try
+    End Sub
+
+
 
     Public Overrides Function ToString() As String
         Dim sb As StringBuilder = New StringBuilder()
@@ -198,13 +278,15 @@ Public Class MlbTeam
             dt.Columns.Add("Position")
             dt.Columns.Add("BattingOrder")
 
-            For Each player As MlbPlayer In mLineup
+            For Each key In mLineup.Keys
+
+                Dim player = mLineup.Item(key)
                 Dim row As DataRow = dt.NewRow()
                 row("Id") = player.Id()
                 row("Num") = player.Number()
                 row("Name") = player.FullName()
                 row("Position") = player.ShortPosition()
-                row("BattingOrder") = player.BattingPosition()
+                row("BattingOrder") = key
                 dt.Rows.Add(row)
             Next
         Catch ex As Exception

@@ -11,7 +11,6 @@ Public Class MlbPlayer
     Dim mShortName As String
     Dim mPosition As String
     Dim mShortPosition As String
-    Dim mBattingPosition As Integer
     Dim mAvg As String  ' season
     Dim mOps As String  ' season
     Dim mObp As String  ' season
@@ -81,15 +80,6 @@ Public Class MlbPlayer
         End Get
     End Property
 
-
-    Public Property BattingPosition() As Integer
-        Get
-            Return Me.mBattingPosition
-        End Get
-        Set(number As Integer)
-            Me.mBattingPosition = number
-        End Set
-    End Property
 
     Public Function ConvertToFullObject() As MlbPlayer
         ' convert a 'lite' player object to one with full data

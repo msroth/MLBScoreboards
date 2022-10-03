@@ -52,7 +52,7 @@ Partial Class Loading
         Me.Controls.Add(Me.ProgressBar1)
         Me.Name = "Loading"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent
-        Me.Text = "Loading Data..."
+        Me.Text = "Loading MLB Game Data..."
         Me.TopMost = True
         Me.ResumeLayout(False)
         Me.PerformLayout()

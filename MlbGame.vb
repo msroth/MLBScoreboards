@@ -64,6 +64,7 @@ Public Class MlbGame
                 Return mGAME_STATUS_PAST
             End If
         Next
+        Trace.WriteLine($"CheckGameStatus - unknown status: {GameStatus}")
         Return -100
     End Function
 
@@ -276,6 +277,7 @@ Public Class MlbGame
     End Sub
 
     Private Sub RefreshMLBData()
+        ' call API and parse Json into various data packages
         Try
             mData = mAPI.ReturnLiveFeedData(Me.mGamePk)
             mLiveData = mData.SelectToken("liveData")
@@ -327,7 +329,7 @@ Public Class MlbGame
             ' load innings
             Me.LoadInnings()
 
-            ' load team player data
+            ' load team player data - delay this load until needed to improve performance
             'Me.AwayTeam.LoadPlayerData(Me)
             'Me.HomeTeam.LoadPlayerData(Me)
 
@@ -363,21 +365,13 @@ Public Class MlbGame
 
                 ' update total pitch count
                 Me.mPitchCount = Me.GetPitchCount()
-            End If
 
-
-            ' future game
-
-            If MlbGame.CheckGameStatus(Me.GameStatus()) = MlbGame.mGAME_STATUS_FUTURE Then
+            ElseIf MlbGame.CheckGameStatus(Me.GameStatus()) = MlbGame.mGAME_STATUS_FUTURE Then
 
                 Me.mAwaySchedPitcherId = mGameData.SelectToken("probablePitchers.away.id")
                 Me.mHomeSchedPitcherId = mGameData.SelectToken("probablePitchers.home.id")
-            End If
 
-
-            ' completed game
-
-            If MlbGame.CheckGameStatus(Me.GameStatus()) = MlbGame.mGAME_STATUS_PAST Then
+            ElseIf MlbGame.CheckGameStatus(Me.GameStatus()) = MlbGame.mGAME_STATUS_PAST Then
 
                 ' runs
                 Me.mAwayTeamRuns = mLineData.SelectToken("teams.away.runs")
@@ -402,6 +396,8 @@ Public Class MlbGame
                     Me.mLosingTeam = AwayTeam()
                 End If
 
+            Else
+                Trace.WriteLine($"LoadGameData - unknown status: {Me.GameStatus()}")
             End If
 
             ' save data for debugging
@@ -410,7 +406,7 @@ Public Class MlbGame
                 File.WriteAllText($"{DataRoot}\\{Me.GamePk()}-{Me.AwayTeam.Abbr}-{Me.HomeTeam.Abbr}_data.json", mData.ToString())
             End If
 
-            Trace.WriteLine($"Loading game {Me.GamePk} {Me.AwayTeam.Abbr} @ {Me.HomeTeam.Abbr} data")
+            'Trace.WriteLine($"Loading game {Me.GamePk} {Me.AwayTeam.Abbr} @ {Me.HomeTeam.Abbr} data")
         Catch ex As Exception
             Trace.WriteLine($"ERROR: LoadGameData - {ex}")
         End Try
@@ -516,12 +512,13 @@ Public Class MlbGame
             Next
 
             ' fill R-H-E columns
-            If Me.GameStatus() = "IN PROGRESS" Or
-                Me.GameStatus() = "FINAL" Or
-                Me.GameStatus() = "COMPLETE" Or
-                Me.GameStatus() = "GAME OVER" Or
-                Me.GameStatus().Contains("MANAGER") Or
-                Me.GameStatus().Contains("OFFICIAL") Then
+            If MlbGame.CheckGameStatus(Me.GameStatus()) = MlbGame.mGAME_STATUS_PAST Or MlbGame.CheckGameStatus(Me.GameStatus()) = MlbGame.mGAME_STATUS_PRESENT Then
+                'If Me.GameStatus() = "IN PROGRESS" Or
+                '    Me.GameStatus() = "FINAL" Or
+                '    Me.GameStatus() = "COMPLETE" Or
+                '    Me.GameStatus() = "GAME OVER" Or
+                '    Me.GameStatus().Contains("MANAGER") Or
+                '    Me.GameStatus().Contains("OFFICIAL") Then
                 Me.mRHE.Rows(0).Item("R") = Me.mLineData.SelectToken("teams.away.runs").ToString()
                 Me.mRHE.Rows(0).Item("H") = Me.mLineData.SelectToken("teams.away.hits").ToString()
                 Me.mRHE.Rows(0).Item("E") = Me.mLineData.SelectToken("teams.away.errors").ToString()
@@ -560,6 +557,7 @@ Public Class MlbGame
         Dim matchup As String = ""
 
         Try
+            ' get scheduled away pitcher
             Dim awayPitcherName As String
             If Me.AwayTeam.GetPlayer(Me.AwayScheduledPitcherId()) Is Nothing Then
                 awayPitcherName = "Unknown"
@@ -567,6 +565,7 @@ Public Class MlbGame
                 awayPitcherName = Me.AwayTeam.GetPlayer(Me.AwayScheduledPitcherId()).FullName
             End If
 
+            ' get scheduled home pitcher
             Dim homePitcherName As String
             If Me.HomeTeam.GetPlayer(Me.HomeScheduledPitcherId()) Is Nothing Then
                 homePitcherName = "Unknown"
@@ -668,30 +667,41 @@ Public Class MlbGame
     'End Function
 
     Function GetCurrentBatterId() As String
-        Dim batterId As String = Me.mCurrentPlayData.SelectToken("matchup.batter.id").ToString
-        Return batterId
+        Try
+            Dim batterId As String = Me.mCurrentPlayData.SelectToken("matchup.batter.id").ToString
+            Return batterId
+        Catch ex As Exception
+            Trace.WriteLine($"ERROR: GetCurrentBatterId - {ex}")
+        End Try
+        Return ""
     End Function
 
     Function GetCurrentPitcherId() As String
-        Dim pitcherId As String = Me.mCurrentPlayData.SelectToken("matchup.pitcher.id").ToString
-        Return pitcherId
+        Try
+            Dim pitcherId As String = Me.mCurrentPlayData.SelectToken("matchup.pitcher.id").ToString
+            Return pitcherId
+        Catch ex As Exception
+            Trace.WriteLine($"ERROR: GetCurrentPitcherId - {ex}")
+        End Try
+        Return ""
     End Function
 
     Public Function GetDueUpBatters() As String
         Dim lastBatterId As String = 0
         Dim battingTeam As MlbTeam
         Dim sb As StringBuilder = New StringBuilder()
-        Dim battingTeamLineup As DataTable
+        'Dim battingTeamLineup As DataTable
 
         sb.Append(vbCr + vbCr + "Due up:" + vbCr)
 
         Try
+            ' last inning number
             Dim lastInning As Integer = Me.CurrentInning() - 1 ' array is 0-based
             If lastInning <= 0 Then
                 lastInning = 0
             End If
 
-            ' get correct team obj and build path to last innings plays
+            ' get correct team obj and build path to last inning's plays
             Dim jsonPath As String
             If Me.CurrentInningState() = "END" Then
                 battingTeam = Me.AwayTeam
@@ -701,12 +711,13 @@ Public Class MlbGame
                 jsonPath = $"playsByInning[{lastInning - 1}].bottom"
             End If
 
-            battingTeamLineup = battingTeam.GetLinupTable()
+            'battingTeamLineup = battingTeam.GetLinupTable()
 
             ' find the last batter id
             ' if last inning = 0, it's 1st inning and no batters yet
+            Dim LastBattingPosition As Integer = 0
+
             If lastInning > 0 Then
-                'Dim jsonPath As String
                 Dim allPlayData As JObject = Me.LiveData().SelectToken("plays")
 
                 ' get play data
@@ -721,31 +732,49 @@ Public Class MlbGame
                 ' get last batter id
                 lastBatterId = allPlayData.SelectToken(jsonPath)
 
+                ' find last batter position in list of batting order players
+                For Each key In battingTeam.Lineup.Keys
+                    If battingTeam.Lineup.Item(key).Id = lastBatterId Then
+                        LastBattingPosition = key
+                    End If
+                Next
+                'Dim i As Integer = 0
+                'For Each player In battingTeam.BattingOrder
+                '    If lastBatterId = player.Id Then
+                '        LastBattingPosition = i
+                '        Exit For
+                '    End If
+                '    i += 1
+                'Next
+
             Else
                 ' set last batter id = batter #9 in lineup, which will
                 ' result in first three batters due up
-                For Each row As DataRow In battingTeamLineup.Rows()
-                    If 9 = row("BattingOrder") Then
-                        lastBatterId = row("Id")
-                    End If
-                Next
+
+                LastBattingPosition = 9  ' zero-based array
             End If
 
-            ' figure out next three batters
-            Dim battingPosition As Integer = battingTeam.GetPlayer(lastBatterId).BattingPosition()
 
+            ' figure out next three batters
+            Dim DueUpPosition = LastBattingPosition
             For i As Integer = 1 To 3
-                battingPosition += 1
-                If battingPosition > 9 Then
-                    battingPosition -= 9
+                DueUpPosition += 1
+                If DueUpPosition > 9 Then
+                    DueUpPosition -= 9
                 End If
 
-                For Each row As DataRow In battingTeamLineup.Rows()
-                    If battingPosition = row("BattingOrder") Then
-                        sb.Append($"  {row("Name")} {Me.GetBatterStats(row("Id"), battingTeam)}")
-                        sb.Append(vbCr)
-                    End If
-                Next
+                'For Each row As DataRow In battingTeamLineup.Rows()
+                '    'If battingPosition = row("BattingOrder") Then
+                '    If DueUpPosition = row("BattingOrder") Then
+                '        sb.Append($"  {row("Name")} {Me.GetBatterStats(row("Id"), battingTeam)}")
+                '        sb.Append(vbCr)
+                '    End If
+                'Next
+
+
+                sb.Append($"  {battingTeam.Lineup.Item(DueUpPosition).FullName} {Me.GetBatterStats(battingTeam.Lineup.Item(DueUpPosition).Id, battingTeam)}")
+                sb.Append(vbCr)
+
             Next
 
         Catch ex As Exception
@@ -857,125 +886,130 @@ Public Class MlbGame
         Return Scorebook
 
     End Function
+
     Public Function CreateScorebookEntry(PlayIndex As Integer) As String
+        Dim ScorebookEntry As String = ""
 
-        Dim OfficialScoring As String = ""
-        Dim allPlaysData As JArray = Me.LiveData.SelectToken("plays.allPlays")
-        Dim lastPlayData = allPlaysData(PlayIndex)
+        Try
+            Dim allPlaysData As JArray = Me.LiveData.SelectToken("plays.allPlays")
+            Dim lastPlayData = allPlaysData(PlayIndex)
 
-        Dim EventName As String = lastPlayData.SelectToken("result.event")
-        If EventName = "" Then
-            Return ""
-        End If
-
-        Trace.WriteLine($"  Event: {EventName}")
-
-        Dim Details As New List(Of String)
-        For r As Integer = 0 To lastPlayData.SelectToken("runners").Count - 1
-            Dim RunnersData As JObject = lastPlayData.SelectToken("runners").Item(r)
-            'Trace.WriteLine($" runner: {r}")
-            Dim Credits As JArray = RunnersData.SelectToken("credits")
-
-            If Credits IsNot Nothing Then
-                For c As Integer = 0 To Credits.Count - 1
-                    Dim PositionCode As String = Credits.Item(c).SelectToken("position.code")
-                    Dim CreditType As String = Credits.Item(c).SelectToken("credit")
-                    ' Trace.WriteLine($"  [{c}] position: {PositionCode}, type: {CreditType}")
-                    Details.Add(PositionCode)
-
-                Next
+            Dim EventName As String = lastPlayData.SelectToken("result.event")
+            If EventName = "" Then
+                Return ""
             End If
 
-        Next
+            'Trace.WriteLine($"  Event: {EventName}")
 
-        'Dim OfficialScoring As String = ""
-        If EventName.ToUpper.Contains("STRIKEOUT") Then
-            OfficialScoring = "K"
-        ElseIf EventName.ToUpper.Contains("WALK") Then
-            OfficialScoring = "BB"
-        ElseIf EventName.ToUpper.Contains("HIT BY PITCH") Then
-            OfficialScoring = "HBP"
-        ElseIf EventName.ToUpper.Contains("INTENT WALK") Then
-            OfficialScoring = "IBB"
-        ElseIf EventName.ToUpper.Contains("SINGLE") Then
-            OfficialScoring = $"SINGLE"
-        ElseIf EventName.ToUpper.Contains("DOUBLE") Then
-            OfficialScoring = $"DOUBLE"
-        ElseIf EventName.ToUpper.Contains("TRIPLE") Then
-            OfficialScoring = $"TRIPLE"
-        ElseIf EventName.ToUpper.Contains("HOME RUN") Then
-            OfficialScoring = "HR"
-        ElseIf EventName.ToUpper.Contains("FLYOUT") Or EventName.ToUpper.Contains("SAV FLY") Then
-            OfficialScoring = $"{Details(0)}"
-        ElseIf EventName.ToUpper.Contains("FOUL") Then
-            OfficialScoring = $"F{Details(0)}"
-        ElseIf EventName.ToUpper.Contains("LINEOUT") Then
-            OfficialScoring = $"L{Details(0)}"
-        ElseIf EventName.ToUpper.Contains("RUNNER OUT") Or EventName.ToUpper.Contains("FORCEOUT") Then
-            OfficialScoring = $"{Details(0)}"
-            For cnt As Integer = 1 To Details.Count - 1
-                If Details(cnt) <> Details(cnt - 1) Then
-                    OfficialScoring = $"{OfficialScoring}-{Details(cnt)}"
-                End If
-            Next
-        ElseIf EventName.ToUpper.Contains("POP OUT") Then
-            OfficialScoring = $"P{Details(0)}"
-        ElseIf EventName.ToUpper.Contains("DOUBLE PLAY") Or EventName.ToUpper.Contains("DP") Then
-            OfficialScoring = $"DP{Details(0)}"
-            For cnt As Integer = 1 To Details.Count - 1
-                If Details(cnt) <> Details(cnt - 1) Then
-                    OfficialScoring = $"{OfficialScoring}-{Details(cnt)}"
-                End If
-            Next
-        ElseIf EventName.ToUpper.Contains("TRIPLE PLAY") Or EventName.ToUpper.Contains("TP") Then
-            OfficialScoring = $"TP{Details(0)}"
-            For cnt As Integer = 1 To Details.Count - 1
-                If Details(cnt) <> Details(cnt - 1) Then
-                    OfficialScoring = $"{OfficialScoring}-{Details(cnt)}"
-                End If
-            Next
-        ElseIf EventName.ToUpper.Contains("CAUGHT STEALING") Then
-            OfficialScoring = $"CS{Details(0)}"
-            For cnt As Integer = 1 To Details.Count - 1
-                If Details(cnt) <> Details(cnt - 1) Then
-                    OfficialScoring = $"{OfficialScoring}-{Details(cnt)}"
-                End If
-            Next
-        ElseIf EventName.ToUpper.Contains("GROUNDOUT") Then
-            OfficialScoring = $"G{Details(0)}"
-            For cnt As Integer = 1 To Details.Count - 1
-                If Details(cnt) <> Details(cnt - 1) Then
-                    OfficialScoring = $"{OfficialScoring}-{Details(cnt)}"
-                End If
-            Next
-        ElseIf EventName.ToUpper.Contains("SAC") Then
-            OfficialScoring = $"SAC{Details(0)}"
-            For cnt As Integer = 1 To Details.Count - 1
-                If Details(cnt) <> Details(cnt - 1) Then
-                    OfficialScoring = $"{OfficialScoring}-{Details(cnt)}"
-                End If
-            Next
-        ElseIf EventName.ToUpper.Contains("FIELDERS CHOICE") Then
-            OfficialScoring = $"FC{Details(0)}"
-            For cnt As Integer = 1 To Details.Count - 1
-                If Details(cnt) <> Details(cnt - 1) Then
-                    OfficialScoring = $"{OfficialScoring}-{Details(cnt)}"
-                End If
-            Next
-        ElseIf EventName.ToUpper.Contains("ERROR") Then
-            OfficialScoring = $"E{Details(0)}"
-        Else
-            OfficialScoring = $"UNK ({EventName}-"
-            For cnt As Integer = 1 To Details.Count - 1
-                If Details(cnt) <> Details(cnt - 1) Then
-                    OfficialScoring = $"{OfficialScoring}-{Details(cnt)}"
-                End If
-            Next
-            OfficialScoring = $"{OfficialScoring})"
-        End If
+            Dim Details As New List(Of String)
+            For r As Integer = 0 To lastPlayData.SelectToken("runners").Count - 1
+                Dim RunnersData As JObject = lastPlayData.SelectToken("runners").Item(r)
+                'Trace.WriteLine($" runner: {r}")
+                Dim Credits As JArray = RunnersData.SelectToken("credits")
 
-        Trace.WriteLine($"Official Scoring = {OfficialScoring}")
-        Return OfficialScoring
+                If Credits IsNot Nothing Then
+                    For c As Integer = 0 To Credits.Count - 1
+                        Dim PositionCode As String = Credits.Item(c).SelectToken("position.code")
+                        Dim CreditType As String = Credits.Item(c).SelectToken("credit")
+                        ' Trace.WriteLine($"  [{c}] position: {PositionCode}, type: {CreditType}")
+                        Details.Add(PositionCode)
+
+                    Next
+                End If
+
+            Next
+
+            'Dim OfficialScoring As String = ""
+            If EventName.ToUpper.Contains("STRIKEOUT") Then
+                ScorebookEntry = "K"
+            ElseIf EventName.ToUpper.Contains("WALK") Then
+                ScorebookEntry = "BB"
+            ElseIf EventName.ToUpper.Contains("HIT BY PITCH") Then
+                ScorebookEntry = "HBP"
+            ElseIf EventName.ToUpper.Contains("INTENT WALK") Then
+                ScorebookEntry = "IBB"
+            ElseIf EventName.ToUpper.Contains("SINGLE") Then
+                ScorebookEntry = $"SINGLE"
+            ElseIf EventName.ToUpper.Contains("DOUBLE") Then
+                ScorebookEntry = $"DOUBLE"
+            ElseIf EventName.ToUpper.Contains("TRIPLE") Then
+                ScorebookEntry = $"TRIPLE"
+            ElseIf EventName.ToUpper.Contains("HOME RUN") Then
+                ScorebookEntry = "HR"
+            ElseIf EventName.ToUpper.Contains("FLYOUT") Or EventName.ToUpper.Contains("SAV FLY") Then
+                ScorebookEntry = $"{Details(0)}"
+            ElseIf EventName.ToUpper.Contains("FOUL") Then
+                ScorebookEntry = $"F{Details(0)}"
+            ElseIf EventName.ToUpper.Contains("LINEOUT") Then
+                ScorebookEntry = $"L{Details(0)}"
+            ElseIf EventName.ToUpper.Contains("RUNNER OUT") Or EventName.ToUpper.Contains("FORCEOUT") Then
+                ScorebookEntry = $"{Details(0)}"
+                For cnt As Integer = 1 To Details.Count - 1
+                    If Details(cnt) <> Details(cnt - 1) Then
+                        ScorebookEntry = $"{ScorebookEntry}-{Details(cnt)}"
+                    End If
+                Next
+            ElseIf EventName.ToUpper.Contains("POP OUT") Then
+                ScorebookEntry = $"P{Details(0)}"
+            ElseIf EventName.ToUpper.Contains("DOUBLE PLAY") Or EventName.ToUpper.Contains("DP") Then
+                ScorebookEntry = $"DP{Details(0)}"
+                For cnt As Integer = 1 To Details.Count - 1
+                    If Details(cnt) <> Details(cnt - 1) Then
+                        ScorebookEntry = $"{ScorebookEntry}-{Details(cnt)}"
+                    End If
+                Next
+            ElseIf EventName.ToUpper.Contains("TRIPLE PLAY") Or EventName.ToUpper.Contains("TP") Then
+                ScorebookEntry = $"TP{Details(0)}"
+                For cnt As Integer = 1 To Details.Count - 1
+                    If Details(cnt) <> Details(cnt - 1) Then
+                        ScorebookEntry = $"{ScorebookEntry}-{Details(cnt)}"
+                    End If
+                Next
+            ElseIf EventName.ToUpper.Contains("CAUGHT STEALING") Then
+                ScorebookEntry = $"CS{Details(0)}"
+                For cnt As Integer = 1 To Details.Count - 1
+                    If Details(cnt) <> Details(cnt - 1) Then
+                        ScorebookEntry = $"{ScorebookEntry}-{Details(cnt)}"
+                    End If
+                Next
+            ElseIf EventName.ToUpper.Contains("GROUNDOUT") Then
+                ScorebookEntry = $"G{Details(0)}"
+                For cnt As Integer = 1 To Details.Count - 1
+                    If Details(cnt) <> Details(cnt - 1) Then
+                        ScorebookEntry = $"{ScorebookEntry}-{Details(cnt)}"
+                    End If
+                Next
+            ElseIf EventName.ToUpper.Contains("SAC") Then
+                ScorebookEntry = $"SAC{Details(0)}"
+                For cnt As Integer = 1 To Details.Count - 1
+                    If Details(cnt) <> Details(cnt - 1) Then
+                        ScorebookEntry = $"{ScorebookEntry}-{Details(cnt)}"
+                    End If
+                Next
+            ElseIf EventName.ToUpper.Contains("FIELDERS CHOICE") Then
+                ScorebookEntry = $"FC{Details(0)}"
+                For cnt As Integer = 1 To Details.Count - 1
+                    If Details(cnt) <> Details(cnt - 1) Then
+                        ScorebookEntry = $"{ScorebookEntry}-{Details(cnt)}"
+                    End If
+                Next
+            ElseIf EventName.ToUpper.Contains("ERROR") Then
+                ScorebookEntry = $"E{Details(0)}"
+            Else
+                ScorebookEntry = $"UNK ({EventName}-"
+                For cnt As Integer = 1 To Details.Count - 1
+                    If Details(cnt) <> Details(cnt - 1) Then
+                        ScorebookEntry = $"{ScorebookEntry}-{Details(cnt)}"
+                    End If
+                Next
+                ScorebookEntry = $"{ScorebookEntry})"
+            End If
+
+            'Trace.WriteLine($"Official Scoring = {OfficialScoring}")
+        Catch ex As Exception
+            Trace.WriteLine($"ERROR: CreateScorebookEntry - {ex}")
+        End Try
+        Return ScorebookEntry
 
     End Function
 

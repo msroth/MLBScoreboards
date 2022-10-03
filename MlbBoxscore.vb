@@ -168,7 +168,7 @@ Public Class MlbBoxscore
                     row.Item(1) = $"   {NoteLabelNumbersIndex}-{PlayerName}"
                     NoteLabelNumbersIndex += 1
                 Else
-                    row.Item(1) = $"   {Chr(97 + NoteLabelLettersIndex)}-{PlayerName}"
+                    row.Item(1) = $"   {Chr(96 + NoteLabelLettersIndex)}-{PlayerName}"
                     NoteLabelLettersIndex += 1
                 End If
             Else
