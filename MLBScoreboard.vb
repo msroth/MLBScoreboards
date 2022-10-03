@@ -13,6 +13,12 @@ Public Class MlbScoreboard
         Try
             Me.Cursor = Cursors.WaitCursor
 
+            ' show splash screen
+            Dim splash As New Splash
+            splash.Show()
+            splash.Refresh()
+
+
             ' load all games for today's date
             Dim gameDate As String = Me.calDatePicker.Value.ToString("MM/dd/yyyy")
             Me.mAllGames = Me.LoadAllGamesData(gameDate)
@@ -40,6 +46,10 @@ Public Class MlbScoreboard
             ' run the scoreboard
             ResetScreenControls()
             RunScoreboard()
+
+            ' close splash screen
+            splash.Close()
+
         Catch ex As Exception
             Trace.WriteLine($"ERROR: MLBScoreboard_Load - {ex}")
         End Try
@@ -95,8 +105,13 @@ Public Class MlbScoreboard
                 Me.PlayRecapToolStripMenuItem.Enabled = False
                 Return
             Else
+
+                Me.Cursor = Cursors.WaitCursor
+
                 ' this forces a refresh of MLB data from API
                 Me.mCurrentGame.LoadGameData()
+
+                Me.Cursor = Cursors.Default
 
                 ' update status bar
                 Me.ThisGameUpdateData.Text = $"  Current Game ({Me.mCurrentGame.AwayTeam.Abbr} @ {Me.mCurrentGame.HomeTeam.Abbr}) Data Updated {Date.Now}"
@@ -531,8 +546,10 @@ Public Class MlbScoreboard
         Dim ListOfGames As Dictionary(Of String, MlbGame) = New Dictionary(Of String, MlbGame)
 
         ' create new form with progress bar
-        Dim frmLoad As New Loading()
-        frmLoad.Show()
+        'Dim frmLoad As New Loading()
+        'frmLoad.Show()
+        Me.AllGamesUpdateProgressBar.Visible = True
+        Me.AllGamesUpdateProgressBar.Value = 0
 
         Try
             Dim schedule As JObject = Me.mAPI.ReturnScheduleData(gameDate)
@@ -542,7 +559,8 @@ Public Class MlbScoreboard
                 Dim games As JArray = gDate.SelectToken("games")
 
                 ' set progress bar max to number of games
-                frmLoad.SetProgressMax(games.Count)
+                'frmLoad.SetProgressMax(games.Count)
+                Me.AllGamesUpdateProgressBar.Maximum = games.Count
 
                 For Each game As JObject In games
 
@@ -553,11 +571,12 @@ Public Class MlbScoreboard
                     ListOfGames.Add(gamePk, oGame)
 
                     ' update form with progress bar
-                    frmLoad.SetLabel($"Loading game {oGame.GamePk} {oGame.AwayTeam.Abbr} @ {oGame.HomeTeam.Abbr} data...  ")
-                    frmLoad.DoStep()
+                    'frmLoad.SetLabel($"Loading game {oGame.GamePk} {oGame.AwayTeam.Abbr} @ {oGame.HomeTeam.Abbr} data...  ")
+                    'frmLoad.DoStep()
 
                     ' update status bar also
                     Me.AllGamesUpdateData.Text = $"Loading game {oGame.GamePk} {oGame.AwayTeam.Abbr} @ {oGame.HomeTeam.Abbr} data...  "
+                    Me.AllGamesUpdateProgressBar.PerformStep()
                     Me.StatusStrip1.Refresh()
                 Next
             Next
@@ -567,7 +586,8 @@ Public Class MlbScoreboard
         End Try
 
         ' close progress bar when done
-        frmLoad.Close()
+        'frmLoad.Close()
+        Me.AllGamesUpdateProgressBar.Visible = False
 
         Return ListOfGames
     End Function
@@ -653,6 +673,9 @@ Public Class MlbScoreboard
             dgvGames.Columns("Id").Visible = False
             dgvGames.ColumnHeadersDefaultCellStyle.Font = New Font(dgvGames.DefaultFont, FontStyle.Bold)
             dgvGames.ClearSelection()
+
+            Me.AllGamesUpdateProgressBar.Visible = False
+
         Catch ex As Exception
             Trace.WriteLine($"ERROR: LoadAllGamesDataGrid - {ex}")
         End Try

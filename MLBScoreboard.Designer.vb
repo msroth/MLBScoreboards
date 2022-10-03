@@ -31,7 +31,9 @@ Partial Class MlbScoreboard
         Dim DataGridViewCellStyle6 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.StatusStrip1 = New System.Windows.Forms.StatusStrip()
         Me.AllGamesUpdateData = New System.Windows.Forms.ToolStripStatusLabel()
+        Me.AllGamesUpdateProgressBar = New System.Windows.Forms.ToolStripProgressBar()
         Me.ThisGameUpdateData = New System.Windows.Forms.ToolStripStatusLabel()
+        Me.Spacer = New System.Windows.Forms.ToolStripStatusLabel()
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.FileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ConfigureToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -82,8 +84,8 @@ Partial Class MlbScoreboard
         'StatusStrip1
         '
         Me.StatusStrip1.ImageScalingSize = New System.Drawing.Size(20, 20)
-        Me.StatusStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.AllGamesUpdateData, Me.ThisGameUpdateData})
-        Me.StatusStrip1.Location = New System.Drawing.Point(0, 510)
+        Me.StatusStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.AllGamesUpdateData, Me.AllGamesUpdateProgressBar, Me.ThisGameUpdateData, Me.Spacer})
+        Me.StatusStrip1.Location = New System.Drawing.Point(0, 596)
         Me.StatusStrip1.Name = "StatusStrip1"
         Me.StatusStrip1.Size = New System.Drawing.Size(1608, 22)
         Me.StatusStrip1.TabIndex = 0
@@ -96,12 +98,28 @@ Partial Class MlbScoreboard
         Me.AllGamesUpdateData.Size = New System.Drawing.Size(0, 17)
         Me.AllGamesUpdateData.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
+        'AllGamesUpdateProgressBar
+        '
+        Me.AllGamesUpdateProgressBar.BackColor = System.Drawing.SystemColors.Control
+        Me.AllGamesUpdateProgressBar.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer))
+        Me.AllGamesUpdateProgressBar.Name = "AllGamesUpdateProgressBar"
+        Me.AllGamesUpdateProgressBar.Size = New System.Drawing.Size(100, 16)
+        Me.AllGamesUpdateProgressBar.Step = 1
+        Me.AllGamesUpdateProgressBar.Visible = False
+        '
         'ThisGameUpdateData
         '
         Me.ThisGameUpdateData.BackColor = System.Drawing.Color.White
         Me.ThisGameUpdateData.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Left
         Me.ThisGameUpdateData.Name = "ThisGameUpdateData"
         Me.ThisGameUpdateData.Size = New System.Drawing.Size(4, 17)
+        Me.ThisGameUpdateData.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'Spacer
+        '
+        Me.Spacer.Name = "Spacer"
+        Me.Spacer.Size = New System.Drawing.Size(0, 17)
+        Me.Spacer.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
         'MenuStrip1
         '
@@ -301,6 +319,7 @@ Partial Class MlbScoreboard
         Me.dgvAwayLineup.AllowUserToDeleteRows = False
         Me.dgvAwayLineup.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
         Me.dgvAwayLineup.BackgroundColor = System.Drawing.Color.Green
+        Me.dgvAwayLineup.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.dgvAwayLineup.CausesValidation = False
         Me.dgvAwayLineup.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
@@ -325,7 +344,7 @@ Partial Class MlbScoreboard
         Me.dgvAwayLineup.ShowCellToolTips = False
         Me.dgvAwayLineup.ShowEditingIcon = False
         Me.dgvAwayLineup.ShowRowErrors = False
-        Me.dgvAwayLineup.Size = New System.Drawing.Size(224, 394)
+        Me.dgvAwayLineup.Size = New System.Drawing.Size(224, 493)
         Me.dgvAwayLineup.TabIndex = 21
         '
         'dgvHomeLineup
@@ -334,6 +353,7 @@ Partial Class MlbScoreboard
         Me.dgvHomeLineup.AllowUserToDeleteRows = False
         Me.dgvHomeLineup.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
         Me.dgvHomeLineup.BackgroundColor = System.Drawing.Color.Green
+        Me.dgvHomeLineup.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.dgvHomeLineup.CausesValidation = False
         Me.dgvHomeLineup.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         DataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
@@ -358,7 +378,7 @@ Partial Class MlbScoreboard
         Me.dgvHomeLineup.ShowCellToolTips = False
         Me.dgvHomeLineup.ShowEditingIcon = False
         Me.dgvHomeLineup.ShowRowErrors = False
-        Me.dgvHomeLineup.Size = New System.Drawing.Size(224, 394)
+        Me.dgvHomeLineup.Size = New System.Drawing.Size(224, 493)
         Me.dgvHomeLineup.TabIndex = 22
         '
         'lblAwayLineup
@@ -402,6 +422,7 @@ Partial Class MlbScoreboard
         Me.dgvGames.AllowUserToResizeRows = False
         Me.dgvGames.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
         Me.dgvGames.BackgroundColor = System.Drawing.Color.Green
+        Me.dgvGames.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.dgvGames.CausesValidation = False
         DataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
         DataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Control
@@ -435,7 +456,7 @@ Partial Class MlbScoreboard
         Me.dgvGames.ShowCellToolTips = False
         Me.dgvGames.ShowEditingIcon = False
         Me.dgvGames.ShowRowErrors = False
-        Me.dgvGames.Size = New System.Drawing.Size(440, 394)
+        Me.dgvGames.Size = New System.Drawing.Size(440, 493)
         Me.dgvGames.TabIndex = 27
         Me.dgvGames.VirtualMode = True
         '
@@ -467,7 +488,7 @@ Partial Class MlbScoreboard
         Me.tbxCommentary.Location = New System.Drawing.Point(745, 349)
         Me.tbxCommentary.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.tbxCommentary.Name = "tbxCommentary"
-        Me.tbxCommentary.Size = New System.Drawing.Size(362, 144)
+        Me.tbxCommentary.Size = New System.Drawing.Size(362, 228)
         Me.tbxCommentary.TabIndex = 30
         Me.tbxCommentary.Text = "Play Commentary"
         '
@@ -564,7 +585,7 @@ Partial Class MlbScoreboard
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.Green
         Me.CausesValidation = False
-        Me.ClientSize = New System.Drawing.Size(1608, 532)
+        Me.ClientSize = New System.Drawing.Size(1608, 618)
         Me.Controls.Add(Me.btnFindGames)
         Me.Controls.Add(Me.lblPitchCount)
         Me.Controls.Add(Me.lblHomeWinnerLoser)
@@ -648,4 +669,6 @@ Partial Class MlbScoreboard
     Friend WithEvents ThisGameUpdateData As ToolStripStatusLabel
     Friend WithEvents BoxscoreToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents btnFindGames As Button
+    Friend WithEvents AllGamesUpdateProgressBar As ToolStripProgressBar
+    Friend WithEvents Spacer As ToolStripStatusLabel
 End Class
