@@ -139,17 +139,7 @@ Public Class MlbStandings
 
     End Function
 
-    Private Sub TabControl1_SelectedIndexChanged(sender As Object, e As EventArgs) Handles TabControl1.SelectedIndexChanged
-        If TabControl1.SelectedIndex = 0 Then
-            dgvALEast.ClearSelection()
-            dgvALCentral.ClearSelection()
-            dgvALWest.ClearSelection()
-        Else
-            dgvNLEast.ClearSelection()
-            dgvNLCentral.ClearSelection()
-            dgvNLWest.ClearSelection()
-        End If
-    End Sub
+
 End Class
 
 '<SDG><

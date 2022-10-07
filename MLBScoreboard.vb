@@ -80,7 +80,10 @@ Public Class MlbScoreboard
                 End If
             End If
 
-            If Me.mCurrentGame Is Nothing Or MlbGame.CheckGameStatus(Me.mCurrentGame.GameStatus) = MlbGame.mGAME_STATUS_FUTURE Then
+            If Me.mCurrentGame Is Nothing Then
+                PlayRecapToolStripMenuItem.Enabled = False
+                BoxscoreToolStripMenuItem.Enabled = False
+            ElseIf MlbGame.CheckGameStatus(Me.mCurrentGame.GameStatus) = MlbGame.mGAME_STATUS_FUTURE Then
                 PlayRecapToolStripMenuItem.Enabled = False
                 BoxscoreToolStripMenuItem.Enabled = False
             Else
@@ -178,7 +181,7 @@ Public Class MlbScoreboard
 
             ElseIf MlbGame.CheckGameStatus(status) = MlbGame.mGAME_STATUS_PAST Then
                 ' turn off unused controls
-                tbxCommentary.Visible = False
+                tbxCommentary.Visible = True
                 lblBalls.Visible = False
                 lblStrikes.Visible = False
                 lblOuts.Visible = False
@@ -215,6 +218,9 @@ Public Class MlbScoreboard
 
                 ' deselect any selected cell or row
                 dgvInnings.ClearSelection()
+
+                ' set final game info in commentary box
+                Me.tbxCommentary.Text = GetFinalGameStats()
 
             ElseIf MlbGame.CheckGameStatus(status) = MlbGame.mGAME_STATUS_PRESENT Then
                 ' turn on controls
@@ -354,9 +360,43 @@ Public Class MlbScoreboard
 
         Return dt
     End Function
+
+    Private Function GetFinalGameStats() As String
+        Dim sb As New StringBuilder
+
+        Dim attendance As String = Me.mCurrentGame.GameData.SelectToken("gameInfo.attendance")
+        Dim duration As String = Me.mCurrentGame.GameData.SelectToken("gameInfo.gameDurationMinutes")
+        Dim delay As String = Me.mCurrentGame.GameData.SelectToken("gameInfo.delayDurationMinutes")
+
+        If attendance IsNot Nothing Then
+            If attendance.Length > 0 Then
+                Dim a As Integer = Integer.Parse(attendance)
+                sb.Append($"Attendance: {a.ToString("#,###")}")
+            End If
+        End If
+
+        If duration IsNot Nothing Then
+            If duration.Length > 0 Then
+                Dim d As Integer = Integer.Parse(duration)
+                Dim ts As New TimeSpan(0, d, 0)
+                sb.Append($"{vbCr}Game duration: {ts.Hours}:{ts.Minutes.ToString("00")}")
+            End If
+        End If
+
+        If delay IsNot Nothing Then
+            If delay.Length > 0 Then
+                Dim d As Integer = Integer.Parse(delay)
+                Dim ts As New TimeSpan(0, d, 0)
+                sb.Append($"{vbCr}Delayed start: {ts.Hours}:{ts.Minutes.ToString("00")}")
+            End If
+        End If
+        Return sb.ToString
+
+    End Function
     Private Sub SetGameTitle()
         Try
-            Me.lblGameTitle.Text = $"{Me.mCurrentGame.AwayTeam.FullName} @ {Me.mCurrentGame.HomeTeam.FullName} - {Me.mCurrentGame.GameDateTime}"
+            Me.lblGameTitle.Text = $"{Me.mCurrentGame.AwayTeam.FullName} @ {Me.mCurrentGame.HomeTeam.FullName} - {DateTime.Parse(Me.mCurrentGame.GameDateTime).ToString("f")}"
+            'Me.lblGameTitle.Text = $"{Me.mCurrentGame.AwayTeam.FullName} @ {Me.mCurrentGame.HomeTeam.FullName} - {Me.mCurrentGame.GameDateTime}"
             Me.lblGamePk.Text = "Game Id: " + Me.mCurrentGame.GamePk.ToString()
             Me.lblStatus.Text = "Game Status: " + Me.mCurrentGame.GameStatus
         Catch ex As Exception
@@ -689,6 +729,9 @@ Public Class MlbScoreboard
                 Return
             End If
 
+            'Me.ResetScreenControls()
+            'Me.Refresh()
+
             ' get the gamePk for the clicked row
             Dim id As String = dgvGames.Rows(e.RowIndex).Cells("Id").Value.ToString
             Me.mCurrentGame = Me.mAllGames(id)
@@ -886,10 +929,10 @@ Public Class MlbScoreboard
             Dim today As DateTime = DateTime.Today().Date()
 
             ' refresh game data if its currently running
-            If Not MlbGame.CheckGameStatus(Me.mCurrentGame.GameStatus) = MlbGame.mGAME_STATUS_PRESENT Then
-                'If Not gameDate.Equals(today) Then
-                Return
-            End If
+            'If Not MlbGame.CheckGameStatus(Me.mCurrentGame.GameStatus) = MlbGame.mGAME_STATUS_PRESENT Then
+            '    'If Not gameDate.Equals(today) Then
+            '    Return
+            'End If
             Me.RunGame()
         Catch ex As Exception
             Trace.WriteLine($"ERROR: GameUpdateTimer_Tick - {ex}")

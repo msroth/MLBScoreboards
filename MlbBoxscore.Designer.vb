@@ -22,32 +22,163 @@ Partial Class MlbBoxscore
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Me.dgvAwayBatting = New System.Windows.Forms.DataGridView()
         Me.dgvHomeBatting = New System.Windows.Forms.DataGridView()
-        Me.rtbAwayBattingFieldingDetails = New System.Windows.Forms.RichTextBox()
         Me.rtbHomeBattingFieldingDetails = New System.Windows.Forms.RichTextBox()
-        Me.dgvAwayPitchers = New System.Windows.Forms.DataGridView()
         Me.dgvHomePitchers = New System.Windows.Forms.DataGridView()
         Me.rtbGameInfo = New System.Windows.Forms.RichTextBox()
-        Me.lblAwayBatters = New System.Windows.Forms.Label()
         Me.lblHomeBatters = New System.Windows.Forms.Label()
-        Me.lblAwayPitchers = New System.Windows.Forms.Label()
         Me.lblHomePitchers = New System.Windows.Forms.Label()
         Me.lblGameInfo = New System.Windows.Forms.Label()
-        Me.TabControl1 = New System.Windows.Forms.TabControl()
-        Me.Away = New System.Windows.Forms.TabPage()
-        Me.Home = New System.Windows.Forms.TabPage()
         Me.lblTitle = New System.Windows.Forms.Label()
-        Me.lblGamePk = New System.Windows.Forms.Label()
         Me.Label1 = New System.Windows.Forms.Label()
-        CType(Me.dgvAwayBatting, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.rtbAwayBattingFieldingDetails = New System.Windows.Forms.RichTextBox()
+        Me.lblAwayPitchers = New System.Windows.Forms.Label()
+        Me.lblAwayBatters = New System.Windows.Forms.Label()
+        Me.dgvAwayBatting = New System.Windows.Forms.DataGridView()
+        Me.dgvAwayPitchers = New System.Windows.Forms.DataGridView()
         CType(Me.dgvHomeBatting, System.ComponentModel.ISupportInitialize).BeginInit()
-        CType(Me.dgvAwayPitchers, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgvHomePitchers, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.TabControl1.SuspendLayout()
-        Me.Away.SuspendLayout()
-        Me.Home.SuspendLayout()
+        CType(Me.dgvAwayBatting, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.dgvAwayPitchers, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
+        '
+        'dgvHomeBatting
+        '
+        Me.dgvHomeBatting.AllowUserToAddRows = False
+        Me.dgvHomeBatting.AllowUserToDeleteRows = False
+        Me.dgvHomeBatting.AllowUserToResizeColumns = False
+        Me.dgvHomeBatting.AllowUserToResizeRows = False
+        Me.dgvHomeBatting.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
+        Me.dgvHomeBatting.BackgroundColor = System.Drawing.SystemColors.Control
+        Me.dgvHomeBatting.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.dgvHomeBatting.Location = New System.Drawing.Point(620, 117)
+        Me.dgvHomeBatting.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
+        Me.dgvHomeBatting.Name = "dgvHomeBatting"
+        Me.dgvHomeBatting.RowHeadersVisible = False
+        Me.dgvHomeBatting.RowHeadersWidth = 51
+        Me.dgvHomeBatting.RowTemplate.Height = 29
+        Me.dgvHomeBatting.Size = New System.Drawing.Size(525, 300)
+        Me.dgvHomeBatting.TabIndex = 1
+        '
+        'rtbHomeBattingFieldingDetails
+        '
+        Me.rtbHomeBattingFieldingDetails.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.rtbHomeBattingFieldingDetails.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+        Me.rtbHomeBattingFieldingDetails.Location = New System.Drawing.Point(619, 421)
+        Me.rtbHomeBattingFieldingDetails.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
+        Me.rtbHomeBattingFieldingDetails.Name = "rtbHomeBattingFieldingDetails"
+        Me.rtbHomeBattingFieldingDetails.Size = New System.Drawing.Size(526, 91)
+        Me.rtbHomeBattingFieldingDetails.TabIndex = 3
+        Me.rtbHomeBattingFieldingDetails.Text = ""
+        '
+        'dgvHomePitchers
+        '
+        Me.dgvHomePitchers.AllowUserToAddRows = False
+        Me.dgvHomePitchers.AllowUserToDeleteRows = False
+        Me.dgvHomePitchers.AllowUserToResizeColumns = False
+        Me.dgvHomePitchers.AllowUserToResizeRows = False
+        Me.dgvHomePitchers.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
+        Me.dgvHomePitchers.BackgroundColor = System.Drawing.SystemColors.Control
+        Me.dgvHomePitchers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.dgvHomePitchers.Location = New System.Drawing.Point(619, 568)
+        Me.dgvHomePitchers.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
+        Me.dgvHomePitchers.Name = "dgvHomePitchers"
+        Me.dgvHomePitchers.RowHeadersVisible = False
+        Me.dgvHomePitchers.RowHeadersWidth = 51
+        Me.dgvHomePitchers.RowTemplate.Height = 29
+        Me.dgvHomePitchers.Size = New System.Drawing.Size(525, 141)
+        Me.dgvHomePitchers.TabIndex = 5
+        '
+        'rtbGameInfo
+        '
+        Me.rtbGameInfo.Location = New System.Drawing.Point(12, 759)
+        Me.rtbGameInfo.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
+        Me.rtbGameInfo.Name = "rtbGameInfo"
+        Me.rtbGameInfo.Size = New System.Drawing.Size(1132, 91)
+        Me.rtbGameInfo.TabIndex = 6
+        Me.rtbGameInfo.Text = ""
+        '
+        'lblHomeBatters
+        '
+        Me.lblHomeBatters.AutoSize = True
+        Me.lblHomeBatters.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
+        Me.lblHomeBatters.Location = New System.Drawing.Point(619, 90)
+        Me.lblHomeBatters.Name = "lblHomeBatters"
+        Me.lblHomeBatters.Size = New System.Drawing.Size(97, 16)
+        Me.lblHomeBatters.TabIndex = 8
+        Me.lblHomeBatters.Text = "HomeBatters"
+        '
+        'lblHomePitchers
+        '
+        Me.lblHomePitchers.AutoSize = True
+        Me.lblHomePitchers.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
+        Me.lblHomePitchers.Location = New System.Drawing.Point(619, 536)
+        Me.lblHomePitchers.Name = "lblHomePitchers"
+        Me.lblHomePitchers.Size = New System.Drawing.Size(104, 16)
+        Me.lblHomePitchers.TabIndex = 10
+        Me.lblHomePitchers.Text = "HomePitchers"
+        '
+        'lblGameInfo
+        '
+        Me.lblGameInfo.AutoSize = True
+        Me.lblGameInfo.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
+        Me.lblGameInfo.Location = New System.Drawing.Point(16, 734)
+        Me.lblGameInfo.Name = "lblGameInfo"
+        Me.lblGameInfo.Size = New System.Drawing.Size(77, 16)
+        Me.lblGameInfo.TabIndex = 11
+        Me.lblGameInfo.Text = "Game Info"
+        '
+        'lblTitle
+        '
+        Me.lblTitle.AutoSize = True
+        Me.lblTitle.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+        Me.lblTitle.ForeColor = System.Drawing.SystemColors.ControlText
+        Me.lblTitle.Location = New System.Drawing.Point(16, 50)
+        Me.lblTitle.Name = "lblTitle"
+        Me.lblTitle.Size = New System.Drawing.Size(86, 20)
+        Me.lblTitle.TabIndex = 13
+        Me.lblTitle.Text = "Game Title"
+        '
+        'Label1
+        '
+        Me.Label1.AutoSize = True
+        Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
+        Me.Label1.Location = New System.Drawing.Point(16, 21)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(83, 20)
+        Me.Label1.TabIndex = 15
+        Me.Label1.Text = "Boxscore"
+        '
+        'rtbAwayBattingFieldingDetails
+        '
+        Me.rtbAwayBattingFieldingDetails.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.rtbAwayBattingFieldingDetails.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+        Me.rtbAwayBattingFieldingDetails.Location = New System.Drawing.Point(16, 421)
+        Me.rtbAwayBattingFieldingDetails.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
+        Me.rtbAwayBattingFieldingDetails.Name = "rtbAwayBattingFieldingDetails"
+        Me.rtbAwayBattingFieldingDetails.Size = New System.Drawing.Size(569, 91)
+        Me.rtbAwayBattingFieldingDetails.TabIndex = 2
+        Me.rtbAwayBattingFieldingDetails.Text = ""
+        '
+        'lblAwayPitchers
+        '
+        Me.lblAwayPitchers.AutoSize = True
+        Me.lblAwayPitchers.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
+        Me.lblAwayPitchers.Location = New System.Drawing.Point(16, 536)
+        Me.lblAwayPitchers.Name = "lblAwayPitchers"
+        Me.lblAwayPitchers.Size = New System.Drawing.Size(100, 16)
+        Me.lblAwayPitchers.TabIndex = 9
+        Me.lblAwayPitchers.Text = "AwayPitchers"
+        '
+        'lblAwayBatters
+        '
+        Me.lblAwayBatters.AutoSize = True
+        Me.lblAwayBatters.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
+        Me.lblAwayBatters.Location = New System.Drawing.Point(16, 90)
+        Me.lblAwayBatters.Name = "lblAwayBatters"
+        Me.lblAwayBatters.Size = New System.Drawing.Size(93, 16)
+        Me.lblAwayBatters.TabIndex = 7
+        Me.lblAwayBatters.Text = "AwayBatters"
         '
         'dgvAwayBatting
         '
@@ -61,7 +192,7 @@ Partial Class MlbBoxscore
         Me.dgvAwayBatting.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
         Me.dgvAwayBatting.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvAwayBatting.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
-        Me.dgvAwayBatting.Location = New System.Drawing.Point(16, 33)
+        Me.dgvAwayBatting.Location = New System.Drawing.Point(16, 115)
         Me.dgvAwayBatting.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.dgvAwayBatting.MultiSelect = False
         Me.dgvAwayBatting.Name = "dgvAwayBatting"
@@ -76,44 +207,6 @@ Partial Class MlbBoxscore
         Me.dgvAwayBatting.Size = New System.Drawing.Size(569, 302)
         Me.dgvAwayBatting.TabIndex = 0
         '
-        'dgvHomeBatting
-        '
-        Me.dgvHomeBatting.AllowUserToAddRows = False
-        Me.dgvHomeBatting.AllowUserToDeleteRows = False
-        Me.dgvHomeBatting.AllowUserToResizeColumns = False
-        Me.dgvHomeBatting.AllowUserToResizeRows = False
-        Me.dgvHomeBatting.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
-        Me.dgvHomeBatting.BackgroundColor = System.Drawing.SystemColors.Control
-        Me.dgvHomeBatting.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvHomeBatting.Location = New System.Drawing.Point(21, 31)
-        Me.dgvHomeBatting.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.dgvHomeBatting.Name = "dgvHomeBatting"
-        Me.dgvHomeBatting.RowHeadersVisible = False
-        Me.dgvHomeBatting.RowHeadersWidth = 51
-        Me.dgvHomeBatting.RowTemplate.Height = 29
-        Me.dgvHomeBatting.Size = New System.Drawing.Size(525, 300)
-        Me.dgvHomeBatting.TabIndex = 1
-        '
-        'rtbAwayBattingFieldingDetails
-        '
-        Me.rtbAwayBattingFieldingDetails.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        Me.rtbAwayBattingFieldingDetails.Location = New System.Drawing.Point(16, 339)
-        Me.rtbAwayBattingFieldingDetails.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.rtbAwayBattingFieldingDetails.Name = "rtbAwayBattingFieldingDetails"
-        Me.rtbAwayBattingFieldingDetails.Size = New System.Drawing.Size(569, 91)
-        Me.rtbAwayBattingFieldingDetails.TabIndex = 2
-        Me.rtbAwayBattingFieldingDetails.Text = ""
-        '
-        'rtbHomeBattingFieldingDetails
-        '
-        Me.rtbHomeBattingFieldingDetails.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        Me.rtbHomeBattingFieldingDetails.Location = New System.Drawing.Point(21, 335)
-        Me.rtbHomeBattingFieldingDetails.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.rtbHomeBattingFieldingDetails.Name = "rtbHomeBattingFieldingDetails"
-        Me.rtbHomeBattingFieldingDetails.Size = New System.Drawing.Size(526, 91)
-        Me.rtbHomeBattingFieldingDetails.TabIndex = 3
-        Me.rtbHomeBattingFieldingDetails.Text = ""
-        '
         'dgvAwayPitchers
         '
         Me.dgvAwayPitchers.AllowUserToAddRows = False
@@ -123,7 +216,7 @@ Partial Class MlbBoxscore
         Me.dgvAwayPitchers.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
         Me.dgvAwayPitchers.BackgroundColor = System.Drawing.SystemColors.Control
         Me.dgvAwayPitchers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvAwayPitchers.Location = New System.Drawing.Point(16, 471)
+        Me.dgvAwayPitchers.Location = New System.Drawing.Point(16, 568)
         Me.dgvAwayPitchers.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.dgvAwayPitchers.Name = "dgvAwayPitchers"
         Me.dgvAwayPitchers.RowHeadersVisible = False
@@ -132,199 +225,50 @@ Partial Class MlbBoxscore
         Me.dgvAwayPitchers.Size = New System.Drawing.Size(569, 141)
         Me.dgvAwayPitchers.TabIndex = 4
         '
-        'dgvHomePitchers
-        '
-        Me.dgvHomePitchers.AllowUserToAddRows = False
-        Me.dgvHomePitchers.AllowUserToDeleteRows = False
-        Me.dgvHomePitchers.AllowUserToResizeColumns = False
-        Me.dgvHomePitchers.AllowUserToResizeRows = False
-        Me.dgvHomePitchers.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
-        Me.dgvHomePitchers.BackgroundColor = System.Drawing.SystemColors.Control
-        Me.dgvHomePitchers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvHomePitchers.Location = New System.Drawing.Point(21, 467)
-        Me.dgvHomePitchers.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.dgvHomePitchers.Name = "dgvHomePitchers"
-        Me.dgvHomePitchers.RowHeadersVisible = False
-        Me.dgvHomePitchers.RowHeadersWidth = 51
-        Me.dgvHomePitchers.RowTemplate.Height = 29
-        Me.dgvHomePitchers.Size = New System.Drawing.Size(525, 141)
-        Me.dgvHomePitchers.TabIndex = 5
-        '
-        'rtbGameInfo
-        '
-        Me.rtbGameInfo.Location = New System.Drawing.Point(12, 767)
-        Me.rtbGameInfo.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.rtbGameInfo.Name = "rtbGameInfo"
-        Me.rtbGameInfo.Size = New System.Drawing.Size(606, 91)
-        Me.rtbGameInfo.TabIndex = 6
-        Me.rtbGameInfo.Text = ""
-        '
-        'lblAwayBatters
-        '
-        Me.lblAwayBatters.AutoSize = True
-        Me.lblAwayBatters.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
-        Me.lblAwayBatters.Location = New System.Drawing.Point(16, 15)
-        Me.lblAwayBatters.Name = "lblAwayBatters"
-        Me.lblAwayBatters.Size = New System.Drawing.Size(93, 16)
-        Me.lblAwayBatters.TabIndex = 7
-        Me.lblAwayBatters.Text = "AwayBatters"
-        '
-        'lblHomeBatters
-        '
-        Me.lblHomeBatters.AutoSize = True
-        Me.lblHomeBatters.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
-        Me.lblHomeBatters.Location = New System.Drawing.Point(21, 11)
-        Me.lblHomeBatters.Name = "lblHomeBatters"
-        Me.lblHomeBatters.Size = New System.Drawing.Size(97, 16)
-        Me.lblHomeBatters.TabIndex = 8
-        Me.lblHomeBatters.Text = "HomeBatters"
-        '
-        'lblAwayPitchers
-        '
-        Me.lblAwayPitchers.AutoSize = True
-        Me.lblAwayPitchers.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
-        Me.lblAwayPitchers.Location = New System.Drawing.Point(16, 449)
-        Me.lblAwayPitchers.Name = "lblAwayPitchers"
-        Me.lblAwayPitchers.Size = New System.Drawing.Size(100, 16)
-        Me.lblAwayPitchers.TabIndex = 9
-        Me.lblAwayPitchers.Text = "AwayPitchers"
-        '
-        'lblHomePitchers
-        '
-        Me.lblHomePitchers.AutoSize = True
-        Me.lblHomePitchers.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
-        Me.lblHomePitchers.Location = New System.Drawing.Point(25, 445)
-        Me.lblHomePitchers.Name = "lblHomePitchers"
-        Me.lblHomePitchers.Size = New System.Drawing.Size(104, 16)
-        Me.lblHomePitchers.TabIndex = 10
-        Me.lblHomePitchers.Text = "HomePitchers"
-        '
-        'lblGameInfo
-        '
-        Me.lblGameInfo.AutoSize = True
-        Me.lblGameInfo.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
-        Me.lblGameInfo.Location = New System.Drawing.Point(16, 747)
-        Me.lblGameInfo.Name = "lblGameInfo"
-        Me.lblGameInfo.Size = New System.Drawing.Size(77, 16)
-        Me.lblGameInfo.TabIndex = 11
-        Me.lblGameInfo.Text = "Game Info"
-        '
-        'TabControl1
-        '
-        Me.TabControl1.Controls.Add(Me.Away)
-        Me.TabControl1.Controls.Add(Me.Home)
-        Me.TabControl1.Location = New System.Drawing.Point(12, 91)
-        Me.TabControl1.Name = "TabControl1"
-        Me.TabControl1.SelectedIndex = 0
-        Me.TabControl1.Size = New System.Drawing.Size(610, 645)
-        Me.TabControl1.TabIndex = 12
-        '
-        'Away
-        '
-        Me.Away.Controls.Add(Me.dgvAwayPitchers)
-        Me.Away.Controls.Add(Me.dgvAwayBatting)
-        Me.Away.Controls.Add(Me.lblAwayBatters)
-        Me.Away.Controls.Add(Me.lblAwayPitchers)
-        Me.Away.Controls.Add(Me.rtbAwayBattingFieldingDetails)
-        Me.Away.Location = New System.Drawing.Point(4, 24)
-        Me.Away.Name = "Away"
-        Me.Away.Padding = New System.Windows.Forms.Padding(3)
-        Me.Away.Size = New System.Drawing.Size(602, 617)
-        Me.Away.TabIndex = 0
-        Me.Away.Text = "Away"
-        Me.Away.UseVisualStyleBackColor = True
-        '
-        'Home
-        '
-        Me.Home.Controls.Add(Me.dgvHomeBatting)
-        Me.Home.Controls.Add(Me.rtbHomeBattingFieldingDetails)
-        Me.Home.Controls.Add(Me.lblHomePitchers)
-        Me.Home.Controls.Add(Me.dgvHomePitchers)
-        Me.Home.Controls.Add(Me.lblHomeBatters)
-        Me.Home.Location = New System.Drawing.Point(4, 24)
-        Me.Home.Name = "Home"
-        Me.Home.Padding = New System.Windows.Forms.Padding(3)
-        Me.Home.Size = New System.Drawing.Size(602, 617)
-        Me.Home.TabIndex = 1
-        Me.Home.Text = "Home"
-        Me.Home.UseVisualStyleBackColor = True
-        '
-        'lblTitle
-        '
-        Me.lblTitle.AutoSize = True
-        Me.lblTitle.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        Me.lblTitle.ForeColor = System.Drawing.SystemColors.ControlText
-        Me.lblTitle.Location = New System.Drawing.Point(16, 50)
-        Me.lblTitle.Name = "lblTitle"
-        Me.lblTitle.Size = New System.Drawing.Size(67, 15)
-        Me.lblTitle.TabIndex = 13
-        Me.lblTitle.Text = "Game Title"
-        '
-        'lblGamePk
-        '
-        Me.lblGamePk.AutoSize = True
-        Me.lblGamePk.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        Me.lblGamePk.Location = New System.Drawing.Point(493, 50)
-        Me.lblGamePk.Name = "lblGamePk"
-        Me.lblGamePk.Size = New System.Drawing.Size(55, 15)
-        Me.lblGamePk.TabIndex = 14
-        Me.lblGamePk.Text = "GamePk"
-        '
-        'Label1
-        '
-        Me.Label1.AutoSize = True
-        Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
-        Me.Label1.Location = New System.Drawing.Point(16, 21)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(83, 20)
-        Me.Label1.TabIndex = 15
-        Me.Label1.Text = "Boxscore"
-        '
         'MlbBoxscore
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
-        Me.ClientSize = New System.Drawing.Size(634, 879)
+        Me.ClientSize = New System.Drawing.Size(1167, 879)
+        Me.Controls.Add(Me.dgvAwayPitchers)
+        Me.Controls.Add(Me.lblAwayPitchers)
+        Me.Controls.Add(Me.rtbHomeBattingFieldingDetails)
+        Me.Controls.Add(Me.dgvAwayBatting)
+        Me.Controls.Add(Me.rtbAwayBattingFieldingDetails)
+        Me.Controls.Add(Me.lblAwayBatters)
+        Me.Controls.Add(Me.lblHomePitchers)
+        Me.Controls.Add(Me.dgvHomeBatting)
         Me.Controls.Add(Me.Label1)
-        Me.Controls.Add(Me.lblGamePk)
+        Me.Controls.Add(Me.dgvHomePitchers)
         Me.Controls.Add(Me.lblTitle)
-        Me.Controls.Add(Me.TabControl1)
+        Me.Controls.Add(Me.lblHomeBatters)
         Me.Controls.Add(Me.lblGameInfo)
         Me.Controls.Add(Me.rtbGameInfo)
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.Name = "MlbBoxscore"
-        Me.Text = "Boxsore"
-        CType(Me.dgvAwayBatting, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.Text = "Boxscore"
         CType(Me.dgvHomeBatting, System.ComponentModel.ISupportInitialize).EndInit()
-        CType(Me.dgvAwayPitchers, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.dgvHomePitchers, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.TabControl1.ResumeLayout(False)
-        Me.Away.ResumeLayout(False)
-        Me.Away.PerformLayout()
-        Me.Home.ResumeLayout(False)
-        Me.Home.PerformLayout()
+        CType(Me.dgvAwayBatting, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.dgvAwayPitchers, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
-
-    Friend WithEvents dgvAwayBatting As DataGridView
     Friend WithEvents dgvHomeBatting As DataGridView
-    Friend WithEvents rtbAwayBattingFieldingDetails As RichTextBox
     Friend WithEvents rtbHomeBattingFieldingDetails As RichTextBox
-    Friend WithEvents dgvAwayPitchers As DataGridView
     Friend WithEvents dgvHomePitchers As DataGridView
     Friend WithEvents rtbGameInfo As RichTextBox
-    Friend WithEvents lblAwayBatters As Label
     Friend WithEvents lblHomeBatters As Label
-    Friend WithEvents lblAwayPitchers As Label
     Friend WithEvents lblHomePitchers As Label
     Friend WithEvents lblGameInfo As Label
-    Friend WithEvents TabControl1 As TabControl
-    Friend WithEvents Away As TabPage
-    Friend WithEvents Home As TabPage
     Friend WithEvents lblTitle As Label
-    Friend WithEvents lblGamePk As Label
     Friend WithEvents Label1 As Label
+    Friend WithEvents rtbAwayBattingFieldingDetails As RichTextBox
+    Friend WithEvents lblAwayPitchers As Label
+    Friend WithEvents lblAwayBatters As Label
+    Friend WithEvents dgvAwayBatting As DataGridView
+    Friend WithEvents dgvAwayPitchers As DataGridView
 End Class

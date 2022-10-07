@@ -85,9 +85,9 @@ Partial Class MlbScoreboard
         '
         Me.StatusStrip1.ImageScalingSize = New System.Drawing.Size(20, 20)
         Me.StatusStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.AllGamesUpdateData, Me.AllGamesUpdateProgressBar, Me.ThisGameUpdateData, Me.Spacer})
-        Me.StatusStrip1.Location = New System.Drawing.Point(0, 596)
+        Me.StatusStrip1.Location = New System.Drawing.Point(0, 634)
         Me.StatusStrip1.Name = "StatusStrip1"
-        Me.StatusStrip1.Size = New System.Drawing.Size(1608, 22)
+        Me.StatusStrip1.Size = New System.Drawing.Size(1723, 22)
         Me.StatusStrip1.TabIndex = 0
         Me.StatusStrip1.Text = "StatusStrip1"
         '
@@ -127,7 +127,7 @@ Partial Class MlbScoreboard
         Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem, Me.ViewToolStripMenuItem, Me.AboutToolStripMenuItem1})
         Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
         Me.MenuStrip1.Name = "MenuStrip1"
-        Me.MenuStrip1.Size = New System.Drawing.Size(1608, 24)
+        Me.MenuStrip1.Size = New System.Drawing.Size(1723, 24)
         Me.MenuStrip1.TabIndex = 2
         Me.MenuStrip1.Text = "MenuStrip1"
         '
@@ -344,7 +344,7 @@ Partial Class MlbScoreboard
         Me.dgvAwayLineup.ShowCellToolTips = False
         Me.dgvAwayLineup.ShowEditingIcon = False
         Me.dgvAwayLineup.ShowRowErrors = False
-        Me.dgvAwayLineup.Size = New System.Drawing.Size(224, 493)
+        Me.dgvAwayLineup.Size = New System.Drawing.Size(270, 522)
         Me.dgvAwayLineup.TabIndex = 21
         '
         'dgvHomeLineup
@@ -365,7 +365,7 @@ Partial Class MlbScoreboard
         DataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
         Me.dgvHomeLineup.DefaultCellStyle = DataGridViewCellStyle4
         Me.dgvHomeLineup.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
-        Me.dgvHomeLineup.Location = New System.Drawing.Point(1368, 84)
+        Me.dgvHomeLineup.Location = New System.Drawing.Point(1420, 84)
         Me.dgvHomeLineup.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.dgvHomeLineup.MultiSelect = False
         Me.dgvHomeLineup.Name = "dgvHomeLineup"
@@ -378,7 +378,7 @@ Partial Class MlbScoreboard
         Me.dgvHomeLineup.ShowCellToolTips = False
         Me.dgvHomeLineup.ShowEditingIcon = False
         Me.dgvHomeLineup.ShowRowErrors = False
-        Me.dgvHomeLineup.Size = New System.Drawing.Size(224, 493)
+        Me.dgvHomeLineup.Size = New System.Drawing.Size(270, 522)
         Me.dgvHomeLineup.TabIndex = 22
         '
         'lblAwayLineup
@@ -397,7 +397,7 @@ Partial Class MlbScoreboard
         Me.lblHomeLineup.AutoSize = True
         Me.lblHomeLineup.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.lblHomeLineup.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.lblHomeLineup.Location = New System.Drawing.Point(1368, 58)
+        Me.lblHomeLineup.Location = New System.Drawing.Point(1420, 58)
         Me.lblHomeLineup.Name = "lblHomeLineup"
         Me.lblHomeLineup.Size = New System.Drawing.Size(81, 15)
         Me.lblHomeLineup.TabIndex = 24
@@ -456,7 +456,7 @@ Partial Class MlbScoreboard
         Me.dgvGames.ShowCellToolTips = False
         Me.dgvGames.ShowEditingIcon = False
         Me.dgvGames.ShowRowErrors = False
-        Me.dgvGames.Size = New System.Drawing.Size(440, 493)
+        Me.dgvGames.Size = New System.Drawing.Size(440, 522)
         Me.dgvGames.TabIndex = 27
         Me.dgvGames.VirtualMode = True
         '
@@ -488,7 +488,7 @@ Partial Class MlbScoreboard
         Me.tbxCommentary.Location = New System.Drawing.Point(745, 349)
         Me.tbxCommentary.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.tbxCommentary.Name = "tbxCommentary"
-        Me.tbxCommentary.Size = New System.Drawing.Size(362, 228)
+        Me.tbxCommentary.Size = New System.Drawing.Size(362, 257)
         Me.tbxCommentary.TabIndex = 30
         Me.tbxCommentary.Text = "Play Commentary"
         '
@@ -585,7 +585,7 @@ Partial Class MlbScoreboard
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.Green
         Me.CausesValidation = False
-        Me.ClientSize = New System.Drawing.Size(1608, 618)
+        Me.ClientSize = New System.Drawing.Size(1723, 656)
         Me.Controls.Add(Me.btnFindGames)
         Me.Controls.Add(Me.lblPitchCount)
         Me.Controls.Add(Me.lblHomeWinnerLoser)

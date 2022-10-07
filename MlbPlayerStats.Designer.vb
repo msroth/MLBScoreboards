@@ -1,9 +1,9 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class MlbPlayerStats
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
-    <System.Diagnostics.DebuggerNonUserCode()> _
+    <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
             If disposing AndAlso components IsNot Nothing Then
@@ -20,7 +20,7 @@ Partial Class MlbPlayerStats
     'NOTE: The following procedure is required by the Windows Form Designer
     'It can be modified using the Windows Form Designer.  
     'Do not modify it using the code editor.
-    <System.Diagnostics.DebuggerStepThrough()> _
+    <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.lblPlayer = New System.Windows.Forms.Label()
         Me.lblPosition = New System.Windows.Forms.Label()
@@ -55,11 +55,11 @@ Partial Class MlbPlayerStats
         'lblPosition
         '
         Me.lblPosition.AutoSize = True
-        Me.lblPosition.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+        Me.lblPosition.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
         Me.lblPosition.ForeColor = System.Drawing.SystemColors.ControlText
         Me.lblPosition.Location = New System.Drawing.Point(28, 41)
         Me.lblPosition.Name = "lblPosition"
-        Me.lblPosition.Size = New System.Drawing.Size(58, 17)
+        Me.lblPosition.Size = New System.Drawing.Size(65, 20)
         Me.lblPosition.TabIndex = 2
         Me.lblPosition.Text = "Position"
         '
@@ -72,7 +72,7 @@ Partial Class MlbPlayerStats
         Me.TabControl1.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.TabControl1.Name = "TabControl1"
         Me.TabControl1.SelectedIndex = 0
-        Me.TabControl1.Size = New System.Drawing.Size(454, 362)
+        Me.TabControl1.Size = New System.Drawing.Size(746, 505)
         Me.TabControl1.TabIndex = 3
         '
         'Batting
@@ -82,7 +82,7 @@ Partial Class MlbPlayerStats
         Me.Batting.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.Batting.Name = "Batting"
         Me.Batting.Padding = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.Batting.Size = New System.Drawing.Size(446, 334)
+        Me.Batting.Size = New System.Drawing.Size(738, 477)
         Me.Batting.TabIndex = 0
         Me.Batting.Text = "Batting"
         Me.Batting.UseVisualStyleBackColor = True
@@ -97,7 +97,7 @@ Partial Class MlbPlayerStats
         Me.dgvBattingStats.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
         Me.dgvBattingStats.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvBattingStats.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
-        Me.dgvBattingStats.Location = New System.Drawing.Point(5, 4)
+        Me.dgvBattingStats.Location = New System.Drawing.Point(17, 47)
         Me.dgvBattingStats.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.dgvBattingStats.MultiSelect = False
         Me.dgvBattingStats.Name = "dgvBattingStats"
@@ -105,7 +105,7 @@ Partial Class MlbPlayerStats
         Me.dgvBattingStats.RowHeadersVisible = False
         Me.dgvBattingStats.RowHeadersWidth = 51
         Me.dgvBattingStats.RowTemplate.Height = 29
-        Me.dgvBattingStats.Size = New System.Drawing.Size(430, 326)
+        Me.dgvBattingStats.Size = New System.Drawing.Size(699, 390)
         Me.dgvBattingStats.TabIndex = 1
         '
         'Fielding
@@ -178,7 +178,7 @@ Partial Class MlbPlayerStats
         '
         Me.lblPlayerID.AutoSize = True
         Me.lblPlayerID.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        Me.lblPlayerID.Location = New System.Drawing.Point(424, 18)
+        Me.lblPlayerID.Location = New System.Drawing.Point(697, 19)
         Me.lblPlayerID.Name = "lblPlayerID"
         Me.lblPlayerID.Size = New System.Drawing.Size(51, 15)
         Me.lblPlayerID.TabIndex = 4
@@ -190,14 +190,16 @@ Partial Class MlbPlayerStats
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
-        Me.ClientSize = New System.Drawing.Size(507, 460)
+        Me.ClientSize = New System.Drawing.Size(814, 600)
         Me.Controls.Add(Me.lblPlayerID)
         Me.Controls.Add(Me.TabControl1)
         Me.Controls.Add(Me.lblPosition)
         Me.Controls.Add(Me.lblPlayer)
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.Name = "MlbPlayerStats"
-        Me.Text = "PlayerStats"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent
+        Me.Text = "Player Stats"
         Me.TabControl1.ResumeLayout(False)
         Me.Batting.ResumeLayout(False)
         CType(Me.dgvBattingStats, System.ComponentModel.ISupportInitialize).EndInit()

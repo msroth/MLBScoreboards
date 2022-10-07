@@ -756,9 +756,9 @@ Public Class MlbGame
 
 
             ' figure out next three batters
-            Dim DueUpPosition = LastBattingPosition
-            For i As Integer = 1 To 3
-                DueUpPosition += 1
+            'Dim DueUpPosition = LastBattingPosition
+            For DueUpPosition As Integer = LastBattingPosition + 1 To LastBattingPosition + 3
+                'DueUpPosition += 1
                 If DueUpPosition > 9 Then
                     DueUpPosition -= 9
                 End If
@@ -770,7 +770,6 @@ Public Class MlbGame
                 '        sb.Append(vbCr)
                 '    End If
                 'Next
-
 
                 sb.Append($"  {battingTeam.Lineup.Item(DueUpPosition).FullName} {Me.GetBatterStats(battingTeam.Lineup.Item(DueUpPosition).Id, battingTeam)}")
                 sb.Append(vbCr)
@@ -995,6 +994,8 @@ Public Class MlbGame
                 Next
             ElseIf EventName.ToUpper.Contains("ERROR") Then
                 ScorebookEntry = $"E{Details(0)}"
+            ElseIf EventName.ToUpper.Contains("STOLEN") Then
+                ScorebookEntry = $"{EventName.ToUpper}"
             Else
                 ScorebookEntry = $"UNK ({EventName}-"
                 For cnt As Integer = 1 To Details.Count - 1
@@ -1002,8 +1003,9 @@ Public Class MlbGame
                         ScorebookEntry = $"{ScorebookEntry}-{Details(cnt)}"
                     End If
                 Next
-                ScorebookEntry = $"{ScorebookEntry})"
             End If
+
+            ScorebookEntry = $"{ScorebookEntry}"
 
             'Trace.WriteLine($"Official Scoring = {OfficialScoring}")
         Catch ex As Exception

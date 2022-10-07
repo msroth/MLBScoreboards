@@ -12,7 +12,7 @@ Public Class MlbTeam
     Private mWins As String
     Private mLoses As String
     'Private mLineup As List(Of MlbPlayer) = New List(Of MlbPlayer)
-    Private mLineup As Dictionary(Of Integer, MlbPlayer) = New Dictionary(Of Integer, MlbPlayer)
+    Private mLineup As SortedDictionary(Of Integer, MlbPlayer) = New SortedDictionary(Of Integer, MlbPlayer)
     Private mRoster As List(Of MlbPlayer) = New List(Of MlbPlayer)
     'Private mBattingOrder As List(Of MlbPlayer) = New List(Of MlbPlayer)
     Private mAPI As MlbApi = New MlbApi()
@@ -66,7 +66,7 @@ Public Class MlbTeam
     '    End Get
     'End Property
 
-    Public ReadOnly Property Lineup() As Dictionary(Of Integer, MlbPlayer)
+    Public ReadOnly Property Lineup() As SortedDictionary(Of Integer, MlbPlayer)
         Get
             Return Me.mLineup
         End Get
@@ -203,7 +203,12 @@ Public Class MlbTeam
             For i As Integer = 0 To pitchingOrderData.Count - 1
                 pitchingOrder.Add(pitchingOrderData.Item(i).ToString)
             Next
-            Dim currentPitcherId = pitchingOrder.Item(pitchingOrder.Count - 1)
+            Dim currentPitcherId As String
+            If pitchingOrder.Count = 0 Then
+                currentPitcherId = 0
+            Else
+                currentPitcherId = pitchingOrder.Item(pitchingOrder.Count - 1)
+            End If
 
 
             ' load batters - which is everyone in the game
@@ -278,6 +283,7 @@ Public Class MlbTeam
             dt.Columns.Add("Position")
             dt.Columns.Add("BattingOrder")
 
+
             For Each key In mLineup.Keys
 
                 Dim player = mLineup.Item(key)
@@ -292,8 +298,7 @@ Public Class MlbTeam
         Catch ex As Exception
             Trace.WriteLine($"ERROR: GetLineup - {ex}")
         End Try
-        ' sort by batting order
-        dt = dt.Select("", "BattingOrder").CopyToDataTable()
+
         Return dt
     End Function
 
@@ -321,6 +326,7 @@ Public Class MlbTeam
         Catch ex As Exception
             Trace.WriteLine($"ERROR: GetRoster - {ex}")
         End Try
+        ' sort table by position
         dt = dt.Select("", "Position").CopyToDataTable()
         Return dt
     End Function

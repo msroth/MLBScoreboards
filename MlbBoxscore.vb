@@ -21,16 +21,15 @@ Public Class MlbBoxscore
         Me.Cursor = Cursors.WaitCursor
 
         ' set titles
-        Me.lblTitle.Text = $"{Me.mThisGame.AwayTeam.FullName} @ {Me.mThisGame.HomeTeam.FullName}"
-        Me.lblGamePk.Text = Me.mThisGame.GamePk
+        Me.lblTitle.Text = $"{Me.mThisGame.AwayTeam.FullName} @ {Me.mThisGame.HomeTeam.FullName} (Game: {Me.mThisGame.GamePk})"
 
         ' init batting tables
         Me.lblAwayBatters.Text = $"{Me.mThisGame.AwayTeam.ShortName} Batters"
         Me.lblHomeBatters.Text = $"{Me.mThisGame.HomeTeam.ShortName} Batters"
         Me.dgvAwayBatting.DataSource = InitBattingStatsTable(mThisGame.AwayTeam.ShortName)
         Me.dgvHomeBatting.DataSource = InitBattingStatsTable(mThisGame.HomeTeam.ShortName)
-        'Me.dgvAwayBatting.Columns("Id").Visible = False
-        'Me.dgvHomeBatting.Columns("Id").Visible = False
+        Me.dgvAwayBatting.Columns("Id").Visible = False
+        Me.dgvHomeBatting.Columns("Id").Visible = False
 
 
         ' init pitching tables
@@ -38,8 +37,8 @@ Public Class MlbBoxscore
         Me.lblHomePitchers.Text = $"{Me.mThisGame.HomeTeam.ShortName} Pitchers"
         Me.dgvAwayPitchers.DataSource = InitPitchingStatsTable(mThisGame.AwayTeam.ShortName)
         Me.dgvHomePitchers.DataSource = InitPitchingStatsTable(mThisGame.HomeTeam.ShortName)
-        'Me.dgvAwayPitchers.Columns("Id").Visible = False
-        'Me.dgvHomePitchers.Columns("Id").Visible = False
+        Me.dgvAwayPitchers.Columns("Id").Visible = False
+        Me.dgvHomePitchers.Columns("Id").Visible = False
 
         ' load batting data into controls
         LoadBattingStats(Me.mThisGame.AwayTeam)
@@ -58,9 +57,11 @@ Public Class MlbBoxscore
         dgvAwayBatting.ColumnHeadersDefaultCellStyle.Font = New Font(dgvAwayBatting.DefaultFont, FontStyle.Bold)
         dgvHomeBatting.ColumnHeadersDefaultCellStyle.Font = New Font(dgvHomeBatting.DefaultFont, FontStyle.Bold)
         dgvAwayBatting.ClearSelection()
+        dgvHomeBatting.ClearSelection()
         dgvAwayPitchers.ColumnHeadersDefaultCellStyle.Font = New Font(dgvAwayPitchers.DefaultFont, FontStyle.Bold)
         dgvHomePitchers.ColumnHeadersDefaultCellStyle.Font = New Font(dgvHomePitchers.DefaultFont, FontStyle.Bold)
         dgvAwayPitchers.ClearSelection()
+        dgvHomePitchers.ClearSelection()
 
         Me.Cursor = Cursors.Default
     End Sub
@@ -353,17 +354,5 @@ Public Class MlbBoxscore
         rtbGameInfo.Text = sb.ToString()
     End Sub
 
-    Private Sub TabControl1_SelectedIndexChanged(sender As Object, e As EventArgs) Handles TabControl1.SelectedIndexChanged
-        If TabControl1.SelectedIndex = 0 Then
-            'Me.dgvAwayBatting.Columns("Id").Visible = False
-            'Me.dgvAwayPitchers.Columns("Id").Visible = False
-            Me.dgvAwayBatting.ClearSelection()
-            Me.dgvAwayPitchers.ClearSelection()
-        Else
-            'Me.dgvHomeBatting.Columns("Id").Visible = False
-            'Me.dgvHomePitchers.Columns("Id").Visible = False
-            Me.dgvHomeBatting.ClearSelection()
-            Me.dgvHomePitchers.ClearSelection()
-        End If
-    End Sub
+
 End Class

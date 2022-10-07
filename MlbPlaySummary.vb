@@ -68,9 +68,8 @@ Public Class MlbPlaySummary
     End Function
 
     Private Sub SetGameTitle()
-        Dim title As String = $"{Me.mCurrentGame.AwayTeam.FullName} @ {Me.mCurrentGame.HomeTeam.FullName}"
+        Dim title As String = $"{Me.mCurrentGame.AwayTeam.FullName} @ {Me.mCurrentGame.HomeTeam.FullName} (Game: {Me.mCurrentGame.GamePk})"
         Me.lblGameTitle.Text = title
-        Me.lblGamePk.Text = $"Game ID: {Me.mCurrentGame.GamePk}"
     End Sub
 
     Private Sub dgvPlays_Paint(sender As Object, e As PaintEventArgs) Handles dgvPlays.Paint
