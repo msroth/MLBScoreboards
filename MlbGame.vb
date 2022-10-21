@@ -205,67 +205,67 @@ Public Class MlbGame
         End Get
     End Property
 
-    Public ReadOnly Property Data As JObject
+    Public ReadOnly Property Data() As JObject
         Get
             Return Me.mData
         End Get
     End Property
 
-    Public ReadOnly Property LiveData As JObject
+    Public ReadOnly Property LiveData() As JObject
         Get
             Return Me.mLiveData
         End Get
     End Property
 
-    Public ReadOnly Property LineScoreData As JObject
+    Public ReadOnly Property LineScoreData() As JObject
         Get
             Return Me.mLineData
         End Get
     End Property
 
-    Public ReadOnly Property BoxScoreData As JObject
+    Public ReadOnly Property BoxScoreData() As JObject
         Get
             Return Me.mBoxData
         End Get
     End Property
 
-    Public ReadOnly Property GameData As JObject
+    Public ReadOnly Property GameData() As JObject
         Get
             Return Me.mGameData
         End Get
     End Property
 
-    Public ReadOnly Property CurrentPlayData As JObject
+    Public ReadOnly Property CurrentPlayData() As JObject
         Get
             Return Me.mCurrentPlayData
         End Get
     End Property
 
-    Public ReadOnly Property AllPlaysData As JObject
+    Public ReadOnly Property AllPlaysData() As JObject
         Get
             Return Me.mAllPlaysData
         End Get
     End Property
 
-    Public ReadOnly Property Balls As String
+    Public ReadOnly Property Balls() As String
         Get
             Return Me.mBalls
         End Get
     End Property
 
-    Public ReadOnly Property Strikes As String
+    Public ReadOnly Property Strikes() As String
         Get
             Return Me.mStrikes
         End Get
     End Property
 
-    Public ReadOnly Property Outs As String
+    Public ReadOnly Property Outs() As String
         Get
             Return Me.mOuts
         End Get
     End Property
 
-    Public ReadOnly Property PitchCount As String
+    Public ReadOnly Property PitchCount() As String
         Get
             Return Me.mPitchCount
         End Get
@@ -412,6 +412,17 @@ Public Class MlbGame
         End Try
     End Sub
 
+    Public Function GameTitleDate() As String
+        Return $"{mAwayTeam.FullName} @ {mHomeTeam.FullName} - {DateTime.Parse(mGameDateTime).ToString("f")}"
+    End Function
+
+    Public Function GameTitleFull() As String
+        Return $"{mAwayTeam.FullName} @ {mHomeTeam.FullName} (Game: {mGamePk}) - {DateTime.Parse(mGameDateTime).ToString("f")}"
+    End Function
+
+    Public Function GameTitleGamePk() As String
+        Return $"{mAwayTeam.FullName} @ {mHomeTeam.FullName} (Game: {mGamePk})"
+    End Function
 
     Public Overrides Function ToString() As String
         Dim sb As StringBuilder = New StringBuilder()
@@ -1014,7 +1025,6 @@ Public Class MlbGame
         Return ScorebookEntry
 
     End Function
-
 
 
 End Class

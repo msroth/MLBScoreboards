@@ -11,7 +11,7 @@ Public Class MlbApi
     Private API_LIVEFEED_URL As String = API_BASE_URL + "/v1.1/game/{0}/feed/live"
     Private API_ALL_TEAMS_URL As String = API_BASE_URL + "/v1/teams?sportId=1&activeStatus=ACTIVE"
     Private API_TEAM_URL As String = API_ALL_TEAMS_URL + "/v1/teams/{0}"
-    Private API_SCHEDULE_URL As String = API_BASE_URL + "/v1/schedule?sportId=1&date={0}"
+    Private API_SCHEDULE_URL As String = API_BASE_URL + "/v1/schedule?sportId=1&date={0}&hydrate=broadcasts"
     Private API_MULTIPLE_PERSON_DATA_URL As String = API_BASE_URL + "/v1/people?personIds={0}"
     Private API_SINGLE_PERSON_DATA_URL As String = API_BASE_URL + "/v1/people/{0}"
     'Private API_PERSON_STATS_URL = API_BASE_URL + "/v1/people/{0}/stats/game/{1}"

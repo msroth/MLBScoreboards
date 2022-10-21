@@ -97,7 +97,7 @@ Partial Class MlbPlayerStats
         Me.dgvBattingStats.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
         Me.dgvBattingStats.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvBattingStats.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
-        Me.dgvBattingStats.Location = New System.Drawing.Point(17, 47)
+        Me.dgvBattingStats.Location = New System.Drawing.Point(17, 23)
         Me.dgvBattingStats.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.dgvBattingStats.MultiSelect = False
         Me.dgvBattingStats.Name = "dgvBattingStats"
@@ -105,7 +105,7 @@ Partial Class MlbPlayerStats
         Me.dgvBattingStats.RowHeadersVisible = False
         Me.dgvBattingStats.RowHeadersWidth = 51
         Me.dgvBattingStats.RowTemplate.Height = 29
-        Me.dgvBattingStats.Size = New System.Drawing.Size(699, 390)
+        Me.dgvBattingStats.Size = New System.Drawing.Size(699, 431)
         Me.dgvBattingStats.TabIndex = 1
         '
         'Fielding
@@ -115,7 +115,7 @@ Partial Class MlbPlayerStats
         Me.Fielding.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.Fielding.Name = "Fielding"
         Me.Fielding.Padding = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.Fielding.Size = New System.Drawing.Size(446, 334)
+        Me.Fielding.Size = New System.Drawing.Size(738, 477)
         Me.Fielding.TabIndex = 1
         Me.Fielding.Text = "Fielding"
         Me.Fielding.UseVisualStyleBackColor = True
@@ -130,7 +130,7 @@ Partial Class MlbPlayerStats
         Me.dgvFieldingStats.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
         Me.dgvFieldingStats.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvFieldingStats.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
-        Me.dgvFieldingStats.Location = New System.Drawing.Point(8, 4)
+        Me.dgvFieldingStats.Location = New System.Drawing.Point(17, 23)
         Me.dgvFieldingStats.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.dgvFieldingStats.MultiSelect = False
         Me.dgvFieldingStats.Name = "dgvFieldingStats"
@@ -138,7 +138,7 @@ Partial Class MlbPlayerStats
         Me.dgvFieldingStats.RowHeadersVisible = False
         Me.dgvFieldingStats.RowHeadersWidth = 51
         Me.dgvFieldingStats.RowTemplate.Height = 29
-        Me.dgvFieldingStats.Size = New System.Drawing.Size(430, 326)
+        Me.dgvFieldingStats.Size = New System.Drawing.Size(699, 431)
         Me.dgvFieldingStats.TabIndex = 2
         '
         'Pitching
@@ -148,7 +148,7 @@ Partial Class MlbPlayerStats
         Me.Pitching.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.Pitching.Name = "Pitching"
         Me.Pitching.Padding = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.Pitching.Size = New System.Drawing.Size(446, 334)
+        Me.Pitching.Size = New System.Drawing.Size(738, 477)
         Me.Pitching.TabIndex = 2
         Me.Pitching.Text = "Pitching"
         Me.Pitching.UseVisualStyleBackColor = True
@@ -163,7 +163,7 @@ Partial Class MlbPlayerStats
         Me.dgvPitchingStats.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
         Me.dgvPitchingStats.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvPitchingStats.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
-        Me.dgvPitchingStats.Location = New System.Drawing.Point(8, 4)
+        Me.dgvPitchingStats.Location = New System.Drawing.Point(17, 23)
         Me.dgvPitchingStats.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.dgvPitchingStats.MultiSelect = False
         Me.dgvPitchingStats.Name = "dgvPitchingStats"
@@ -171,7 +171,7 @@ Partial Class MlbPlayerStats
         Me.dgvPitchingStats.RowHeadersVisible = False
         Me.dgvPitchingStats.RowHeadersWidth = 51
         Me.dgvPitchingStats.RowTemplate.Height = 29
-        Me.dgvPitchingStats.Size = New System.Drawing.Size(430, 326)
+        Me.dgvPitchingStats.Size = New System.Drawing.Size(699, 431)
         Me.dgvPitchingStats.TabIndex = 2
         '
         'lblPlayerID

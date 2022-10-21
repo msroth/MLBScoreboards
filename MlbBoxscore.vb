@@ -21,7 +21,8 @@ Public Class MlbBoxscore
         Me.Cursor = Cursors.WaitCursor
 
         ' set titles
-        Me.lblTitle.Text = $"{Me.mThisGame.AwayTeam.FullName} @ {Me.mThisGame.HomeTeam.FullName} (Game: {Me.mThisGame.GamePk})"
+        'Me.lblTitle.Text = $"{Me.mThisGame.AwayTeam.FullName} @ {Me.mThisGame.HomeTeam.FullName} (Game: {Me.mThisGame.GamePk})"
+        Me.lblTitle.Text = Me.mThisGame.GameTitleFull()
 
         ' init batting tables
         Me.lblAwayBatters.Text = $"{Me.mThisGame.AwayTeam.ShortName} Batters"
@@ -83,9 +84,6 @@ Public Class MlbBoxscore
             thisTeam = Me.mThisGame.HomeTeam
         End If
 
-        ' TODO - could loop through obj team.roster looking for pitchers
-
-
         Dim pitcherIds As JArray = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.pitchers")
         For i As Integer = 0 To pitcherIds.Count - 1
             Dim pId As String = pitcherIds(i)
@@ -116,7 +114,6 @@ Public Class MlbBoxscore
         Dim dt As DataTable
         Dim row As DataRow
         Dim thisTeam As MlbTeam
-        'Dim NoteLabelLetters As String() = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
         Dim NoteLabelLettersIndex As Integer = 1
         Dim NoteLabelNumbersIndex = 1
 
@@ -131,8 +128,6 @@ Public Class MlbBoxscore
             thisTeam = Me.mThisGame.HomeTeam
         End If
 
-        ' TODO - loop thorugh obj team.lineup
-
         ' load sorted dic with batter ids in batting order order, including subs
         Dim dicBattingOrder = New SortedDictionary(Of String, String)
         Dim playerData As JObject = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.players")
@@ -142,9 +137,6 @@ Public Class MlbBoxscore
             If BattingOrderId IsNot Nothing And BattingOrderId <> "" Then
                 dicBattingOrder.Add(BattingOrderId, id)
             End If
-        Next
-        For Each key In dicBattingOrder.Keys
-            'Trace.WriteLine($"key={key}, value={dicBattingOrder(key)}")
         Next
 
         ' get batting stats for all playes in sorted dic
@@ -157,9 +149,6 @@ Public Class MlbBoxscore
             Dim thisPlayer As MlbPlayer = thisTeam.GetPlayer(pId)
             row.Item("Id") = bId
 
-            ' TODO - fix id
-
-            ' determine if sub
             ' if the batting order number does not end in "0", then a sub
             ' if AB = 0, pinch runner and note is number, else pinch hitter and note is letter
             Dim PlayerName As String = $"{thisPlayer.ShortName} ({thisPlayer.ShortPosition})"
@@ -240,6 +229,7 @@ Public Class MlbBoxscore
         data = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.info")
         For Each info As JObject In data
             Dim title As String = info.SelectToken("title")
+            sb.Append(vbCr)
             sb.Append(title)
             sb.Append(vbCr)
             Dim fields As JArray = info.SelectToken("fieldList")
@@ -250,86 +240,34 @@ Public Class MlbBoxscore
                 sb.Append(vbCr)
             Next
         Next
-
         rtb.Text = sb.ToString()
-
     End Sub
 
 
     Private Function InitBattingStatsTable(team As String) As DataTable
         Dim dt As DataTable = New DataTable()
-        Dim col As DataColumn = New DataColumn()
-        col.ColumnName = "Id"
-        dt.Columns.Add(col)
-        col = New DataColumn()
-        col.ColumnName = "Batters"
-        dt.Columns.Add(col)
-        col = New DataColumn()
-        col.ColumnName = "AB"
-        dt.Columns.Add(col)
-        col = New DataColumn()
-        col.ColumnName = "R"
-        dt.Columns.Add(col)
-        col = New DataColumn()
-        col.ColumnName = "H"
-        dt.Columns.Add(col)
-        col = New DataColumn()
-        col.ColumnName = "RBI"
-        dt.Columns.Add(col)
-        col = New DataColumn()
-        col.ColumnName = "BB"
-        dt.Columns.Add(col)
-        col = New DataColumn()
-        col.ColumnName = "K"
-        dt.Columns.Add(col)
-        col = New DataColumn()
-        col.ColumnName = "LOB"
-        dt.Columns.Add(col)
-        col = New DataColumn()
-        col.ColumnName = "AVG"
-        dt.Columns.Add(col)
-        col = New DataColumn()
-        col.ColumnName = "OPS"
-        dt.Columns.Add(col)
+        'Dim col As DataColumn = New DataColumn()
+        Dim colNames As String() = {"Id", "Batters", "AB", "R", "H", "RBI", "BB", "K", "LOB", "AVG", "OPS"}
 
+        For Each name As String In colNames
+            Dim col As DataColumn = New DataColumn()
+            col.ColumnName = name
+            dt.Columns.Add(col)
+        Next
         Return dt
     End Function
 
     Private Function InitPitchingStatsTable(team As String) As DataTable
         Dim dt As DataTable = New DataTable()
-        Dim col As DataColumn = New DataColumn()
-        col.ColumnName = "Id"
-        dt.Columns.Add(col)
-        col = New DataColumn()
-        col.ColumnName = "Pitchers"
-        dt.Columns.Add(col)
-        col = New DataColumn()
-        col.ColumnName = "IP"
-        dt.Columns.Add(col)
-        col = New DataColumn()
-        col.ColumnName = "H"
-        dt.Columns.Add(col)
-        col = New DataColumn()
-        col.ColumnName = "R"
-        dt.Columns.Add(col)
-        col = New DataColumn()
-        col.ColumnName = "ER"
-        dt.Columns.Add(col)
-        col = New DataColumn()
-        col.ColumnName = "B"
-        dt.Columns.Add(col)
-        col = New DataColumn()
-        col.ColumnName = "K"
-        dt.Columns.Add(col)
-        col = New DataColumn()
-        col.ColumnName = "HR"
-        dt.Columns.Add(col)
-        col = New DataColumn()
-        col.ColumnName = "ERA"
-        dt.Columns.Add(col)
+        'Dim col As DataColumn = New DataColumn()
+        Dim colNames As String() = {"Id", "Pitchers", "IP", "H", "R", "ER", "B", "K", "HR", "ERA"}
 
+        For Each name As String In colNames
+            Dim col As DataColumn = New DataColumn()
+            col.ColumnName = name
+            dt.Columns.Add(col)
+        Next
         Return dt
-
     End Function
 
     Private Sub LoadGameInfo()
@@ -354,5 +292,6 @@ Public Class MlbBoxscore
         rtbGameInfo.Text = sb.ToString()
     End Sub
 
-
 End Class
+
+' <SDG><

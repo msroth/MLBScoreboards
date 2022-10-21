@@ -248,6 +248,7 @@ Partial Class MlbBoxscore
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.Name = "MlbBoxscore"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Boxscore"
         CType(Me.dgvHomeBatting, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.dgvHomePitchers, System.ComponentModel.ISupportInitialize).EndInit()

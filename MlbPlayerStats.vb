@@ -9,15 +9,35 @@ Public Class MlbPlayerStats
     Private mBoxscoreData As JObject
     Private mGamePk As Integer = 0
     Private mAwayOrHome As String = ""
+
+    ' == Game Stats ==
+    Private BattingGameStatsData As JObject
+    Private PitchingGameStatsData As JObject
+    Private FieldingGameStatsData As JObject
+
+    ' == Season Stats ==
+    Private BattingSeasonStatsData As JObject
+    Private PitchingSeasonStatsData As JObject
+    Private FieldingSeasonStatsData As JObject
+
+    ' == Career Stats ==
+    Private BattingCareerStatsData As JObject
+    Private PitchingCareerStatsData As JObject
+    Private FieldingCareerStatsData As JObject
+
+    Private FieldingStatsKeys As New SortedDictionary(Of String, String)
+    Private BattingStatsKeys As New SortedDictionary(Of String, String)
+    Private PitchingStatsKeys As New SortedDictionary(Of String, String)
+
     Private mBattingGameStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
     Private mBattingSeasonStats As Dictionary(Of String, Dictionary(Of String, String)) = New Dictionary(Of String, Dictionary(Of String, String))
     Private mBattingCareerStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
     Private mPitchingGameStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
-    Private mPitchingSeasonStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
+    Private mPitchingSeasonStats As Dictionary(Of String, Dictionary(Of String, String)) = New Dictionary(Of String, Dictionary(Of String, String))
     Private mPitchingCareerStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
     Private mFieldingGameStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
-    Private mFieldingSeasonStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
-    Private mFieldingCareerStats As Dictionary(Of String, String) = New Dictionary(Of String, String)
+    Private mFieldingSeasonStats As Dictionary(Of String, Dictionary(Of String, String)) = New Dictionary(Of String, Dictionary(Of String, String))
+    Private mFieldingCareerStats As Dictionary(Of String, Dictionary(Of String, String)) = New Dictionary(Of String, Dictionary(Of String, String))
     Private mProperties As SBProperties = New SBProperties()
 
     Property Player As MlbPlayer
@@ -52,9 +72,6 @@ Public Class MlbPlayerStats
             Close()
         End If
 
-        ' get a full player object
-        Me.mThisPlayer = Player.ConvertToFullObject()
-
         ' set labels
         Me.lblPlayer.Text = $"{Me.mThisPlayer.FullName} (#{Me.mThisPlayer.Number})"
         Me.lblPosition.Text = Me.mThisPlayer.FullPosition
@@ -66,29 +83,24 @@ Public Class MlbPlayerStats
         Me.mBoxscoreData = mLiveData.SelectToken("boxscore")
         Me.Cursor = Cursors.Default
 
-        ' parse stats and load into grids
-        LoadStats()
+        ' load data from API into data structures
+        LoadStatsData()
+
+        ' extract and format data into datatables
+        ProcessPitchingData()
+        ProcessFieldingData()
+        ProcessBattingData()
+
+        ' tweak tables
+        dgvBattingStats.ColumnHeadersDefaultCellStyle.Font = New Font(dgvBattingStats.DefaultFont, FontStyle.Bold)
+        dgvFieldingStats.ColumnHeadersDefaultCellStyle.Font = New Font(dgvFieldingStats.DefaultFont, FontStyle.Bold)
+        dgvPitchingStats.ColumnHeadersDefaultCellStyle.Font = New Font(dgvPitchingStats.DefaultFont, FontStyle.Bold)
+
 
     End Sub
 
-    Private Function InitDataGrids() As DataTable
-        Dim dt As DataTable = New DataTable()
-        Dim col As New DataColumn
-        col.ColumnName = "Stat"
-        dt.Columns.Add(col)
-        col = New DataColumn
-        col.ColumnName = "Game"
-        dt.Columns.Add(col)
-        col = New DataColumn
-        col.ColumnName = "Season"
-        dt.Columns.Add(col)
-        col = New DataColumn
-        col.ColumnName = "Career"
-        dt.Columns.Add(col)
-        Return dt
-    End Function
 
-    Private Function InitDataGrids2() As DataTable
+    Private Function InitBattingAndPitchingGridColumns(seasonTeamNames As List(Of String)) As DataTable
         Dim dt As DataTable = New DataTable()
         Dim col As New DataColumn
         col.ColumnName = "Stat"
@@ -97,7 +109,7 @@ Public Class MlbPlayerStats
         col.ColumnName = "Game"
         dt.Columns.Add(col)
 
-        For Each team As String In mBattingSeasonStats.Keys
+        For Each team As String In seasonTeamNames
             col = New DataColumn
             col.ColumnName = $"Season ({team})"
             dt.Columns.Add(col)
@@ -109,123 +121,116 @@ Public Class MlbPlayerStats
         Return dt
     End Function
 
+    Private Function InitFieldingGridColumns(gamePositions As List(Of String), seasonPositions As List(Of String), careerPositions As List(Of String)) As DataTable
+        Dim dt As DataTable = New DataTable()
+        Dim col As New DataColumn
+        col.ColumnName = "Stat"
+        dt.Columns.Add(col)
 
-    Sub LoadStats()
+        For Each position As String In gamePositions
+            col = New DataColumn
+            col.ColumnName = $"{position}"
+            dt.Columns.Add(col)
+        Next
 
-        ' arrays of stats to collect
-        'Dim FieldingStatsKeys As String() = {"gamesPlayed", "assists", "putOuts", "errors", "chances", "fielding", "innings", "doublePlays",
-        '                                     "triplePlays", "throwingErrors"}
+        For Each position As String In seasonPositions
+            col = New DataColumn
+            col.ColumnName = $"{position}"
+            dt.Columns.Add(col)
+        Next
 
-        Dim FieldingStatsKeys2 As New SortedDictionary(Of String, String)
-        FieldingStatsKeys2.Add("gamesPlayed", "Games Played")
-        FieldingStatsKeys2.Add("gamesStarted", "Games Started")
-        FieldingStatsKeys2.Add("assists", "Assists")
-        FieldingStatsKeys2.Add("putOuts", "Put Outs")
-        FieldingStatsKeys2.Add("errors", "Errors")
-        FieldingStatsKeys2.Add("chances", "Chances")
-        FieldingStatsKeys2.Add("fielding", "Fielding")
-        FieldingStatsKeys2.Add("innings", "Innings Played")
-        FieldingStatsKeys2.Add("doublePlays", "Double Plays")
-        FieldingStatsKeys2.Add("triplePlays", "Triple Plays")
-        FieldingStatsKeys2.Add("throwingErrors", "Throwing Errors")
-        FieldingStatsKeys2.Add("numTeams", "Number of Teams")
+        For Each position As String In careerPositions
+            col = New DataColumn
+            col.ColumnName = $"{position}"
+            dt.Columns.Add(col)
+        Next
 
-        'Dim BattingStatsKeys As String() = {"runs", "doubles", "triples", "homeRuns", "strikeOuts", "baseOnBalls", "hits", "hitByPitch",
-        '                                    "avg", "atBats", "obp", "slg", "ops", "caughtStealing", "stolenBases", "stolenBasePercentage",
-        '                                    "plateAppearances", "totalBases", "rbi", "sacBunts", "babip", "atBatsPerHomeRun"}
-
-        Dim BattingStatsKeys2 As New SortedDictionary(Of String, String)
-        BattingStatsKeys2.Add("runs", "Runs")
-        BattingStatsKeys2.Add("doubles", "Doubles")
-        BattingStatsKeys2.Add("triples", "Triples")
-        BattingStatsKeys2.Add("homeRuns", "Home Runs")
-        BattingStatsKeys2.Add("strikeOuts", "Strike Outs")
-        BattingStatsKeys2.Add("baseOnBalls", "Walks")
-        BattingStatsKeys2.Add("hits", "Hits")
-        BattingStatsKeys2.Add("hitByPitch", "Hit By Pitch")
-        BattingStatsKeys2.Add("avg", "Batting Average")
-        BattingStatsKeys2.Add("atBats", "At Bats")
-        BattingStatsKeys2.Add("obp", "On Base Percentage (OBP)")
-        BattingStatsKeys2.Add("slg", "Slugging")
-        BattingStatsKeys2.Add("ops", "OBP + Slugging (OPS)")
-        BattingStatsKeys2.Add("caughtStealing", "Caught Stealing")
-        BattingStatsKeys2.Add("stolenBases", "Stolen Bases")
-        BattingStatsKeys2.Add("stolenBasePercentage", "Stolen Base Percentage")
-        BattingStatsKeys2.Add("plateAppearances", "Plate Appearances")
-        BattingStatsKeys2.Add("totalBases", "Total Bases")
-        BattingStatsKeys2.Add("rbi", "RBIs")
-        BattingStatsKeys2.Add("sacBunts", "Sacrifice Bunts")
-        BattingStatsKeys2.Add("atBatsPerHomeRun", "ABs / Home Runs")
-
-        'Dim PitchingStatsKeys As String() = {"gamesStarted", "groundOuts", "airOuts", "intentionalWalks", "numberOfPitches", "era",
-        '                                     "inningsPitched", "wins",
-        '                                     "losses", "saves", "holds", "blownSaves", "earnedRuns", "whip", "battersFaced", "outs",
-        '                                     "gamesPitched", "completeGames", "shutouts", "pitchesThrown", "balls", "strikes",
-        '                                     "strikePercentage", "hitBatsmen", "balks", "wildPitches", "pickoffs", "groundOutsToAirouts",
-        '                                     "rbi", "winPercentage", "pitchesPerInning", "gamesFinished", "strikeoutWalkRatio",
-        '                                     "strikeoutsPer9Inn", "walksPer9Inn", "hitsPer9Inn", "runsScoredPer9", "homeRunsPer9",
-        '                                     "inheritedRunners", "inheritedRunnersScored", "catchersInterference", "sacBunts", "sacFlies",
-        '                                     "passedBall"}
-
-        Dim PitchingStatsKeys2 As New SortedDictionary(Of String, String)
-        PitchingStatsKeys2.Add("gamesStarted", "Games Started")
-        PitchingStatsKeys2.Add("groundOuts", "Ground Outs")
-        PitchingStatsKeys2.Add("airOuts", "Air Outs")
-        PitchingStatsKeys2.Add("intentionalWalks", "Intentional Walks")
-        PitchingStatsKeys2.Add("numberOfPitches", "Number of Pitches")
-        PitchingStatsKeys2.Add("era", "ERA")
-        PitchingStatsKeys2.Add("inningsPitched", "Innings Pitched")
-        PitchingStatsKeys2.Add("wins", "Wins")
-        PitchingStatsKeys2.Add("losses", "Losses")
-        PitchingStatsKeys2.Add("saves", "Saves")
-        PitchingStatsKeys2.Add("holds", "Holds")
-        PitchingStatsKeys2.Add("blownSaves", "Blown Saves")
-        PitchingStatsKeys2.Add("earnedRuns", "Earned Runs")
-        PitchingStatsKeys2.Add("whip", "WHIP")
-        PitchingStatsKeys2.Add("battersFaced", "Batters Faced")
-        PitchingStatsKeys2.Add("outs", "Outs")
-        PitchingStatsKeys2.Add("gamesPitched", "Games Pitched")
-        PitchingStatsKeys2.Add("completeGames", "Complete Games")
-        PitchingStatsKeys2.Add("shutouts", "Shutouts")
-        PitchingStatsKeys2.Add("pitchesThrown", "Pitches Thrown")
-        PitchingStatsKeys2.Add("balls", "Balls")
-        PitchingStatsKeys2.Add("strikes", "Strikes")
-        PitchingStatsKeys2.Add("strikePercentage", "Percent Strikes")
-        PitchingStatsKeys2.Add("hitBatsmen", "Hit Batters")
-        PitchingStatsKeys2.Add("balks", "Balks")
-        PitchingStatsKeys2.Add("wildPitches", "Wild Pitches")
-        PitchingStatsKeys2.Add("pickoffs", "Pickoffs")
-        PitchingStatsKeys2.Add("groundOutsToAirouts", "GO to AO Ration")
-        PitchingStatsKeys2.Add("rbi", "RBIs")
-        PitchingStatsKeys2.Add("winPercentage", "Win Percentage")
-        PitchingStatsKeys2.Add("pitchesPerInning", "Pitches per Inning")
-        PitchingStatsKeys2.Add("gamesFinished", "Games Finished")
-        PitchingStatsKeys2.Add("strikeoutWalkRatio", "SO to Walk Ratio")
-        PitchingStatsKeys2.Add("strikeoutsPer9Inn", "SO per 9 Innings")
-        PitchingStatsKeys2.Add("walksPer9Inn", "Walks per 9 Innings")
-        PitchingStatsKeys2.Add("hitsPer9Inn", "Hits per 9 Innings")
-        PitchingStatsKeys2.Add("runsScoredPer9", "Runs per 9 Iniings")
-        PitchingStatsKeys2.Add("homeRunsPer9", "HRs per 9 Innings")
-        PitchingStatsKeys2.Add("inheritedRunners", "Inherited Runners")
-        PitchingStatsKeys2.Add("inheritedRunnersScored", "Inherited Runners Scored")
-        PitchingStatsKeys2.Add("sacBunts", "Sacrifice Bunts")
-        PitchingStatsKeys2.Add("sacFlies", "Sacrifice Flies")
+        Return dt
+    End Function
 
 
-        ' == Game Stats ==
-        Dim BattingGameStatsData As JObject
-        Dim PitchingGameStatsData As JObject
-        Dim FieldingGameStatsData As JObject
+    Sub LoadStatsData()
 
-        ' == Season Stats ==
-        Dim BattingSeasonStatsData As JObject
-        Dim PitchingSeasonStatsData As JObject
-        Dim FieldingSeasonStatsData As JObject
+        ' fielding stats
+        FieldingStatsKeys.Add("gamesPlayed", "Games Played")
+        FieldingStatsKeys.Add("gamesStarted", "Games Started")
+        FieldingStatsKeys.Add("assists", "Assists")
+        FieldingStatsKeys.Add("putOuts", "Put Outs")
+        FieldingStatsKeys.Add("errors", "Errors")
+        FieldingStatsKeys.Add("chances", "Chances")
+        FieldingStatsKeys.Add("fielding", "Fielding")
+        FieldingStatsKeys.Add("innings", "Innings Played")
+        FieldingStatsKeys.Add("doublePlays", "Double Plays")
+        FieldingStatsKeys.Add("triplePlays", "Triple Plays")
+        FieldingStatsKeys.Add("throwingErrors", "Throwing Errors")
+        FieldingStatsKeys.Add("numTeams", "Number of Teams")
 
-        ' == Career Stats ==
-        Dim BattingCareerStatsData As JObject
-        Dim PitchingCareerStatsData As JObject
-        Dim FieldingCareerStatsData As JObject
+        ' batting stats
+        BattingStatsKeys.Add("runs", "Runs")
+        BattingStatsKeys.Add("doubles", "Doubles")
+        BattingStatsKeys.Add("triples", "Triples")
+        BattingStatsKeys.Add("homeRuns", "Home Runs")
+        BattingStatsKeys.Add("strikeOuts", "Strike Outs")
+        BattingStatsKeys.Add("baseOnBalls", "Walks")
+        BattingStatsKeys.Add("hits", "Hits")
+        BattingStatsKeys.Add("hitByPitch", "Hit By Pitch")
+        BattingStatsKeys.Add("avg", "Batting Average")
+        BattingStatsKeys.Add("atBats", "At Bats")
+        BattingStatsKeys.Add("obp", "On Base Percentage (OBP)")
+        BattingStatsKeys.Add("slg", "Slugging")
+        BattingStatsKeys.Add("ops", "OBP + Slugging (OPS)")
+        BattingStatsKeys.Add("caughtStealing", "Caught Stealing")
+        BattingStatsKeys.Add("stolenBases", "Stolen Bases")
+        BattingStatsKeys.Add("stolenBasePercentage", "Stolen Base Percentage")
+        BattingStatsKeys.Add("plateAppearances", "Plate Appearances")
+        BattingStatsKeys.Add("totalBases", "Total Bases")
+        BattingStatsKeys.Add("rbi", "RBIs")
+        BattingStatsKeys.Add("sacBunts", "Sacrifice Bunts")
+        BattingStatsKeys.Add("atBatsPerHomeRun", "ABs / Home Runs")
+
+        ' pitching stats
+        PitchingStatsKeys.Add("gamesStarted", "Games Started")
+        PitchingStatsKeys.Add("groundOuts", "Ground Outs")
+        PitchingStatsKeys.Add("airOuts", "Air Outs")
+        PitchingStatsKeys.Add("intentionalWalks", "Intentional Walks")
+        PitchingStatsKeys.Add("numberOfPitches", "Number of Pitches")
+        PitchingStatsKeys.Add("era", "ERA")
+        PitchingStatsKeys.Add("inningsPitched", "Innings Pitched")
+        PitchingStatsKeys.Add("wins", "Wins")
+        PitchingStatsKeys.Add("losses", "Losses")
+        PitchingStatsKeys.Add("saves", "Saves")
+        PitchingStatsKeys.Add("holds", "Holds")
+        PitchingStatsKeys.Add("blownSaves", "Blown Saves")
+        PitchingStatsKeys.Add("earnedRuns", "Earned Runs")
+        PitchingStatsKeys.Add("whip", "WHIP")
+        PitchingStatsKeys.Add("battersFaced", "Batters Faced")
+        PitchingStatsKeys.Add("outs", "Outs")
+        PitchingStatsKeys.Add("gamesPitched", "Games Pitched")
+        PitchingStatsKeys.Add("completeGames", "Complete Games")
+        PitchingStatsKeys.Add("shutouts", "Shutouts")
+        PitchingStatsKeys.Add("pitchesThrown", "Pitches Thrown")
+        PitchingStatsKeys.Add("balls", "Balls")
+        PitchingStatsKeys.Add("strikes", "Strikes")
+        PitchingStatsKeys.Add("strikePercentage", "Percent Strikes")
+        PitchingStatsKeys.Add("hitBatsmen", "Hit Batters")
+        PitchingStatsKeys.Add("balks", "Balks")
+        PitchingStatsKeys.Add("wildPitches", "Wild Pitches")
+        PitchingStatsKeys.Add("pickoffs", "Pickoffs")
+        PitchingStatsKeys.Add("groundOutsToAirouts", "GO to AO Ration")
+        PitchingStatsKeys.Add("rbi", "RBIs")
+        PitchingStatsKeys.Add("winPercentage", "Win Percentage")
+        PitchingStatsKeys.Add("pitchesPerInning", "Pitches per Inning")
+        PitchingStatsKeys.Add("gamesFinished", "Games Finished")
+        PitchingStatsKeys.Add("strikeoutWalkRatio", "SO to Walk Ratio")
+        PitchingStatsKeys.Add("strikeoutsPer9Inn", "SO per 9 Innings")
+        PitchingStatsKeys.Add("walksPer9Inn", "Walks per 9 Innings")
+        PitchingStatsKeys.Add("hitsPer9Inn", "Hits per 9 Innings")
+        PitchingStatsKeys.Add("runsScoredPer9", "Runs per 9 Iniings")
+        PitchingStatsKeys.Add("homeRunsPer9", "HRs per 9 Innings")
+        PitchingStatsKeys.Add("inheritedRunners", "Inherited Runners")
+        PitchingStatsKeys.Add("inheritedRunnersScored", "Inherited Runners Scored")
+        PitchingStatsKeys.Add("sacBunts", "Sacrifice Bunts")
+        PitchingStatsKeys.Add("sacFlies", "Sacrifice Flies")
 
         Me.Cursor = Cursors.WaitCursor
 
@@ -284,94 +289,204 @@ Public Class MlbPlayerStats
 
                     Exit For
                 End If
-
             End If
         Next
 
         Me.Cursor = Cursors.Default
 
-        ' process all that data
+    End Sub
 
-        ' load fielding stats
-        'If FieldingGameStatsData IsNot Nothing Then
-        '    For Each key As String In FieldingStatsKeys2.Keys
-        '        Dim value = ""
-        '        If FieldingGameStatsData.ContainsKey(key) Then
-        '            value = FieldingGameStatsData(key)
-        '        End If
-        '        Me.mFieldingGameStats.Add(FieldingStatsKeys2(key), value)
-        '    Next
-        'End If
+    Sub ProcessFieldingData()
 
-        '' only pulls stats for primary postion
-        '' TODO - pull stats for all positions played.  Will require different UI
-        'If FieldingSeasonStatsData IsNot Nothing Then
-        '    Dim stats As JArray = FieldingSeasonStatsData.SelectToken("people[0].stats[0].splits")
-        '    If stats IsNot Nothing Then
-        '        For i = 0 To stats.Count - 1
-        '            Dim statsdata As JObject = stats.Item(i)
-        '            Dim position As String = statsdata.SelectToken("position.abbreviation")
-        '            If position.ToUpper() = Me.mThisPlayer.ShortPosition Then
-        '                For Each key As String In FieldingStatsKeys2.Keys
-        '                    Dim value As String = statsdata.SelectToken($"stat.{key}")
-        '                    If Me.mFieldingSeasonStats.Keys.Contains(FieldingStatsKeys2(key)) Then
-        '                        Me.mFieldingSeasonStats(FieldingStatsKeys2(key)) = Me.mFieldingSeasonStats(FieldingStatsKeys2(key)) + value
-        '                    Else
-        '                        Me.mFieldingSeasonStats.Add(FieldingStatsKeys2(key), value)
-        '                    End If
+        Dim gamePositions As New List(Of String)
+        Dim seasonPositions As New List(Of String)
+        Dim careerPositions As New List(Of String)
 
-        '                Next
-        '            End If
-        '        Next
-        '    End If
-        'End If
+        ' load game fielding stats
+        If FieldingGameStatsData IsNot Nothing Then
 
-        '' ditto above
+            For Each key As String In FieldingStatsKeys.Keys
+                Dim value As String = FieldingGameStatsData.SelectToken(key)
+                If mFieldingGameStats.ContainsKey(FieldingStatsKeys(key)) Then
+                    mFieldingGameStats(FieldingStatsKeys(key)) = value
+                Else
+                    mFieldingGameStats.Add(FieldingStatsKeys(key), value)
+                End If
+            Next
+            gamePositions.Add("Game")
+        End If
+
+
+        If FieldingSeasonStatsData IsNot Nothing Then
+            Dim stats As JArray = FieldingSeasonStatsData.SelectToken("people[0].stats[0].splits")
+
+            If stats IsNot Nothing Then
+                For i = 0 To stats.Count - 1
+                    Dim statsdata As JObject = stats.Item(i)
+
+                    ' create dic for player stats for each team played on this season
+                    Dim statsDic As Dictionary(Of String, String) = New Dictionary(Of String, String)
+
+                    Dim position As String
+                    Dim teamName As String
+                    Dim numTeams As Integer = Convert.ToInt32(statsdata.SelectToken("numTeams"))
+
+                    If i = 0 Then  '' 0th entry is summary of all season
+                        If numTeams > 1 Then
+                            position = ""
+                            teamName = "Totals"
+                        Else
+                            position = FieldingSeasonStatsData.SelectToken("people[0].primaryPosition.abbreviation")
+                            teamName = FieldingSeasonStatsData.SelectToken("people[0].currentTeam.name")
+                        End If
+
+                    Else
+                        position = statsdata.SelectToken("position.abbreviation")
+                        teamName = statsdata.SelectToken("team.name")
+                    End If
+
+                    For Each key As String In FieldingStatsKeys.Keys
+                        Dim value As String = statsdata.SelectToken($"stat.{key}")
+                        If statsDic.ContainsKey(FieldingStatsKeys(key)) Then
+                            statsDic(FieldingStatsKeys(key)) = value
+                        Else
+                            statsDic.Add(FieldingStatsKeys(key), value)
+                        End If
+
+                    Next
+                    position = $"Season: {position} ({teamName})"
+                    Me.mFieldingSeasonStats.Add(position, statsDic)
+                    seasonPositions.Add(position)
+                Next
+            End If
+        End If
+
+
+        ' FiX HERE and BELOW
+
+
         'If FieldingCareerStatsData IsNot Nothing Then
         '    Dim stats As JArray = FieldingCareerStatsData.SelectToken("people[0].stats[0].splits")
+
         '    If stats IsNot Nothing Then
         '        For i = 0 To stats.Count - 1
         '            Dim statsdata As JObject = stats.Item(i)
-        '            Dim position As String = statsdata.SelectToken("position.abbreviation")
-        '            If position.ToUpper() = Me.mThisPlayer.ShortPosition Then
-        '                For Each key As String In FieldingStatsKeys2.Keys
-        '                    Dim value As String = statsdata.SelectToken($"stat.{key}")
-        '                    Me.mFieldingCareerStats.Add(FieldingStatsKeys2(key), value)
-        '                Next
+
+        '            ' create dic for player stats for each team played on this season
+        '            Dim statsDic As Dictionary(Of String, String) = New Dictionary(Of String, String)
+
+        '            Dim position As String
+        '            If i = 0 Then
+        '                position = FieldingCareerStatsData.SelectToken("people[0].primaryPosition.abbreviation")
+        '            Else
+        '                position = statsdata.SelectToken("position.abbreviation")
         '            End If
+
+
+        '            For Each key As String In FieldingStatsKeys.Keys
+        '                Dim value As String = statsdata.SelectToken($"stat.{key}")
+        '                If statsDic.ContainsKey(FieldingStatsKeys(key)) Then
+        '                    statsDic(FieldingStatsKeys(key)) = value
+        '                Else
+        '                    statsDic.Add(FieldingStatsKeys(key), value)
+        '                End If
+        '            Next
+        '            position = $"Career: {position}"
+        '            If Me.mFieldingCareerStats.ContainsKey(position) Then
+        '                Trace.WriteLine($"{position} already in fielding career stats: {statsDic}")
+        '            Else
+        '                Me.mFieldingCareerStats.Add(position, statsDic)
+        '            End If
+
+        '            careerPositions.Add(position)
         '        Next
         '    End If
         'End If
 
-        Dim dt As DataTable = InitDataGrids()
-        'For Each key As String In mFieldingSeasonStats.Keys
-        '    Dim dr As DataRow = dt.NewRow()
-        '    dr.Item("Stat") = key
-        '    If mFieldingGameStats.ContainsKey(key) Then
-        '        dr.Item("Game") = mFieldingGameStats(key)
-        '    End If
-        '    If mFieldingSeasonStats.ContainsKey(key) Then
-        '        dr.Item("Season") = mFieldingSeasonStats(key)
-        '    End If
-        '    If mFieldingCareerStats.ContainsKey(key) Then
-        '        dr.Item("Career") = mFieldingCareerStats(key)
-        '    End If
-        '    dt.Rows.Add(dr)
-        'Next
-        'dgvFieldingStats.DataSource = dt
+        Dim dt As DataTable = InitFieldingGridColumns(gamePositions, seasonPositions, careerPositions)
 
-        ' load batting stats
+        ' game data
+        For Each position In gamePositions
+            For Each key In mFieldingGameStats.Keys
+                Dim dr As DataRow = dt.NewRow()
+                dr.Item("Stat") = key
+                dr.Item(position) = mFieldingGameStats.Item(key)
+                dt.Rows.Add(dr)
+            Next
+        Next
 
+        ' career data
+        For Each position In careerPositions
+            Dim statsDic = mFieldingCareerStats(position)
+            For Each key As String In statsDic.Keys
+                Dim dr As DataRow
+                If dt.Rows.Count > 0 Then
+                    dr = dt.Select($"Stat = '{key}'")(0)
+                End If
+
+                If dr Is Nothing Then
+                    dr = dt.NewRow()
+                    dr.Item(position) = statsDic.Item(key)
+                    dt.Rows.Add(dr)
+                Else
+                    dr.Item(position) = statsDic.Item(key)
+                End If
+            Next
+        Next
+
+
+        ' season data
+        For Each team As String In mFieldingSeasonStats.Keys
+            Dim statsDic = mFieldingSeasonStats.Item(team)
+
+            For Each key In statsDic.Keys
+                Dim dr As DataRow = dt.Select($"Stat = '{key}'")(0)
+                If dr Is Nothing Then
+                    dr = dt.NewRow()
+                    dr.Item(team) = statsDic.Item(key)
+                    dt.Rows.Add(dr)
+                Else
+                    dr.Item(team) = statsDic.Item(key)
+                End If
+
+            Next
+        Next
+
+        ' sort by stat
+        dt = dt.Select("", "Stat").CopyToDataTable()
+
+        ' set datagrid source
+        dgvFieldingStats.DataSource = dt
+
+    End Sub
+
+    Function ProcessSinglePositionGameData(data As JObject, statskeys As SortedDictionary(Of String, String)) As Dictionary(Of String, String)
+        Dim dict As New Dictionary(Of String, String)
+        If data IsNot Nothing Then
+            For Each key As String In statskeys.Keys
+                Dim value = ""
+                If data.ContainsKey(key) Then
+                    value = data(key)
+                End If
+                dict.Add(statskeys(key), value)
+            Next
+        End If
+    End Function
+
+    Sub ProcessBattingData()
+
+        ' load game batting stats
         If BattingGameStatsData IsNot Nothing Then
-            For Each key As String In BattingStatsKeys2.Keys
+            For Each key As String In BattingStatsKeys.Keys
                 Dim value = ""
                 If BattingGameStatsData.ContainsKey(key) Then
                     value = BattingGameStatsData(key)
                 End If
-                Me.mBattingGameStats.Add(BattingStatsKeys2(key), value)
+                Me.mBattingGameStats.Add(BattingStatsKeys(key), value)
             Next
         End If
 
+        ' load season batting stats
         If BattingSeasonStatsData IsNot Nothing Then
             Dim stats As JArray = BattingSeasonStatsData.SelectToken("people[0].stats[0].splits")
 
@@ -383,21 +498,28 @@ Public Class MlbPlayerStats
                     Dim statsDic As Dictionary(Of String, String) = New Dictionary(Of String, String)
 
                     Dim teamName As String
+                    Dim numTeams As Integer = Convert.ToInt32(statsdata.SelectToken("numTeams"))
                     If i = 0 Then
-                        teamName = BattingSeasonStatsData.SelectToken("people[0].currentTeam.name")
+                        If numTeams > 1 Then
+                            teamName = "Totals"
+                        Else
+                            teamName = BattingSeasonStatsData.SelectToken("people[0].currentTeam.name")
+                        End If
                     Else
                         teamName = statsdata.SelectToken("team.name")
                     End If
 
-                    For Each key As String In BattingStatsKeys2.Keys
+                    For Each key As String In BattingStatsKeys.Keys
                         Dim value As String = statsdata.SelectToken($"stat.{key}")
-                        If statsDic.ContainsKey(BattingStatsKeys2(key)) Then
-                            statsDic(BattingStatsKeys2(key)) = value
+                        If statsDic.ContainsKey(BattingStatsKeys(key)) Then
+                            statsDic(BattingStatsKeys(key)) = value
                         Else
-                            statsDic.Add(BattingStatsKeys2(key), value)
+                            statsDic.Add(BattingStatsKeys(key), value)
                         End If
 
                     Next
+
+                    ' if player played for same team twice during season, rename one team
                     Dim dupIndex As Integer = 1
                     While mBattingSeasonStats.Keys.Contains(teamName)
                         teamName = $"{teamName}-{dupIndex}"
@@ -408,27 +530,28 @@ Public Class MlbPlayerStats
             End If
         End If
 
+        ' load career batting stats
         If BattingCareerStatsData IsNot Nothing Then
             Dim stats As JArray = BattingCareerStatsData.SelectToken("people[0].stats[0].splits")
             If stats IsNot Nothing Then
                 For i = 0 To stats.Count - 1
                     Dim statsdata As JObject = stats.Item(i)
-                    For Each key As String In BattingStatsKeys2.Keys
+                    For Each key As String In BattingStatsKeys.Keys
                         Dim value As String = statsdata.SelectToken($"stat.{key}")
-                        If mBattingCareerStats.ContainsKey(key) Then
-                            Me.mBattingCareerStats(key) = value
-                        Else
-                            Me.mBattingCareerStats.Add(BattingStatsKeys2(key), value)
-                        End If
-
+                        ' If mBattingCareerStats.ContainsKey(key) Then
+                        'Me.mBattingCareerStats(key) = value
+                        'Else
+                        Me.mBattingCareerStats.Add(BattingStatsKeys(key), value)
+                        'End If
                     Next
                 Next
             End If
         End If
 
+        ' load data into datatable
+        Dim dt As DataTable = InitBattingAndPitchingGridColumns(mBattingSeasonStats.Keys.ToList())
 
-        dt = InitDataGrids2()
-
+        ' game data
         For Each key In mBattingGameStats.Keys
             Dim dr As DataRow = dt.NewRow()
             dr.Item("Stat") = key
@@ -436,6 +559,7 @@ Public Class MlbPlayerStats
             dt.Rows.Add(dr)
         Next
 
+        ' career data
         For Each key In mBattingCareerStats.Keys
             Dim dr As DataRow = dt.Select($"Stat = '{key}'")(0)
             If dr Is Nothing Then
@@ -447,9 +571,124 @@ Public Class MlbPlayerStats
             End If
         Next
 
-
+        ' season data
         For Each team As String In mBattingSeasonStats.Keys
             Dim statsDic = mBattingSeasonStats.Item(team)
+
+            For Each key In statsDic.Keys
+                Dim dr As DataRow = dt.Select($"Stat = '{key}'")(0)
+                If dr Is Nothing Then
+                    dr = dt.NewRow()
+                    dr.Item($"Season ({team})") = statsDic.Item(key)
+                    dt.Rows.Add(dr)
+                Else
+                    dr.Item($"Season ({team})") = statsDic.Item(key)
+                End If
+
+            Next
+        Next
+
+        ' sort by stat
+        dt = dt.Select("", "Stat").CopyToDataTable()
+
+        ' set datagrid source
+        dgvBattingStats.DataSource = dt
+
+    End Sub
+
+    Sub ProcessPitchingData()
+
+        ' load pitching stats data
+        If PitchingGameStatsData IsNot Nothing Then
+            For Each key As String In PitchingStatsKeys.Keys
+                Dim value = ""
+                If PitchingGameStatsData.ContainsKey(key) Then
+                    value = PitchingGameStatsData(key)
+                End If
+                Me.mPitchingGameStats.Add(PitchingStatsKeys(key), value)
+            Next
+        End If
+
+        If PitchingSeasonStatsData IsNot Nothing Then
+            Dim stats As JArray = PitchingSeasonStatsData.SelectToken("people[0].stats[0].splits")
+
+            If stats IsNot Nothing Then
+                For i = 0 To stats.Count - 1
+                    Dim statsdata As JObject = stats.Item(i)
+
+                    ' create dic for player stats for each team played on this season
+                    Dim statsDic As Dictionary(Of String, String) = New Dictionary(Of String, String)
+
+                    Dim teamName As String
+                    If i = 0 Then
+                        teamName = PitchingSeasonStatsData.SelectToken("people[0].currentTeam.name")
+                    Else
+                        teamName = statsdata.SelectToken("team.name")
+                    End If
+
+                    For Each key As String In PitchingStatsKeys.Keys
+                        Dim value As String = statsdata.SelectToken($"stat.{key}")
+                        If statsDic.ContainsKey(PitchingStatsKeys(key)) Then
+                            statsDic(PitchingStatsKeys(key)) = value
+                        Else
+                            statsDic.Add(PitchingStatsKeys(key), value)
+                        End If
+
+                    Next
+                    Dim dupIndex As Integer = 1
+                    While mPitchingSeasonStats.Keys.Contains(teamName)
+                        teamName = $"{teamName}-{dupIndex}"
+                        dupIndex += 1
+                    End While
+                    Me.mPitchingSeasonStats.Add(teamName, statsDic)
+                Next
+            End If
+        End If
+
+
+        If PitchingCareerStatsData IsNot Nothing Then
+            Dim stats As JArray = PitchingCareerStatsData.SelectToken("people[0].stats[0].splits")
+            If stats IsNot Nothing Then
+                For i = 0 To stats.Count - 1
+                    Dim statsdata As JObject = stats.Item(i)
+                    For Each key As String In PitchingStatsKeys.Keys
+                        Dim value As String = statsdata.SelectToken($"stat.{key}")
+                        'If mPitchingCareerStats.ContainsKey(key) Then
+                        'Me.mPitchingCareerStats(key) = value
+                        'Else
+                        Me.mPitchingCareerStats.Add(PitchingStatsKeys(key), value)
+                        'End If
+                    Next
+                Next
+            End If
+        End If
+
+        ' load data into datatable
+        Dim dt As DataTable = InitBattingAndPitchingGridColumns(mPitchingSeasonStats.Keys.ToList)
+
+        ' game data
+        For Each key In mPitchingGameStats.Keys
+            Dim dr As DataRow = dt.NewRow()
+            dr.Item("Stat") = key
+            dr.Item("Game") = mPitchingGameStats.Item(key)
+            dt.Rows.Add(dr)
+        Next
+
+        ' career data
+        For Each key In mPitchingCareerStats.Keys
+            Dim dr As DataRow = dt.Select($"Stat = '{key}'")(0)
+            If dr Is Nothing Then
+                dr = dt.NewRow()
+                dr.Item("Career") = mPitchingCareerStats.Item(key)
+                dt.Rows.Add(dr)
+            Else
+                dr.Item("Career") = mPitchingCareerStats.Item(key)
+            End If
+        Next
+
+        ' season data
+        For Each team As String In mPitchingSeasonStats.Keys
+            Dim statsDic = mPitchingSeasonStats.Item(team)
 
             For Each key In statsDic.Keys
                 Dim dr As DataRow = dt.Select($"Stat = '{key}'")(0)
@@ -465,94 +704,14 @@ Public Class MlbPlayerStats
 
         Next
 
+        ' sort by stat
+        dt = dt.Select("", "Stat").CopyToDataTable()
 
-            dgvBattingStats.DataSource = dt
-
-        'dt = InitDataGrids()
-        'For Each key As String In mBattingSeasonStats.Keys
-        '    Dim dr As DataRow = dt.NewRow()
-        '    dr.Item("Stat") = key
-        '    If mBattingGameStats.ContainsKey(key) Then
-        '        dr.Item("Game") = mBattingGameStats(key)
-        '    End If
-        '    If mBattingSeasonStats.ContainsKey(key) Then
-        '        dr.Item("Season") = mBattingSeasonStats(key)
-        '    End If
-        '    If mBattingCareerStats.ContainsKey(key) Then
-        '        dr.Item("Career") = mBattingCareerStats(key)
-        '    End If
-        '    dt.Rows.Add(dr)
-        'Next
-        'dgvBattingStats.DataSource = dt
-
-        ' load pitching stats
-
-        'If PitchingGameStatsData IsNot Nothing Then
-        '        For Each key As String In PitchingStatsKeys
-        '            Dim value = ""
-        '            If PitchingGameStatsData.ContainsKey(key) Then
-        '                value = PitchingGameStatsData(key)
-        '            End If
-        '            Me.mPitchingGameStats.Add(key, value)
-        '        Next
-        '    End If
-
-        'If PitchingSeasonStatsData IsNot Nothing Then
-        '    Dim stats As JArray = PitchingSeasonStatsData.SelectToken("people[0].stats[0].splits")
-        '    If stats IsNot Nothing Then
-        '        For i = 0 To stats.Count - 1
-        '            Dim statsdata As JObject = stats.Item(i)
-        '            'Dim position As String = statsdata.SelectToken("position.abbreviation")
-        '            'If position.ToUpper() = Me.mThisPlayer.ShortPosition Then
-        '            For Each key As String In PitchingStatsKeys2.Keys
-        '                Dim value As String = statsdata.SelectToken($"stat.{key}")
-        '                Me.mPitchingSeasonStats.Add(PitchingStatsKeys2(key), value)
-        '            Next
-        '            'End If
-        '        Next
-        '    End If
-        'End If
-
-
-        'If PitchingCareerStatsData IsNot Nothing Then
-        '    Dim stats As JArray = PitchingCareerStatsData.SelectToken("people[0].stats[0].splits")
-        '    If stats IsNot Nothing Then
-        '        For i = 0 To stats.Count - 1
-        '            Dim statsdata As JObject = stats.Item(i)
-        '            'Dim position As String = statsdata.SelectToken("position.abbreviation")
-        '            'If position.ToUpper() = Me.mThisPlayer.ShortPosition Then
-        '            For Each key As String In PitchingStatsKeys2.Keys
-        '                Dim value As String = statsdata.SelectToken($"stat.{key}")
-        '                Me.mPitchingCareerStats.Add(PitchingStatsKeys2(key), value)
-        '            Next
-        '            'End If
-        '        Next
-        '    End If
-        'End If
-
-        'dt = InitDataGrids()
-        '    For Each key As String In mPitchingSeasonStats.Keys
-        '        Dim dr As DataRow = dt.NewRow()
-        '        dr.Item("Stat") = key
-        '        If mPitchingGameStats.ContainsKey(key) Then
-        '            dr.Item("Game") = mPitchingGameStats(key)
-        '        End If
-        '        If mPitchingSeasonStats.ContainsKey(key) Then
-        '            dr.Item("Season") = mPitchingSeasonStats(key)
-        '        End If
-        '        If mPitchingCareerStats.ContainsKey(key) Then
-        '            dr.Item("Career") = mPitchingCareerStats(key)
-        '        End If
-        '        dt.Rows.Add(dr)
-        '    Next
-        '    dgvPitchingStats.DataSource = dt
-
-
-        dgvBattingStats.ColumnHeadersDefaultCellStyle.Font = New Font(dgvBattingStats.DefaultFont, FontStyle.Bold)
-        dgvFieldingStats.ColumnHeadersDefaultCellStyle.Font = New Font(dgvFieldingStats.DefaultFont, FontStyle.Bold)
-        dgvPitchingStats.ColumnHeadersDefaultCellStyle.Font = New Font(dgvPitchingStats.DefaultFont, FontStyle.Bold)
+        ' set datagrid source
+        dgvPitchingStats.DataSource = dt
 
     End Sub
+
 
 
 End Class

@@ -50,7 +50,7 @@ Public Class SBProperties
             key = line.Split("=")(0)
             value = line.Split("=")(1)
 
-            Add(key, value)
+            Me.Add(key, value)
             'Trace.WriteLine($"read prop {key} = {value}")
         Loop
 
@@ -75,7 +75,7 @@ Public Class SBProperties
         For Each key As String In m_Properties.Keys()
             If Not key Is Nothing Then
                 sw.WriteLine($"{key}={GetProperty(key)}")
-                'Trace.WriteLine($"propery {key} saved as {GetProperty(key)}")
+                Trace.WriteLine($"propery {key} saved as {GetProperty(key)}")
             End If
         Next
         sw.Close()
