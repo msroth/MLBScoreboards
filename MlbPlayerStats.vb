@@ -324,25 +324,75 @@ Public Class MlbPlayerStats
                 For i = 0 To stats.Count - 1
                     Dim statsdata As JObject = stats.Item(i)
 
-                    ' create dic for player stats for each team played on this season
+                    ' create dic for player stats for each team-position played on this season
                     Dim statsDic As Dictionary(Of String, String) = New Dictionary(Of String, String)
 
                     Dim position As String
                     Dim teamName As String
                     Dim numTeams As Integer = Convert.ToInt32(statsdata.SelectToken("numTeams"))
+                    If numTeams > 1 Then
+                        Continue For  ' this is a summary stat
+                    End If
+                    'If i = 0 Then  '' 0th entry is summary of all season
+                    '    If numTeams > 1 Then
+                    '        '    position = ""
+                    '        '    teamName = "Totals"
+                    '        Continue For
+                    '    Else
+                    '        position = FieldingSeasonStatsData.SelectToken("people[0].primaryPosition.abbreviation")
+                    '        If position = "DH" Then
+                    '            Continue For
+                    '        End If
+                    '        teamName = FieldingSeasonStatsData.SelectToken("people[0].currentTeam.name")
 
-                    If i = 0 Then  '' 0th entry is summary of all season
-                        If numTeams > 1 Then
-                            position = ""
-                            teamName = "Totals"
-                        Else
-                            position = FieldingSeasonStatsData.SelectToken("people[0].primaryPosition.abbreviation")
-                            teamName = FieldingSeasonStatsData.SelectToken("people[0].currentTeam.name")
+                    '    End If
+
+                    'Else
+                    position = statsdata.SelectToken("position.abbreviation")
+                        If position = "DH" Then
+                            Continue For
                         End If
-
-                    Else
-                        position = statsdata.SelectToken("position.abbreviation")
                         teamName = statsdata.SelectToken("team.name")
+                    'End If
+
+                    For Each key As String In FieldingStatsKeys.Keys
+                        Dim value As String = statsdata.SelectToken($"stat.{key}")
+                        'If statsDic.ContainsKey(FieldingStatsKeys(key)) Then
+                        'statsDic(FieldingStatsKeys(key)) = value
+                        'Else
+                        statsDic.Add(FieldingStatsKeys(key), value)
+                        'End If
+
+                    Next
+
+                    position = $"Season: {position} ({teamName})"
+                    Dim dupIndex As Integer = 1
+                    While mFieldingSeasonStats.Keys.Contains(position)
+                        position = $"{position}-{dupIndex}"
+                        dupIndex += 1
+                    End While
+
+                    Me.mFieldingSeasonStats.Add(position, statsDic)
+                    seasonPositions.Add(position)
+                Next
+            End If
+        End If
+
+
+
+        If FieldingCareerStatsData IsNot Nothing Then
+            Dim stats As JArray = FieldingCareerStatsData.SelectToken("people[0].stats[0].splits")
+
+            If stats IsNot Nothing Then
+                For i = 0 To stats.Count - 1
+                    Dim statsdata As JObject = stats.Item(i)
+
+                    ' create dic for player stats for each position played
+                    Dim statsDic As Dictionary(Of String, String) = New Dictionary(Of String, String)
+                    Dim position As String = statsdata.SelectToken("position.abbreviation")
+
+                    If position = "DH" Then
+                        Continue For
                     End If
 
                     For Each key As String In FieldingStatsKeys.Keys
@@ -352,56 +402,22 @@ Public Class MlbPlayerStats
                         Else
                             statsDic.Add(FieldingStatsKeys(key), value)
                         End If
-
                     Next
-                    position = $"Season: {position} ({teamName})"
-                    Me.mFieldingSeasonStats.Add(position, statsDic)
-                    seasonPositions.Add(position)
+
+                    position = $"Career: {position}"
+                    'If Me.mFieldingCareerStats.ContainsKey(position) Then
+                    'Trace.WriteLine($"{position} already in fielding career stats: {statsDic}")
+                    'Else
+                    Me.mFieldingCareerStats.Add(position, statsDic)
+                    'End If
+
+                    'If Not careerPositions.Contains(position) Then
+                    careerPositions.Add(position)
+                    'End If
+
                 Next
             End If
         End If
-
-
-        ' FiX HERE and BELOW
-
-
-        'If FieldingCareerStatsData IsNot Nothing Then
-        '    Dim stats As JArray = FieldingCareerStatsData.SelectToken("people[0].stats[0].splits")
-
-        '    If stats IsNot Nothing Then
-        '        For i = 0 To stats.Count - 1
-        '            Dim statsdata As JObject = stats.Item(i)
-
-        '            ' create dic for player stats for each team played on this season
-        '            Dim statsDic As Dictionary(Of String, String) = New Dictionary(Of String, String)
-
-        '            Dim position As String
-        '            If i = 0 Then
-        '                position = FieldingCareerStatsData.SelectToken("people[0].primaryPosition.abbreviation")
-        '            Else
-        '                position = statsdata.SelectToken("position.abbreviation")
-        '            End If
-
-
-        '            For Each key As String In FieldingStatsKeys.Keys
-        '                Dim value As String = statsdata.SelectToken($"stat.{key}")
-        '                If statsDic.ContainsKey(FieldingStatsKeys(key)) Then
-        '                    statsDic(FieldingStatsKeys(key)) = value
-        '                Else
-        '                    statsDic.Add(FieldingStatsKeys(key), value)
-        '                End If
-        '            Next
-        '            position = $"Career: {position}"
-        '            If Me.mFieldingCareerStats.ContainsKey(position) Then
-        '                Trace.WriteLine($"{position} already in fielding career stats: {statsDic}")
-        '            Else
-        '                Me.mFieldingCareerStats.Add(position, statsDic)
-        '            End If
-
-        '            careerPositions.Add(position)
-        '        Next
-        '    End If
-        'End If
 
         Dim dt As DataTable = InitFieldingGridColumns(gamePositions, seasonPositions, careerPositions)
 
@@ -499,23 +515,27 @@ Public Class MlbPlayerStats
 
                     Dim teamName As String
                     Dim numTeams As Integer = Convert.ToInt32(statsdata.SelectToken("numTeams"))
-                    If i = 0 Then
-                        If numTeams > 1 Then
-                            teamName = "Totals"
-                        Else
-                            teamName = BattingSeasonStatsData.SelectToken("people[0].currentTeam.name")
-                        End If
-                    Else
-                        teamName = statsdata.SelectToken("team.name")
+                    If numTeams > 1 Then
+                        Continue For  ' this is a summary stat
                     End If
+
+                    'If i = 0 Then
+                    '    If numTeams > 1 Then
+                    '        teamName = "Totals"
+                    '    Else
+                    '        teamName = BattingSeasonStatsData.SelectToken("people[0].currentTeam.name")
+                    '    End If
+                    'Else
+                    teamName = statsdata.SelectToken("team.name")
+                    'End If
 
                     For Each key As String In BattingStatsKeys.Keys
                         Dim value As String = statsdata.SelectToken($"stat.{key}")
-                        If statsDic.ContainsKey(BattingStatsKeys(key)) Then
-                            statsDic(BattingStatsKeys(key)) = value
-                        Else
-                            statsDic.Add(BattingStatsKeys(key), value)
-                        End If
+                        'If statsDic.ContainsKey(BattingStatsKeys(key)) Then
+                        'statsDic(BattingStatsKeys(key)) = value
+                        'Else
+                        statsDic.Add(BattingStatsKeys(key), value)
+                        'End If
 
                     Next
 
@@ -538,11 +558,7 @@ Public Class MlbPlayerStats
                     Dim statsdata As JObject = stats.Item(i)
                     For Each key As String In BattingStatsKeys.Keys
                         Dim value As String = statsdata.SelectToken($"stat.{key}")
-                        ' If mBattingCareerStats.ContainsKey(key) Then
-                        'Me.mBattingCareerStats(key) = value
-                        'Else
                         Me.mBattingCareerStats.Add(BattingStatsKeys(key), value)
-                        'End If
                     Next
                 Next
             End If
@@ -620,19 +636,29 @@ Public Class MlbPlayerStats
                     Dim statsDic As Dictionary(Of String, String) = New Dictionary(Of String, String)
 
                     Dim teamName As String
-                    If i = 0 Then
-                        teamName = PitchingSeasonStatsData.SelectToken("people[0].currentTeam.name")
-                    Else
-                        teamName = statsdata.SelectToken("team.name")
+                    Dim numTeams As Integer = Convert.ToInt32(statsdata.SelectToken("numTeams"))
+                    If numTeams > 1 Then
+                        Continue For  ' this is a summary stat
                     End If
+
+                    'If i = 0 Then
+                    '    If numTeams > 1 Then
+                    '        'teamName = "Totals"
+                    '        Continue For
+                    '    Else
+                    '        teamName = BattingSeasonStatsData.SelectToken("people[0].currentTeam.name")
+                    '    End If
+                    'Else
+                    teamName = statsdata.SelectToken("team.name")
+                    'End If
 
                     For Each key As String In PitchingStatsKeys.Keys
                         Dim value As String = statsdata.SelectToken($"stat.{key}")
-                        If statsDic.ContainsKey(PitchingStatsKeys(key)) Then
-                            statsDic(PitchingStatsKeys(key)) = value
-                        Else
-                            statsDic.Add(PitchingStatsKeys(key), value)
-                        End If
+                        'If statsDic.ContainsKey(PitchingStatsKeys(key)) Then
+                        'statsDic(PitchingStatsKeys(key)) = value
+                        'Else
+                        statsDic.Add(PitchingStatsKeys(key), value)
+                        'End If
 
                     Next
                     Dim dupIndex As Integer = 1

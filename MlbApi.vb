@@ -17,6 +17,7 @@ Public Class MlbApi
     'Private API_PERSON_STATS_URL = API_BASE_URL + "/v1/people/{0}/stats/game/{1}"
     Private API_PERSON_STATS_URL As String = API_BASE_URL + "/v1/people/{0}?hydrate=stats(group={1},type={2}),currentTeam"
     Private API_STANDINGS_URL As String = API_BASE_URL + "/v1/standings?leagueId=103,104&season={0}&standingsTypes=regularSeason&hydrate=team(division)&fields=records,standingsType,teamRecords,team,name,division,id,nameShort,abbreviation,divisionRank,gamesBack,wildCardRank,wildCardGamesBack,wildCardEliminationNumber,divisionGamesBack,clinched,eliminationNumber,winningPercentage,type,wins,losses,leagueRank,sportRank"
+    Private API_POSTSEASON_STANDINGS_URL As String = API_BASE_URL + "/v1/schedule/postseason/series?season={0}"
 
 
     'Shared client As HttpClient = New HttpClient()
@@ -161,4 +162,10 @@ Public Class MlbApi
         Return json
     End Function
 
+    Function ReturnPostSeasonStandings(year As String) As JObject
+        Dim url As String = String.Format(API_POSTSEASON_STANDINGS_URL, year)
+        Dim r As String = GetData(url)
+        Dim json As JObject = JObject.Parse(r)
+        Return json
+    End Function
 End Class

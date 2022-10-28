@@ -1,4 +1,5 @@
 ﻿
+Imports System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder
 Imports Newtonsoft.Json.Linq
 
 Public Class MlbStandings
@@ -21,10 +22,12 @@ Public Class MlbStandings
         ' get standings data
         Me.mData = Me.mAPI.ReturnSeasonStandings(Year)
 
-        LoadGrids()
+        LoadLeagueStandings()
+        LoadPostSeasonStandings()
+        LoadWS()
     End Sub
 
-    Private Sub LoadGrids()
+    Private Sub LoadLeagueStandings()
 
         Dim dtDivisionStandings As DataTable
         For i = 0 To Me.mData.SelectToken("records").Count - 1
@@ -139,6 +142,159 @@ Public Class MlbStandings
 
     End Function
 
+    Function initPostSeasonStandingDataTable() As DataTable
+
+        Dim dt As New DataTable()
+        Dim col As New DataColumn()
+        col.ColumnName = "Game"
+        dt.Columns.Add(col)
+
+        col = New DataColumn()
+        col.ColumnName = "Away"
+        dt.Columns.Add(col)
+
+        col = New DataColumn()
+        col.ColumnName = "Score"
+        dt.Columns.Add(col)
+
+        col = New DataColumn()
+        col.ColumnName = "Home"
+        dt.Columns.Add(col)
+
+        col = New DataColumn()
+        col.ColumnName = "Winner"
+        dt.Columns.Add(col)
+
+        col = New DataColumn()
+        col.ColumnName = "Venue"
+        dt.Columns.Add(col)
+
+        Return dt
+    End Function
+
+
+    Private Sub LoadPostSeasonStandings()
+
+        Dim alwc As DataTable = initPostSeasonStandingDataTable()
+        Dim nlwc As DataTable = initPostSeasonStandingDataTable()
+        Dim alds As DataTable = initPostSeasonStandingDataTable()
+        Dim nlds As DataTable = initPostSeasonStandingDataTable()
+        Dim alcs As DataTable = initPostSeasonStandingDataTable()
+        Dim nlcs As DataTable = initPostSeasonStandingDataTable()
+
+
+        Dim PostSeasonData As JObject = mAPI.ReturnPostSeasonStandings(mYear)
+        Dim totalItems As String = PostSeasonData.SelectToken("totalItems")
+
+        If Convert.ToInt32(totalItems) = 0 Then
+            Me.TabControl1.TabPages.Remove(TabPage2)
+            Me.TabControl1.TabPages.Remove(TabPage3)
+            Return
+        End If
+
+        Dim seriesData As JArray = PostSeasonData.SelectToken("series")
+        For i As Integer = 0 To seriesData.Count - 1
+            Dim series As JObject = seriesData.Item(i)
+            Dim seriesId As String = series.SelectToken("series.id")
+            Dim row As DataRow
+            Dim games As JArray
+
+            ' AL Wild Card Series
+            If seriesId = "F_1" Or seriesId = "F_2" Then
+                games = series.SelectToken("games")
+                dgvALWC.DataSource = ProcessPostSeasonGameData(games, alwc)
+                dgvALWC.ClearSelection()
+                ' NL Wild Card 3-6
+            ElseIf seriesId = "F_3" Or seriesId = "F_4" Then
+                games = series.SelectToken("games")
+                dgvNLWC.DataSource = ProcessPostSeasonGameData(games, nlwc)
+                dgvNLWC.ClearSelection()
+                ' AL Division Series
+            ElseIf seriesId = "D_1" Or seriesId = "D_2" Then
+                games = series.SelectToken("games")
+                dgvALDS.DataSource = ProcessPostSeasonGameData(games, alds)
+                dgvALDS.ClearSelection()
+                ' NL Division Series
+            ElseIf seriesId = "D_3" Or seriesId = "D_4" Then
+                games = series.SelectToken("games")
+                dgvNLDS.DataSource = ProcessPostSeasonGameData(games, nlds)
+                dgvNLDS.ClearSelection()
+                'AL Conference Series
+            ElseIf seriesId = "L_1" Then
+                games = series.SelectToken("games")
+                dgvALCS.DataSource = ProcessPostSeasonGameData(games, alcs)
+                dgvALCS.ClearSelection()
+                'NL Conferense Series
+            ElseIf seriesId = "L_2" Or seriesId = "D_4" Then
+                games = series.SelectToken("games")
+                dgvNLCS.DataSource = ProcessPostSeasonGameData(games, nlcs)
+                dgvNLCS.ClearSelection()
+            End If
+
+        Next
+
+        ' format data grids
+        dgvALWC.ColumnHeadersDefaultCellStyle.Font = New Font(dgvALWC.DefaultFont, FontStyle.Bold)
+        dgvNLWC.ColumnHeadersDefaultCellStyle.Font = New Font(dgvNLWC.DefaultFont, FontStyle.Bold)
+        dgvALDS.ColumnHeadersDefaultCellStyle.Font = New Font(dgvALDS.DefaultFont, FontStyle.Bold)
+        dgvNLDS.ColumnHeadersDefaultCellStyle.Font = New Font(dgvNLDS.DefaultFont, FontStyle.Bold)
+        dgvALCS.ColumnHeadersDefaultCellStyle.Font = New Font(dgvALCS.DefaultFont, FontStyle.Bold)
+        dgvNLCS.ColumnHeadersDefaultCellStyle.Font = New Font(dgvNLCS.DefaultFont, FontStyle.Bold)
+
+    End Sub
+
+    Function ProcessPostSeasonGameData(games As JArray, dt As DataTable) As DataTable
+
+        For j As Integer = 0 To games.Count - 1
+            Dim game As JObject = games.Item(j)
+            Dim gameState As String = game.SelectToken("status.detailedState")
+
+            If gameState.ToUpper() = "FINAL" Or gameState.ToUpper() = "SCHEDULED" Then
+                Dim row As DataRow = dt.NewRow()
+                row("Game") = game.SelectToken("description")
+                row("Home") = game.SelectToken("teams.home.team.name")
+                row("Away") = game.SelectToken("teams.away.team.name")
+
+                If gameState.ToUpper() = "FINAL" Then
+                    row("Score") = game.SelectToken("teams.away.score").ToString() + " - " + game.SelectToken("teams.home.score").ToString()
+                    If game.SelectToken("teams.away.isWinner").ToString().ToUpper() = "TRUE" Then
+                        row("Winner") = game.SelectToken("teams.away.team.name")
+                    Else
+                        row("Winner") = game.SelectToken("teams.home.team.name")
+                    End If
+                Else
+                    row("Score") = gameState
+                End If
+
+                row("Venue") = game.SelectToken("venue.name")
+                dt.Rows.Add(row)
+            End If
+
+        Next
+        Return dt
+    End Function
+
+    Private Sub LoadWS()
+
+        Dim ws As DataTable = initPostSeasonStandingDataTable()
+        Dim PostSeasonData As JObject = mAPI.ReturnPostSeasonStandings(mYear)
+        Dim seriesData As JArray = PostSeasonData.SelectToken("series")
+        For i As Integer = 0 To seriesData.Count - 1
+            Dim series As JObject = seriesData.Item(i)
+            Dim seriesId As String = series.SelectToken("series.id")
+            Dim games As JArray
+
+            ' World Series
+            If seriesId = "W_1" Then
+                games = series.SelectToken("games")
+                dgvWS.DataSource = ProcessPostSeasonGameData(games, ws)
+                dgvWS.ClearSelection()
+            End If
+
+        Next
+
+        dgvWS.ColumnHeadersDefaultCellStyle.Font = New Font(dgvWS.DefaultFont, FontStyle.Bold)
+    End Sub
 
 End Class
 
