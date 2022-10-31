@@ -1025,7 +1025,7 @@ Partial Class MlbStandings
         Me.dgvWS.ShowCellToolTips = False
         Me.dgvWS.ShowEditingIcon = False
         Me.dgvWS.ShowRowErrors = False
-        Me.dgvWS.Size = New System.Drawing.Size(668, 241)
+        Me.dgvWS.Size = New System.Drawing.Size(668, 169)
         Me.dgvWS.TabIndex = 23
         '
         'Label13
@@ -1033,7 +1033,7 @@ Partial Class MlbStandings
         Me.Label13.AutoSize = True
         Me.Label13.BackColor = System.Drawing.Color.Yellow
         Me.Label13.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
-        Me.Label13.ForeColor = System.Drawing.SystemColors.ControlDark
+        Me.Label13.ForeColor = System.Drawing.SystemColors.ActiveCaptionText
         Me.Label13.Location = New System.Drawing.Point(343, 28)
         Me.Label13.Name = "Label13"
         Me.Label13.Padding = New System.Windows.Forms.Padding(2)

@@ -249,7 +249,7 @@ Public Class MlbStandings
             Dim game As JObject = games.Item(j)
             Dim gameState As String = game.SelectToken("status.detailedState")
 
-            If gameState.ToUpper() = "FINAL" Or gameState.ToUpper() = "SCHEDULED" Then
+            If gameState.ToUpper() = "FINAL" Or gameState.ToUpper() = "SCHEDULED" Or gameState.ToUpper() = "PRE-GAME" Or gameState.ToUpper() = "WARMUP" Then
                 Dim row As DataRow = dt.NewRow()
                 row("Game") = game.SelectToken("description")
                 row("Home") = game.SelectToken("teams.home.team.name")
@@ -288,7 +288,7 @@ Public Class MlbStandings
             If seriesId = "W_1" Then
                 games = series.SelectToken("games")
                 dgvWS.DataSource = ProcessPostSeasonGameData(games, ws)
-                dgvWS.ClearSelection()
+                'dgvWS.ClearSelection()
             End If
 
         Next
@@ -296,6 +296,13 @@ Public Class MlbStandings
         dgvWS.ColumnHeadersDefaultCellStyle.Font = New Font(dgvWS.DefaultFont, FontStyle.Bold)
     End Sub
 
+
+    Private Sub dgv_DataBindingComplete(sender As Object, e As DataGridViewBindingCompleteEventArgs) Handles dgvWS.DataBindingComplete, dgvNLCS.DataBindingComplete, dgvNLWest.DataBindingComplete, dgvNLWC.DataBindingComplete, dgvNLEast.DataBindingComplete, dgvNLDS.DataBindingComplete, dgvNLCentral.DataBindingComplete, dgvALWest.DataBindingComplete, dgvALWC.DataBindingComplete, dgvALEast.DataBindingComplete, dgvALDS.DataBindingComplete, dgvALCS.DataBindingComplete, dgvALCentral.DataBindingComplete
+        If sender.GetType() = GetType(DataGridView) Then
+            DirectCast(sender, DataGridView).ClearSelection()
+        End If
+
+    End Sub
 End Class
 
 '<SDG><

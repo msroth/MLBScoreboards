@@ -2,6 +2,7 @@
 Imports System.Numerics
 Imports System.Text
 Imports Newtonsoft.Json.Linq
+Imports NLog
 
 Public Class MlbTeam
 
@@ -11,12 +12,12 @@ Public Class MlbTeam
     Private mFullName As String
     Private mWins As String
     Private mLoses As String
-    'Private mLineup As List(Of MlbPlayer) = New List(Of MlbPlayer)
     Private mLineup As SortedDictionary(Of Integer, MlbPlayer) = New SortedDictionary(Of Integer, MlbPlayer)
     Private mRoster As List(Of MlbPlayer) = New List(Of MlbPlayer)
-    'Private mBattingOrder As List(Of MlbPlayer) = New List(Of MlbPlayer)
     Private mAPI As MlbApi = New MlbApi()
     Private mProps As SBProperties = New SBProperties()
+
+    Shared ReadOnly Logger As Logger = LogManager.GetCurrentClassLogger()
 
     Public ReadOnly Property Id() As Integer
         Get
@@ -60,12 +61,6 @@ Public Class MlbTeam
         End Get
     End Property
 
-    'Public ReadOnly Property Lineup() As List(Of MlbPlayer)
-    '    Get
-    '        Return Me.mLineup
-    '    End Get
-    'End Property
-
     Public ReadOnly Property Lineup() As SortedDictionary(Of Integer, MlbPlayer)
         Get
             Return Me.mLineup
@@ -77,12 +72,6 @@ Public Class MlbTeam
             Return Me.mRoster
         End Get
     End Property
-
-    'Public ReadOnly Property BattingOrder() As List(Of MlbPlayer)
-    '    Get
-    '        Return Me.mBattingOrder
-    '    End Get
-    'End Property
 
     Public Sub New(TeamId As Integer)
         Me.mId = TeamId
@@ -103,12 +92,15 @@ Public Class MlbTeam
                     If mProps.GetProperty(mProps.mKEEP_DATA_FILES_KEY) = 1 Then
                         Dim DataRoot = mProps.GetProperty(mProps.mDATA_FILES_PATH_KEY)
                         File.WriteAllText($"{DataRoot}\\{mAbbr}-teamdata.json", Team.ToString())
+                        Logger.Info($"Team data file written to {DataRoot}\\{mAbbr}-teamdata.json")
                     End If
                     Exit For
                 End If
             Next
+
+            Logger.Debug($"New Team object created for id={TeamId}")
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: New Team - {ex}")
+            Logger.Error($"ERROR: New Team - {ex}")
         End Try
     End Sub
 
@@ -168,7 +160,7 @@ Public Class MlbTeam
             Next
 
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: LoadRoster - {ex}")
+            Logger.Error($"ERROR: LoadRoster - {ex}")
         End Try
     End Sub
 
@@ -246,11 +238,9 @@ Public Class MlbTeam
             Next
 
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: LoadPlayerData - {ex}")
+            Logger.Error($"ERROR: LoadPlayerData - {ex}")
         End Try
     End Sub
-
-
 
     Public Overrides Function ToString() As String
         Dim sb As StringBuilder = New StringBuilder()
@@ -283,7 +273,6 @@ Public Class MlbTeam
             dt.Columns.Add("Position")
             dt.Columns.Add("BattingOrder")
 
-
             For Each key In mLineup.Keys
 
                 Dim player = mLineup.Item(key)
@@ -296,16 +285,13 @@ Public Class MlbTeam
                 dt.Rows.Add(row)
             Next
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: GetLineup - {ex}")
+            Logger.Error($"ERROR: GetLineup - {ex}")
         End Try
 
         Return dt
     End Function
 
     Function GetRosterTable() As DataTable
-
-        ' TODO - will probably want to have more/different data in roster?
-
         Dim dt As DataTable = New DataTable("Roster")
 
         Try
@@ -324,8 +310,9 @@ Public Class MlbTeam
             Next
 
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: GetRoster - {ex}")
+            Logger.Error($"ERROR: GetRoster - {ex}")
         End Try
+
         ' sort table by position
         dt = dt.Select("", "Position").CopyToDataTable()
         Return dt

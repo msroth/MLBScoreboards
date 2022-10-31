@@ -3,6 +3,7 @@
 Imports System.IO
 Imports System.Text
 Imports Newtonsoft.Json.Linq
+Imports NLog
 
 Public Class MlbPlayer
     Dim mId As String
@@ -19,6 +20,7 @@ Public Class MlbPlayer
     Private mAPI As MlbApi = New MlbApi()
     Private mProps As SBProperties = New SBProperties()
 
+    Shared ReadOnly Logger As Logger = LogManager.GetCurrentClassLogger()
 
     Public ReadOnly Property Id() As String
         Get
@@ -40,7 +42,7 @@ Public Class MlbPlayer
 
     Public ReadOnly Property ShortName() As String
         Get
-            Return Me.mFullName
+            Return Me.mShortName
         End Get
     End Property
 
@@ -86,57 +88,63 @@ Public Class MlbPlayer
         Return New MlbPlayer(Me.mId)
     End Function
 
-    Sub New(Id As String)
+    Sub New(PlayerId As String)
         ' Create new Player object by querying API
 
-        Me.mId = Id
+        Me.mId = PlayerId
+        Try
+            ' get data
+            Dim Data As JObject = mAPI.ReturnPlayerData(PlayerId)
+            Dim PlayerData As JProperty = Data.Property("people")
+            Dim ThisPlayer As JObject = PlayerData.Value(0)
 
-        ' get data
-        Dim Data As JObject = mAPI.ReturnPlayerData(Id)
-        Dim PlayerData As JProperty = Data.Property("people")
-        Dim ThisPlayer As JObject = PlayerData.Value(0)
+            Me.mNumber = ThisPlayer.SelectToken("primaryNumber")
+            Me.mFullName = ThisPlayer.SelectToken("fullName")
+            Me.mShortName = ThisPlayer.SelectToken("lastInitName")
+            Me.mShortPosition = ThisPlayer.SelectToken("primaryPosition.abbreviation")
+            Me.mPosition = ThisPlayer.SelectToken("primaryPosition.name")
 
-        Me.mNumber = ThisPlayer.SelectToken("primaryNumber")
-        Me.mFullName = ThisPlayer.SelectToken("fullName")
-        Me.mShortName = ThisPlayer.SelectToken("lastInitName")
-        Me.mShortPosition = ThisPlayer.SelectToken("primaryPosition.abbreviation")
-        Me.mPosition = ThisPlayer.SelectToken("primaryPosition.name")
+            ' batting stats
+            Dim BattingSeasonStatsData As JObject = Me.mAPI.ReturnPlayerStats(Me.mId, "season", "hitting")
+            Dim stats As JArray = BattingSeasonStatsData.SelectToken("people[0].stats[0].splits")
+            If stats IsNot Nothing Then
+                For i = 0 To stats.Count - 1
+                    Dim statsdata As JObject = stats.Item(i)
+                    Me.mAvg = statsdata.SelectToken("stat.avg")
+                    Me.mObp = statsdata.SelectToken("stat.obp")
+                    Me.mOps = statsdata.SelectToken("stat.ops")
+                Next
+            End If
 
-        ' batting stats
-        Dim BattingSeasonStatsData As JObject = Me.mAPI.ReturnPlayerStats(Me.mId, "season", "hitting")
-        Dim stats As JArray = BattingSeasonStatsData.SelectToken("people[0].stats[0].splits")
-        If stats IsNot Nothing Then
-            For i = 0 To stats.Count - 1
-                Dim statsdata As JObject = stats.Item(i)
-                Me.mAvg = statsdata.SelectToken("stat.avg")
-                Me.mObp = statsdata.SelectToken("stat.obp")
-                Me.mOps = statsdata.SelectToken("stat.ops")
-            Next
-        End If
+            ' pitching stats
+            Dim PitchingSeasonStatsData As JObject = Me.mAPI.ReturnPlayerStats(Me.mId, "season", "pitching")
+            stats = PitchingSeasonStatsData.SelectToken("people[0].stats[0].splits")
+            If stats IsNot Nothing Then
+                For i = 0 To stats.Count - 1
+                    Dim statsdata As JObject = stats.Item(i)
+                    Me.mEra = statsdata.SelectToken("stat.era")
+                Next
+            End If
 
-        ' pitching stats
-        Dim PitchingSeasonStatsData As JObject = Me.mAPI.ReturnPlayerStats(Me.mId, "season", "pitching")
-        stats = PitchingSeasonStatsData.SelectToken("people[0].stats[0].splits")
-        If stats IsNot Nothing Then
-            For i = 0 To stats.Count - 1
-                Dim statsdata As JObject = stats.Item(i)
-                Me.mEra = statsdata.SelectToken("stat.era")
-            Next
-        End If
+            ' write data file
+            If mProps.GetProperty(mProps.mKEEP_DATA_FILES_KEY) = 1 Then
+                Dim DataRoot As String = mProps.GetProperty(mProps.mDATA_FILES_PATH_KEY)
+                File.WriteAllText($"{DataRoot}\\{Me.Id}-{Me.ShortName}_playerdata.json", ThisPlayer.ToString())
+            End If
 
-        ' write data file
-        If mProps.GetProperty(mProps.mKEEP_DATA_FILES_KEY) = 1 Then
-            Dim DataRoot As String = mProps.GetProperty(mProps.mDATA_FILES_PATH_KEY)
-            File.WriteAllText($"{DataRoot}\\{Me.Id}-{Me.ShortName}_playerdata.json", ThisPlayer.ToString())
-        End If
+            Logger.Debug($"New Player object created for id={PlayerId}")
+        Catch ex As Exception
+            Logger.Error($"ERROR: New Player - {ex}")
+        End Try
     End Sub
 
-    Sub New(Id As String, Number As String, Name As String, Position As String)
+    Sub New(PlayerId As String, Number As String, Name As String, Position As String)
         ' Create new 'lite' Player object with known data
-        Me.mId = Id
+        Me.mId = PlayerId
         Me.mNumber = Number
         Me.mFullName = Name
         Me.mShortPosition = Position
+        Logger.Debug($"New Lite Player object created for id={PlayerId}")
     End Sub
 
     Public Overrides Function ToString() As String

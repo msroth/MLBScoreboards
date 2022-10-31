@@ -1,10 +1,10 @@
 ﻿Imports System.IO
 Imports System.Text
 Imports Newtonsoft.Json.Linq
+Imports NLog
 
 
 Public Class MlbGame
-
     Private mGamePk As String
     Private mAwayTeam As MlbTeam
     Private mHomeTeam As MlbTeam
@@ -39,12 +39,14 @@ Public Class MlbGame
     Private mAPI As MlbApi = New MlbApi()
     Private mProperties As SBProperties = New SBProperties()
 
-    Shared ReadOnly mGAME_STATUS_FUTURE_LABELS As String() = {"SCHEDULED", "WARMUP", "PRE-GAME", "DELAYED", "POSTPONED"}
-    Shared ReadOnly mGAME_STATUS_PRESENT_LABLES As String() = {"IN PROGRESS", "MANAGER", "OFFICIAL"}
+    Shared ReadOnly mGAME_STATUS_FUTURE_LABELS As String() = {"SCHEDULED", "PRE-GAME", "DELAYED", "POSTPONED"}
+    Shared ReadOnly mGAME_STATUS_PRESENT_LABLES As String() = {"WARMUP", "IN PROGRESS", "MANAGER", "OFFICIAL"}
     Shared ReadOnly mGAME_STATUS_PAST_LABELS As String() = {"FINAL", "COMPLETE", "GAME OVER", "COMPLETED"}
     Public Shared ReadOnly mGAME_STATUS_FUTURE = 1
     Public Shared ReadOnly mGAME_STATUS_PRESENT = 0
     Public Shared ReadOnly mGAME_STATUS_PAST = -1
+
+    Shared ReadOnly Logger As Logger = LogManager.GetCurrentClassLogger()
 
     Public Shared Function CheckGameStatus(GameStatus As String) As Integer
         For Each label As String In mGAME_STATUS_FUTURE_LABELS
@@ -64,7 +66,7 @@ Public Class MlbGame
                 Return mGAME_STATUS_PAST
             End If
         Next
-        Trace.WriteLine($"CheckGameStatus - unknown status: {GameStatus}")
+        Logger.Warn($"CheckGameStatus - unknown status: {GameStatus}")
         Return -100
     End Function
 
@@ -193,7 +195,7 @@ Public Class MlbGame
                     Next
                 Next
             Catch ex As Exception
-                Trace.WriteLine($"ERROR: Innings - {ex}")
+                Logger.Error($"ERROR: Innings - {ex}")
             End Try
             Return dt
         End Get
@@ -271,9 +273,10 @@ Public Class MlbGame
         End Get
     End Property
 
-    Public Sub New(gamePk As String)
-        Me.mGamePk = Convert.ToInt32(gamePk)
+    Public Sub New(GamePk As String)
+        Me.mGamePk = Convert.ToInt32(GamePk)
         LoadGameData()
+        Logger.Debug($"New Game object created for id = {GamePk}")
     End Sub
 
     Private Sub RefreshMLBData()
@@ -287,7 +290,7 @@ Public Class MlbGame
             mAllPlaysData = mLiveData.SelectToken("plays")
             mCurrentPlayData = mLiveData.SelectToken("plays.currentPlay")
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: RefreshMLBData - {ex}")
+            Logger.Error($"ERROR: RefreshMLBData - {ex}")
         End Try
     End Sub
 
@@ -314,14 +317,12 @@ Public Class MlbGame
             Dim gameTimeAmPm As String = mGameData.SelectToken("datetime.ampm").ToString()
             Me.mGameDateTime = $"{gameDate} {gameTime}{gameTimeAmPm}"
 
-            ' TODO - convert to local time
-            'Dim gameLocalDateTime As String = ConvertDateTimeToLocalTimeZone()
-
             ' venue weather
             Me.mVenueWeather = $"Weather: {mGameData.SelectToken("weather.temp")}°F, {mGameData.SelectToken("weather.condition")}"
 
             ' game status
             Me.mGameStatus = mGameData.SelectToken("status.detailedState").ToString().ToUpper()
+            Logger.Debug($"Game status = {Me.mGameStatus}")
 
             ' load RHE table
             Me.LoadRHE()
@@ -329,12 +330,7 @@ Public Class MlbGame
             ' load innings
             Me.LoadInnings()
 
-            ' load team player data - delay this load until needed to improve performance
-            'Me.AwayTeam.LoadPlayerData(Me)
-            'Me.HomeTeam.LoadPlayerData(Me)
-
             'current game
-
             If MlbGame.CheckGameStatus(Me.GameStatus) = MlbGame.mGAME_STATUS_PRESENT Then
 
                 ' away runs
@@ -397,18 +393,18 @@ Public Class MlbGame
                 End If
 
             Else
-                Trace.WriteLine($"LoadGameData - unknown status: {Me.GameStatus()}")
+                Logger.Warn($"LoadGameData - unknown status: {Me.GameStatus()}")
             End If
 
             ' save data for debugging
             If mProperties.GetProperty(mProperties.mKEEP_DATA_FILES_KEY, "0") = "1" Then
                 Dim DataRoot As String = mProperties.GetProperty(mProperties.mDATA_FILES_PATH_KEY)
                 File.WriteAllText($"{DataRoot}\\{Me.GamePk()}-{Me.AwayTeam.Abbr}-{Me.HomeTeam.Abbr}_data.json", mData.ToString())
+                Logger.Info($"Game data written to {DataRoot}\\{Me.GamePk()}-{Me.AwayTeam.Abbr}-{Me.HomeTeam.Abbr}_data.json")
             End If
 
-            'Trace.WriteLine($"Loading game {Me.GamePk} {Me.AwayTeam.Abbr} @ {Me.HomeTeam.Abbr} data")
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: LoadGameData - {ex}")
+            Logger.Error($"ERROR: LoadGameData - {ex}")
         End Try
     End Sub
 
@@ -504,7 +500,7 @@ Public Class MlbGame
                 Next
             End If
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: LoadInnings - {ex}")
+            Logger.Error($"ERROR: LoadInnings - {ex}")
         End Try
     End Sub
 
@@ -524,12 +520,7 @@ Public Class MlbGame
 
             ' fill R-H-E columns
             If MlbGame.CheckGameStatus(Me.GameStatus()) = MlbGame.mGAME_STATUS_PAST Or MlbGame.CheckGameStatus(Me.GameStatus()) = MlbGame.mGAME_STATUS_PRESENT Then
-                'If Me.GameStatus() = "IN PROGRESS" Or
-                '    Me.GameStatus() = "FINAL" Or
-                '    Me.GameStatus() = "COMPLETE" Or
-                '    Me.GameStatus() = "GAME OVER" Or
-                '    Me.GameStatus().Contains("MANAGER") Or
-                '    Me.GameStatus().Contains("OFFICIAL") Then
+
                 Me.mRHE.Rows(0).Item("R") = Me.mLineData.SelectToken("teams.away.runs").ToString()
                 Me.mRHE.Rows(0).Item("H") = Me.mLineData.SelectToken("teams.away.hits").ToString()
                 Me.mRHE.Rows(0).Item("E") = Me.mLineData.SelectToken("teams.away.errors").ToString()
@@ -539,7 +530,7 @@ Public Class MlbGame
                 Me.mRHE.Rows(1).Item("E") = Me.mLineData.SelectToken("teams.home.errors").ToString()
             End If
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: LoadRHE - {ex}")
+            Logger.Error($"ERROR: LoadRHE - {ex}")
         End Try
     End Sub
 
@@ -558,11 +549,10 @@ Public Class MlbGame
             PitchCount = Me.BoxScoreData.SelectToken($"teams.{AwayOrHome}.players.ID{pitcherId}.stats.pitching.pitchesThrown")
 
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: GetPitchCount - {ex}")
+            Logger.Error($"ERROR: GetPitchCount - {ex}")
         End Try
 
         Return PitchCount
-
     End Function
     Public Function GetPitchingMatchup() As String
         Dim matchup As String = ""
@@ -588,7 +578,7 @@ Public Class MlbGame
             Dim homePitchingStats As String = GetPitchingStats(Me.HomeScheduledPitcherId(), Me.HomeTeam())
             matchup = String.Format("Preview: {0} {1} vs. {2} {3}", awayPitcherName, awayPitchingStats, homePitcherName, homePitchingStats)
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: GetPitchingMatchup - {ex}")
+            Logger.Error($"ERROR: GetPitchingMatchup - {ex}")
         End Try
         Return matchup
     End Function
@@ -615,7 +605,7 @@ Public Class MlbGame
                 End If
             Next
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: GetPitchingStats - {ex}")
+            Logger.Error($"ERROR: GetPitchingStats - {ex}")
         End Try
         Return pitchingStats
     End Function
@@ -642,47 +632,17 @@ Public Class MlbGame
                 End If
             Next
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: GetBatterStats - {ex}")
+            Logger.Error($"ERROR: GetBatterStats - {ex}")
         End Try
         Return batterStats
     End Function
-
-
-    'Function ConvertDateTimeToLocalTimeZone() As String
-
-    '    Dim gameTime As String = mGameData.SelectToken("datetime.dateTime").ToString()
-    '    Dim gameTZ As String = mGameData.SelectToken("venue.timeZone.tz").ToString()
-    '    Dim gameTZI As TimeZoneInfo
-    '    If gameTZ = "EDT" Then
-    '        gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time")
-    '    ElseIf gameTZ = "EST" Then
-    '        gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time")
-    '    ElseIf gameTZ = "CDT" Then
-    '        gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time")
-    '    ElseIf gameTZ = "CST" Then
-    '        gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time")
-    '    ElseIf gameTZ = "MDT" Then
-    '        gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Mountain Standard Time")
-    '    ElseIf gameTZ = "MST" Then
-    '        gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Mountain Standard Time")
-    '    ElseIf gameTZ = "PDT" Then
-    '        gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time")
-    '    ElseIf gameTZ = "PST" Then
-    '        gameTZI = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time")
-    '    End If
-
-    '    Dim gt As DateTime = DateTime.Parse(gameTime)
-    '    Dim ds As String = TimeZoneInfo.ConvertTime(gt, gameTZI, TimeZoneInfo.Local)
-
-    '    Return ds
-    'End Function
 
     Function GetCurrentBatterId() As String
         Try
             Dim batterId As String = Me.mCurrentPlayData.SelectToken("matchup.batter.id").ToString
             Return batterId
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: GetCurrentBatterId - {ex}")
+            Logger.Error($"ERROR: GetCurrentBatterId - {ex}")
         End Try
         Return ""
     End Function
@@ -692,7 +652,7 @@ Public Class MlbGame
             Dim pitcherId As String = Me.mCurrentPlayData.SelectToken("matchup.pitcher.id").ToString
             Return pitcherId
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: GetCurrentPitcherId - {ex}")
+            Logger.Error($"ERROR: GetCurrentPitcherId - {ex}")
         End Try
         Return ""
     End Function
@@ -701,7 +661,6 @@ Public Class MlbGame
         Dim lastBatterId As String = 0
         Dim battingTeam As MlbTeam
         Dim sb As StringBuilder = New StringBuilder()
-        'Dim battingTeamLineup As DataTable
 
         sb.Append(vbCr + vbCr + "Due up:" + vbCr)
 
@@ -721,8 +680,6 @@ Public Class MlbGame
                 battingTeam = Me.HomeTeam
                 jsonPath = $"playsByInning[{lastInning - 1}].bottom"
             End If
-
-            'battingTeamLineup = battingTeam.GetLinupTable()
 
             ' find the last batter id
             ' if last inning = 0, it's 1st inning and no batters yet
@@ -749,38 +706,19 @@ Public Class MlbGame
                         LastBattingPosition = key
                     End If
                 Next
-                'Dim i As Integer = 0
-                'For Each player In battingTeam.BattingOrder
-                '    If lastBatterId = player.Id Then
-                '        LastBattingPosition = i
-                '        Exit For
-                '    End If
-                '    i += 1
-                'Next
 
             Else
                 ' set last batter id = batter #9 in lineup, which will
                 ' result in first three batters due up
-
                 LastBattingPosition = 9  ' zero-based array
             End If
 
 
             ' figure out next three batters
-            'Dim DueUpPosition = LastBattingPosition
             For DueUpPosition As Integer = LastBattingPosition + 1 To LastBattingPosition + 3
-                'DueUpPosition += 1
                 If DueUpPosition > 9 Then
                     DueUpPosition -= 9
                 End If
-
-                'For Each row As DataRow In battingTeamLineup.Rows()
-                '    'If battingPosition = row("BattingOrder") Then
-                '    If DueUpPosition = row("BattingOrder") Then
-                '        sb.Append($"  {row("Name")} {Me.GetBatterStats(row("Id"), battingTeam)}")
-                '        sb.Append(vbCr)
-                '    End If
-                'Next
 
                 sb.Append($"  {battingTeam.Lineup.Item(DueUpPosition).FullName} {Me.GetBatterStats(battingTeam.Lineup.Item(DueUpPosition).Id, battingTeam)}")
                 sb.Append(vbCr)
@@ -788,7 +726,7 @@ Public Class MlbGame
             Next
 
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: GetDueUpBatters - {ex}")
+            Logger.Error($"ERROR: GetDueUpBatters - {ex}")
         End Try
 
         Return sb.ToString()
@@ -819,7 +757,7 @@ Public Class MlbGame
                 desc = $"Pitch #{pitchNum}: {pitchType} - {pitchCall}  (Start {startSpeed}mph, End {endSpeed}mph)"
             End If
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: GetLastPitchDescription - {ex}")
+            Logger.Error($"ERROR: GetLastPitchDescription - {ex}")
         End Try
         Return desc
     End Function
@@ -847,7 +785,7 @@ Public Class MlbGame
             End If
 
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: GetLastPlayDescription - {ex}")
+            Logger.Error($"ERROR: GetLastPlayDescription - {ex}")
         End Try
         Return desc
     End Function
@@ -879,7 +817,7 @@ Public Class MlbGame
             matchup = $"Pitcher: {pitcherName} {pitcherStats} - Batter: {batterName} {batterStats}"
 
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: UpdatePitcherBatterMatchup - {ex}")
+            Logger.Error($"ERROR: UpdatePitcherBatterMatchup - {ex}")
         End Try
         Return matchup
     End Function
@@ -893,6 +831,7 @@ Public Class MlbGame
         Else
             Scorebook = CreateScorebookEntry(currentPlayIdx)
         End If
+        Logger.Debug($"Last play: {Scorebook}")
         Return Scorebook
 
     End Function
@@ -909,19 +848,15 @@ Public Class MlbGame
                 Return ""
             End If
 
-            'Trace.WriteLine($"  Event: {EventName}")
-
             Dim Details As New List(Of String)
             For r As Integer = 0 To lastPlayData.SelectToken("runners").Count - 1
                 Dim RunnersData As JObject = lastPlayData.SelectToken("runners").Item(r)
-                'Trace.WriteLine($" runner: {r}")
                 Dim Credits As JArray = RunnersData.SelectToken("credits")
 
                 If Credits IsNot Nothing Then
                     For c As Integer = 0 To Credits.Count - 1
                         Dim PositionCode As String = Credits.Item(c).SelectToken("position.code")
                         Dim CreditType As String = Credits.Item(c).SelectToken("credit")
-                        ' Trace.WriteLine($"  [{c}] position: {PositionCode}, type: {CreditType}")
                         Details.Add(PositionCode)
 
                     Next
@@ -929,7 +864,6 @@ Public Class MlbGame
 
             Next
 
-            'Dim OfficialScoring As String = ""
             If EventName.ToUpper.Contains("STRIKEOUT") Then
                 ScorebookEntry = "K"
             ElseIf EventName.ToUpper.Contains("WALK") Then
@@ -1018,14 +952,62 @@ Public Class MlbGame
 
             ScorebookEntry = $"{ScorebookEntry}"
 
-            'Trace.WriteLine($"Official Scoring = {OfficialScoring}")
+            Logger.Info($"Official Scoring = {ScorebookEntry}")
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: CreateScorebookEntry - {ex}")
+            Logger.Error($"ERROR: CreateScorebookEntry - {ex}")
         End Try
         Return ScorebookEntry
 
     End Function
 
+    Public Function GetPlaySummary() As DataTable
+
+        Dim dt As DataTable = New DataTable()
+
+        Try
+            Dim col As New DataColumn()
+            col.ColumnName = "Index"
+            dt.Columns.Add(col)
+            col = New DataColumn()
+            col.ColumnName = "Inning"
+            dt.Columns.Add(col)
+            col = New DataColumn()
+            col.ColumnName = "Half"
+            dt.Columns.Add(col)
+            col = New DataColumn()
+            col.ColumnName = "Out"
+            dt.Columns.Add(col)
+            col = New DataColumn()
+            col.ColumnName = "Scorebook"
+            dt.Columns.Add(col)
+            col = New DataColumn()
+            col.ColumnName = "Commentary"
+            dt.Columns.Add(col)
+
+            For Each play As JObject In Me.AllPlaysData.SelectToken("allPlays")
+                Dim Inning As String = play.SelectToken("about.inning")
+                Dim Half As String = play.SelectToken("about.halfInning")
+                Dim Out As String = play.SelectToken("count.outs")
+                Dim Commentary As String = play.SelectToken("result.description")
+                Dim Index As String = play.SelectToken("about.atBatIndex")
+                Dim Scorebook As String = Me.CreateScorebookEntry(Convert.ToInt32(Index))
+
+                Dim row As DataRow = dt.NewRow()
+                row.Item("Index") = Index
+                row.Item("Inning") = Inning
+                row.Item("Half") = Half.ToUpper()
+                row.Item("Out") = Out
+                row.Item("Scorebook") = Scorebook
+                row.Item("Commentary") = Commentary
+
+                dt.Rows.Add(row)
+            Next
+        Catch ex As Exception
+            Logger.Error($"ERROR: GetPlaySummary - {ex}")
+        End Try
+        Return dt
+
+    End Function
 
 End Class
 

@@ -1,6 +1,12 @@
-﻿
+﻿' =========================================================================================================
+' (C) 2022 MSRoth
+'
+' Released under XXX license.
+' =========================================================================================================
+
 Imports System.Text
 Imports Newtonsoft.Json.Linq
+Imports NLog
 
 Public Class MlbScoreboards
 
@@ -9,8 +15,29 @@ Public Class MlbScoreboards
     Private mCurrentGame As MlbGame = Nothing
     Private mAllGames As Dictionary(Of String, MlbGame) = New Dictionary(Of String, MlbGame)
 
+    Shared ReadOnly Logger As Logger = LogManager.GetCurrentClassLogger()
+
+
     Private Sub MLBScoreboards_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
+
+            ' config logger
+            Dim config = New Config.LoggingConfiguration()
+            Dim logfile = New Targets.FileTarget("logfile")
+            logfile.FileName = ".\\logs\\MLBScoreboards.log"
+            logfile.ArchiveFileName = ".\\logs\\MLBScoreboard" + "{####}.log"
+            logfile.ArchiveAboveSize = 1000000000
+            logfile.ArchiveNumbering = Targets.ArchiveNumberingMode.Sequence
+            logfile.MaxArchiveFiles = 3
+            Dim logconsole = New Targets.ConsoleTarget("logconsole")
+            Dim outputconsole = New Targets.DebuggerTarget()
+            config.AddRule(LogLevel.Debug, LogLevel.Fatal, logconsole)
+            config.AddRule(LogLevel.Debug, LogLevel.Fatal, logfile)
+            config.AddRule(LogLevel.Debug, LogLevel.Fatal, outputconsole)
+            LogManager.Configuration = config
+
+            Logger.Info($"*** Application Started ***")
+
             Me.Cursor = Cursors.WaitCursor
 
             ' show splash screen
@@ -36,18 +63,6 @@ Public Class MlbScoreboards
 
             ' if a favorite team specified, find game and load it
             Me.SetCurrentGame()
-            'Dim FaveTeam As String = mProperties.GetProperty(mProperties.mFAVORITE_TEAM_KEY, "")
-            'If Not FaveTeam = String.Empty Then
-            '    Me.mCurrentGame = FindTeamGame(FaveTeam)
-            'End If
-
-            '' if no favorit team or team isn't playing today, pick first game in list
-            'If Me.mCurrentGame Is Nothing Then
-            '    If Me.mAllGames.Count > 0 Then
-            '        Me.mCurrentGame = Me.mAllGames(Me.mAllGames.Keys(0))
-            '        Trace.WriteLine(Me.mCurrentGame.ToString())
-            '    End If
-            'End If
 
             ' start the update timer
             Me.GameUpdateTimer.Start()
@@ -60,7 +75,7 @@ Public Class MlbScoreboards
             splash.Close()
 
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: MLBScoreboard_Load - {ex}")
+            Logger.Error($"MLBScoreboard_Load - {ex}")
         End Try
     End Sub
 
@@ -81,16 +96,8 @@ Public Class MlbScoreboards
             ' if the current game is not selected, or we switched dates, load
             ' game for favorite team
             Me.SetCurrentGame()
-            Me.RunGame()
-            'If Me.mCurrentGame Is Nothing Then
-            'Dim FaveTeam As String = mProperties.GetProperty(mProperties.mFAVORITE_TEAM_KEY, "")
-            'If Not FaveTeam = String.Empty Then
-            '    Me.mCurrentGame = FindTeamGame(FaveTeam)
-            '    Me.GameUpdateTimer.Start()
-            '    Me.RunGame()
-            'End If
-            'End If
 
+            ' set menu options accordingly
             If Me.mCurrentGame Is Nothing Then
                 PlayRecapToolStripMenuItem.Enabled = False
                 BoxscoreToolStripMenuItem.Enabled = False
@@ -105,8 +112,11 @@ Public Class MlbScoreboards
             ' update status bar
             Me.AllGamesUpdateData.Text = $"All Games Data Updated {Date.Now}  "
 
+            ' run current game
+            Me.RunGame()
+
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: RunScoreboard - {ex}")
+            Logger.Error($"RunScoreboard - {ex}")
         End Try
 
         ' restore cursor
@@ -115,6 +125,7 @@ Public Class MlbScoreboards
 
     Sub RunGame()
         Try
+            ' set menu options accordingly
             If Me.mCurrentGame Is Nothing Then
                 Me.PlayRecapToolStripMenuItem.Enabled = False
                 Me.BroadcastsToolStripMenuItem.Enabled = False
@@ -139,16 +150,6 @@ Public Class MlbScoreboards
                 Me.mCurrentGame.HomeTeam.LoadPlayerData(Me.mCurrentGame)
             End If
 
-            'Trace.WriteLine("=== Run Game ===>")
-            'Trace.WriteLine(Me.mCurrentGame.ToString())
-            'Trace.WriteLine(Me.mCurrentGame.AwayTeam.ToString())
-            'Trace.WriteLine(Me.mCurrentGame.HomeTeam.ToString())
-            'Trace.WriteLine("<=== Run Game ===")
-
-            ' load line up data
-            'Me.mCurrentGame.AwayTeam.LoadPlayerData(Me.mCurrentGame)
-            'Me.mCurrentGame.HomeTeam.LoadPlayerData(Me.mCurrentGame)
-
             ' update game label
             Me.SetGameTitle()
 
@@ -164,11 +165,12 @@ Public Class MlbScoreboards
             ' load weather
             Me.lblWeather.Text = Me.mCurrentGame.VenueWeather()
 
-            ' status
+            ' set game status
             Dim status As String = Me.mCurrentGame.GameStatus
+            Logger.Debug($"Game status is {status}")
 
+            ' set screen controls for future game
             If MlbGame.CheckGameStatus(status) = MlbGame.mGAME_STATUS_FUTURE Then
-                ' turn off unused controls
                 tbxCommentary.Visible = False
                 dgvAwayLineup.Visible = True
                 dgvHomeLineup.Visible = True
@@ -196,12 +198,11 @@ Public Class MlbScoreboards
                 lblMatchup.Text = Me.mCurrentGame.GetPitchingMatchup()
                 lblMatchup.Visible = True
 
-                ' enable and start game update timer
+                ' stop game update timer
                 Me.GameUpdateTimer.Stop()
-                Me.GameUpdateTimer.Start()
 
+                ' set screen controls for past game
             ElseIf MlbGame.CheckGameStatus(status) = MlbGame.mGAME_STATUS_PAST Then
-                ' turn off unused controls
                 tbxCommentary.Visible = True
                 lblBalls.Visible = False
                 lblStrikes.Visible = False
@@ -255,8 +256,8 @@ Public Class MlbScoreboards
                 ' stop game update timer
                 Me.GameUpdateTimer.Stop()
 
+                ' set screen controls for current game
             ElseIf MlbGame.CheckGameStatus(status) = MlbGame.mGAME_STATUS_PRESENT Then
-                ' turn on controls
                 tbxCommentary.Visible = True
                 lblBalls.Visible = True
                 lblStrikes.Visible = True
@@ -317,18 +318,20 @@ Public Class MlbScoreboards
                     Me.tbxCommentary.Text += Me.mCurrentGame.GetDueUpBatters()
                 End If
             Else
-                Trace.WriteLine($"Unknown game state: {status}")
+                Logger.Warn($"Unknown game state: {status}")
             End If
 
             ' redraw all controls
             Me.Refresh()
 
-            ' start game update timer
-            Me.GameUpdateTimer.Stop()
-            Me.GameUpdateTimer.Start()
+            ' stop and start game update timer
+            'Me.GameUpdateTimer.Stop()
+            'Me.GameUpdateTimer.Start()
+
+            'Logger.Debug(Me.mCurrentGame.ToString())
 
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: RunGame - {ex}")
+            Logger.Error($"RunGame - {ex}")
         End Try
     End Sub
 
@@ -359,7 +362,7 @@ Public Class MlbScoreboards
         tbxCommentary.Visible = False
         dgvAwayLineup.DataSource = Nothing
         dgvHomeLineup.DataSource = Nothing
-        dgvInnings.DataSource = BlankInningsTable()
+        dgvInnings.DataSource = InitBlankInningsTable()
         lblWeather.Text = "Weather"
         lblWeather.Visible = True
         lblAwayWinnerLoser.Text = "Winner-Loser"
@@ -378,15 +381,21 @@ Public Class MlbScoreboards
 
     End Sub
 
-    Private Function BlankInningsTable() As DataTable
+    Private Function InitBlankInningsTable() As DataTable
         Dim dt As DataTable = New DataTable("Innings")
         Dim dc As DataColumn = New DataColumn(" ")
+
+        ' add a blank column
         dt.Columns.Add(dc)
+
+        ' add inning columns
         For i = 1 To 9
             dc = New DataColumn()
             dc.ColumnName = i
             dt.Columns.Add(dc)
         Next
+
+        ' add RHE columns
         dc = New DataColumn("R")
         dt.Columns.Add(dc)
         dc = New DataColumn("H")
@@ -394,6 +403,7 @@ Public Class MlbScoreboards
         dc = New DataColumn("E")
         dt.Columns.Add(dc)
 
+        ' add rows for away and home scores
         dt.Rows.Add(dt.NewRow())
         dt.Rows.Add(dt.NewRow())
 
@@ -403,10 +413,12 @@ Public Class MlbScoreboards
     Private Function GetFinalGameStats() As String
         Dim sb As New StringBuilder
 
+        ' get final data
         Dim attendance As String = Me.mCurrentGame.GameData.SelectToken("gameInfo.attendance")
         Dim duration As String = Me.mCurrentGame.GameData.SelectToken("gameInfo.gameDurationMinutes")
         Dim delay As String = Me.mCurrentGame.GameData.SelectToken("gameInfo.delayDurationMinutes")
 
+        ' format attndance
         If attendance IsNot Nothing Then
             If attendance.Length > 0 Then
                 Dim a As Integer = Integer.Parse(attendance)
@@ -414,6 +426,7 @@ Public Class MlbScoreboards
             End If
         End If
 
+        ' format duration
         If duration IsNot Nothing Then
             If duration.Length > 0 Then
                 Dim d As Integer = Integer.Parse(duration)
@@ -422,6 +435,7 @@ Public Class MlbScoreboards
             End If
         End If
 
+        ' format delay
         If delay IsNot Nothing Then
             If delay.Length > 0 Then
                 Dim d As Integer = Integer.Parse(delay)
@@ -429,18 +443,19 @@ Public Class MlbScoreboards
                 sb.Append($"{vbCr}Delayed start: {ts.Hours}:{ts.Minutes.ToString("00")}")
             End If
         End If
+
+        ' return final game stats
         Return sb.ToString
 
     End Function
     Private Sub SetGameTitle()
         Try
+            ' set game title
             Me.lblGameTitle.Text = Me.mCurrentGame.GameTitleDate()
-            'Me.lblGameTitle.Text = $"{Me.mCurrentGame.AwayTeam.FullName} @ {Me.mCurrentGame.HomeTeam.FullName} - {DateTime.Parse(Me.mCurrentGame.GameDateTime).ToString("f")}"
-            'Me.lblGameTitle.Text = $"{Me.mCurrentGame.AwayTeam.FullName} @ {Me.mCurrentGame.HomeTeam.FullName} - {Me.mCurrentGame.GameDateTime}"
             Me.lblGamePk.Text = "Game Id: " + Me.mCurrentGame.GamePk.ToString()
             Me.lblStatus.Text = "Game Status: " + Me.mCurrentGame.GameStatus
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: SetGameTitle - {ex}")
+            Logger.Error($"SetGameTitle - {ex}")
         End Try
     End Sub
 
@@ -465,7 +480,7 @@ Public Class MlbScoreboards
                 End If
             End If
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: UpdatePlayCommentary - {ex}")
+            Logger.Error($"UpdatePlayCommentary - {ex}")
         End Try
     End Sub
 
@@ -474,7 +489,7 @@ Public Class MlbScoreboards
             Me.imgAwayLogo.Image = My.Resources.ResourceManager().GetObject(Me.mCurrentGame.AwayTeam.Abbr)
             Me.imgHomeLogo.Image = My.Resources.ResourceManager().GetObject(Me.mCurrentGame.HomeTeam.Abbr)
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: LoadTeamLogos - {ex}")
+            Logger.Error($"LoadTeamLogos - {ex}")
         End Try
     End Sub
 
@@ -484,7 +499,7 @@ Public Class MlbScoreboards
             Me.lblStrikes.Text = $"Strikes: {Me.mCurrentGame.Strikes()}"
             Me.lblOuts.Text = $"Outs:    {Me.mCurrentGame.Outs()}"
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: UpdateBSO - {ex}")
+            Logger.Error($"UpdateBSO - {ex}")
         End Try
     End Sub
 
@@ -498,7 +513,7 @@ Public Class MlbScoreboards
             dgvInnings.ClearSelection()
             dgvInnings.ColumnHeadersDefaultCellStyle.Font = New Font(dgvInnings.DefaultFont, FontStyle.Bold)
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: UpdateInnings - {ex}")
+            Logger.Error($"UpdateInnings - {ex}")
         End Try
     End Sub
 
@@ -524,14 +539,12 @@ Public Class MlbScoreboards
 
             ' set control text
             If Not saveName.Equals(String.Empty) Then
-                'winLoseLine = $"Winner: {winnerName} {winnerStats}, Loser: {loserName} {loserStats} {vbCr}Save: {saveName} {saveStats}"
                 winLoseLine = $"Winner: {winnerName} {winnerStats}{vbCr}Loser: {loserName} {loserStats}{vbCr}Save: {saveName} {saveStats}"
             Else
-                'winLoseLine = $"Winner: {winnerName} {winnerStats}, Loser: {loserName} {loserStats}"
                 winLoseLine = $"Winner: {winnerName} {winnerStats}{vbCr}Loser: {loserName} {loserStats}"
             End If
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: UpdateWinnerLoserPitcher - {ex}")
+            Logger.Error($"UpdateWinnerLoserPitcher - {ex}")
         End Try
         Return winLoseLine
     End Function
@@ -576,61 +589,75 @@ Public Class MlbScoreboards
                 Me.imgDiamond.Image = My.Resources.diamond
             End If
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: UpdateBaseRunners - {ex}")
+            Logger.Error($"UpdateBaseRunners - {ex}")
         End Try
 
     End Sub
 
     Private Sub LoadTeamLineupGrids()
         Try
+            ' load lineups from team objects
             dgvAwayLineup.DataSource = Me.mCurrentGame.AwayTeam.GetLinupTable()
             dgvHomeLineup.DataSource = Me.mCurrentGame.HomeTeam.GetLinupTable()
 
+            ' set label text
             lblAwayLineup.Text = Me.mCurrentGame.AwayTeam.ShortName() + " Lineup"
             lblHomeLineup.Text = Me.mCurrentGame.HomeTeam.ShortName() + " Lineup"
 
+            ' format grids
             dgvAwayLineup.ColumnHeadersDefaultCellStyle.Font = New Font(dgvAwayLineup.DefaultFont, FontStyle.Bold)
             dgvHomeLineup.ColumnHeadersDefaultCellStyle.Font = New Font(dgvHomeLineup.DefaultFont, FontStyle.Bold)
 
+            ' hid unnecessary columns
             dgvAwayLineup.Columns("Id").Visible = False
             dgvAwayLineup.Columns("BattingOrder").Visible = False
             dgvHomeLineup.Columns("Id").Visible = False
             dgvHomeLineup.Columns("BattingOrder").Visible = False
+
             dgvAwayLineup.ClearSelection()
             dgvHomeLineup.ClearSelection()
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: LoadTeamLineupGrids - {ex}")
+            Logger.Error($"LoadTeamLineupGrids - {ex}")
         End Try
     End Sub
 
     Private Sub LoadTeamRosterGrids()
         Try
+            ' load rosters from team objects
             dgvAwayLineup.DataSource = Me.mCurrentGame.AwayTeam.GetRosterTable()
             dgvHomeLineup.DataSource = Me.mCurrentGame.HomeTeam.GetRosterTable()
 
+            ' set label test
             lblAwayLineup.Text = Me.mCurrentGame.AwayTeam.ShortName() + " Roster"
             lblHomeLineup.Text = Me.mCurrentGame.HomeTeam.ShortName() + " Roster"
 
+            ' format grids
             dgvAwayLineup.ColumnHeadersDefaultCellStyle.Font = New Font(dgvAwayLineup.DefaultFont, FontStyle.Bold)
             dgvHomeLineup.ColumnHeadersDefaultCellStyle.Font = New Font(dgvHomeLineup.DefaultFont, FontStyle.Bold)
 
+            ' hide unnecesary columns
             dgvAwayLineup.Columns("Id").Visible = False
             dgvHomeLineup.Columns("Id").Visible = False
+
             dgvAwayLineup.ClearSelection()
             dgvHomeLineup.ClearSelection()
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: LoadTeamLineupGrids - {ex}")
+            Logger.Error($"LoadTeamLineupGrids - {ex}")
         End Try
     End Sub
 
 
     Function LoadAllGamesData(gameDate As String) As Dictionary(Of String, MlbGame)
+        ' dict of GamePk and game object
         Dim ListOfGames As Dictionary(Of String, MlbGame) = New Dictionary(Of String, MlbGame)
 
+        ' reset progress bar
         Me.AllGamesUpdateProgressBar.Visible = True
         Me.AllGamesUpdateProgressBar.Value = 0
 
         Try
+            ' get data
+            Logger.Debug($"Loading games for {gameDate}")
             Dim schedule As JObject = Me.mAPI.ReturnScheduleData(gameDate)
             Dim gameDates As JArray = schedule.SelectToken("dates")
 
@@ -647,6 +674,7 @@ Public Class MlbScoreboards
                     Dim gamePk As String = game.SelectToken("gamePk")
                     Dim oGame As MlbGame = New MlbGame(gamePk)
                     ListOfGames.Add(gamePk, oGame)
+                    Logger.Debug($"Loaded game {oGame.GamePk} - {oGame.AwayTeam.Abbr}@{oGame.HomeTeam.Abbr}")
 
                     ' update status bar also
                     Me.AllGamesUpdateData.Text = $"Loading game {oGame.GamePk} {oGame.AwayTeam.Abbr} @ {oGame.HomeTeam.Abbr} data...  "
@@ -656,11 +684,10 @@ Public Class MlbScoreboards
             Next
 
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: LoadAllTeamsData - {ex}")
+            Logger.Error($"LoadAllTeamsData - {ex}")
         End Try
 
-        ' close progress bar when done
-        'frmLoad.Close()
+        ' hide progress bar
         Me.AllGamesUpdateProgressBar.Visible = False
 
         Return ListOfGames
@@ -668,35 +695,39 @@ Public Class MlbScoreboards
 
     Private Function FindTeamGame(teamAbbrev As String) As MlbGame
         Try
+            Logger.Debug($"Looking for {teamAbbrev} game...")
+            ' find game object for team name
             For Each game In mAllGames.Values()
                 If game.AwayTeam.Abbr = teamAbbrev Or game.HomeTeam.Abbr = teamAbbrev Then
+                    Logger.Debug($"Found {game.GamePk}")
                     Return game
                 End If
             Next
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: FindTeamGame - {ex}")
+            Logger.Error($"FindTeamGame - {ex}")
         End Try
-
+        Logger.Debug($"Did not find game for {teamAbbrev}")
         Return Nothing
     End Function
 
     Private Sub SetCurrentGame()
         Try
             Dim FaveTeam As String = mProperties.GetProperty(mProperties.mFAVORITE_TEAM_KEY, "")
+            Logger.Debug($"Favorite team = {FaveTeam}")
+
             If Not FaveTeam = String.Empty Then
                 Me.mCurrentGame = FindTeamGame(FaveTeam)
-                'Trace.WriteLine($"Current Game: {vbCr}{Me.mCurrentGame.ToString()}")
             End If
 
             ' if no favorite team or team isn't playing today, pick first game in list
             If Me.mCurrentGame Is Nothing Then
                 If Me.mAllGames.Count > 0 Then
                     Me.mCurrentGame = Me.mAllGames(Me.mAllGames.Keys(0))
-                    'Trace.WriteLine($"Defaulting to:{vbcr}{Me.mCurrentGame.ToString()}")
+                    Logger.Debug($"Using {Me.mCurrentGame.GamePk} as current game")
                 End If
             End If
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: FindTeamGame - {ex}")
+            Logger.Error($"FindTeamGame - {ex}")
         End Try
     End Sub
 
@@ -715,12 +746,8 @@ Public Class MlbScoreboards
 
             dgvInnings.Rows(row).Cells(inning).Style.BackColor = Color.LightBlue
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: HighlightCurrentInning - {ex}")
+            Logger.Error($"HighlightCurrentInning - {ex}")
         End Try
-    End Sub
-
-    Private Sub QuitToolStripMenuItem_Click(sender As Object, e As EventArgs)
-        Application.Exit()
     End Sub
 
     Private Sub LoadAllGamesDataGrid()
@@ -771,7 +798,7 @@ Public Class MlbScoreboards
             Me.AllGamesUpdateProgressBar.Visible = False
 
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: LoadAllGamesDataGrid - {ex}")
+            Logger.Error($"LoadAllGamesDataGrid - {ex}")
         End Try
     End Sub
 
@@ -783,14 +810,15 @@ Public Class MlbScoreboards
                 Return
             End If
 
-            'Me.ResetScreenControls()
-            'Me.Refresh()
-
             ' get the gamePk for the clicked row
             Dim id As String = dgvGames.Rows(e.RowIndex).Cells("Id").Value.ToString
+            Logger.Debug($"Clicked row {e.RowIndex}, GamePk = {id}")
+
+            ' find selected game and make it current
             Me.mCurrentGame = Me.mAllGames(id)
 
             ' reset the game update time when new game selected
+            Me.GameUpdateTimer.Stop()
             Me.GameUpdateTimer.Start()
 
             ' force repaint which should highlight current selected game
@@ -809,23 +837,12 @@ Public Class MlbScoreboards
             ' run the selected game
             Me.RunGame()
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: dgvGames_CellClick - {ex}")
+            Logger.Error($"dgvGames_CellClick - {ex}")
         End Try
     End Sub
 
-    Private Sub calDatePicker_CloseUp(sender As Object, e As EventArgs) Handles calDatePicker.ValueChanged
-        'Me.calDatePicker.Refresh()
-        'Me.GameUpdateTimer.Stop()
-        'Me.mCurrentGame = Nothing
-        'Me.ResetScreenControls()
-        'Me.ThisGameUpdateData.Text = ""
-        'Me.mAllGames.Clear()
-        'Me.RunScoreboard()
-    End Sub
-
     Private Sub ScoreboardUpdateTimer_Tick(sender As Object, e As EventArgs) Handles ScoreboardUpdateTimer.Tick
-        Trace.WriteLine($"Scoreboard timer tick called {DateTime.Now()}")
-        Trace.WriteLine($"time interval = {Me.ScoreboardUpdateTimer.Interval}")
+        Logger.Debug($"Scoreboard timer tick called {DateTime.Now()}")
         Dim gameDate As DateTime = DateTime.Parse(Me.calDatePicker.Value.ToString("MM/dd/yyyy"))
         Dim today As DateTime = DateTime.Today().Date()
 
@@ -839,6 +856,7 @@ Public Class MlbScoreboards
     End Sub
 
     Private Sub dgvGames_CellPainting(sender As Object, e As DataGridViewCellPaintingEventArgs) Handles dgvGames.CellPainting
+
         ' if no current game selected, bail out
         If Me.mCurrentGame Is Nothing Then
             Return
@@ -855,7 +873,7 @@ Public Class MlbScoreboards
                 End If
             Next
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: dgvGames_CellPaint - {ex}")
+            Logger.Error($"dgvGames_CellPaint - {ex}")
         End Try
     End Sub
 
@@ -872,7 +890,7 @@ Public Class MlbScoreboards
 
             Me.LineupDGVCellHighlight(pitcherId, batterId, sender)
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: dgvAwayRoster_CellPainting - {ex}")
+            Logger.Error($"dgvAwayRoster_CellPainting - {ex}")
         End Try
 
     End Sub
@@ -890,7 +908,7 @@ Public Class MlbScoreboards
 
             Me.LineupDGVCellHighlight(pitcherId, batterId, sender)
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: dgvHomeRoster_CellPainting - {ex}")
+            Logger.Error($"dgvHomeRoster_CellPainting - {ex}")
         End Try
     End Sub
 
@@ -909,7 +927,7 @@ Public Class MlbScoreboards
                 End If
             Next
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: LineupDGVCellHighlight - {ex}")
+            Logger.Error($"LineupDGVCellHighlight - {ex}")
         End Try
 
     End Sub
@@ -928,16 +946,18 @@ Public Class MlbScoreboards
                 End If
             End If
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: EnsureRowVisible - {ex}")
+            Logger.Error($"EnsureRowVisible - {ex}")
         End Try
     End Sub
 
-    Private Sub QuitToolStripMenuItem_Click_1(sender As Object, e As EventArgs) Handles QuitToolStripMenuItem.Click
+    Private Sub QuitToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles QuitToolStripMenuItem.Click
+        Logger.Info("*** Application Ended by User")
         Application.Exit()
     End Sub
 
     Private Sub ConfigureToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ConfigureToolStripMenuItem.Click
         Try
+            ' show config form
             Dim frmConfig = New SBConfigure
             frmConfig.ShowDialog()
 
@@ -946,7 +966,7 @@ Public Class MlbScoreboards
             SetGameUpdateTimerInterval(Convert.ToInt32(mProperties.GetProperty(mProperties.mGAME_TIMER_KEY, "20")), True)
 
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: ConfigureToolStripMenuItem - {ex}")
+            Logger.Error($"ConfigureToolStripMenuItem - {ex}")
         End Try
     End Sub
 
@@ -956,12 +976,11 @@ Public Class MlbScoreboards
     End Sub
 
     Private Sub SetScoreboardTimerInterval(interval As Integer)
-
         ' set scoreboard timer to interval value and restart it
         ScoreboardUpdateTimer.Stop()
         ScoreboardUpdateTimer.Interval = interval * 1000
         ScoreboardUpdateTimer.Start()
-        'Trace.WriteLine($"Scoreboard timer interval set to {interval}")
+        Logger.Debug($"Scoreboard timer interval set to {interval}")
     End Sub
 
     Private Sub SetGameUpdateTimerInterval(interval As Integer, start As Boolean)
@@ -972,24 +991,17 @@ Public Class MlbScoreboards
         If start Then
             GameUpdateTimer.Start()
         End If
-        Trace.WriteLine($"Game timer interval set to {interval}")
+        Logger.Debug($"Game timer interval set to {interval}")
     End Sub
 
     Private Sub GameUpdateTimer_Tick(sender As Object, e As EventArgs) Handles GameUpdateTimer.Tick
         Try
-            Trace.WriteLine($"Game timer tick called {DateTime.Now()}")
-            Trace.WriteLine($"time interval = {Me.GameUpdateTimer.Interval}")
-            Dim gameDate As DateTime = DateTime.Parse(Me.calDatePicker.Value.ToString("MM/dd/yyyy"))
-            Dim today As DateTime = DateTime.Today().Date()
+            Logger.Debug($"Game timer tick called {DateTime.Now()}")
 
-            ' refresh game data if its currently running
-            'If Not MlbGame.CheckGameStatus(Me.mCurrentGame.GameStatus) = MlbGame.mGAME_STATUS_PRESENT Then
-            '    'If Not gameDate.Equals(today) Then
-            '    Return
-            'End If
+            ' run the game, which will force an update
             Me.RunGame()
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: GameUpdateTimer_Tick - {ex}")
+            Logger.Debug($"GameUpdateTimer_Tick - {ex}")
         End Try
     End Sub
 
@@ -997,9 +1009,11 @@ Public Class MlbScoreboards
         Try
             Dim PlayerId As String = dgvAwayLineup.Rows(e.RowIndex).Cells("Id").Value
             Dim ThisPlayer As MlbPlayer = Me.mCurrentGame.AwayTeam.GetPlayer(PlayerId)
+            Logger.Debug($"Clicked AWAY row {e.RowIndex}, player = {PlayerId}")
+
             ShowPlayerStats(ThisPlayer, "AWAY")
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: dgvAwayLineup_CellClick - {ex}")
+            Logger.Error($"dgvAwayLineup_CellClick - {ex}")
         End Try
     End Sub
 
@@ -1007,9 +1021,11 @@ Public Class MlbScoreboards
         Try
             Dim PlayerId As String = dgvHomeLineup.Rows(e.RowIndex).Cells("Id").Value
             Dim ThisPlayer As MlbPlayer = Me.mCurrentGame.HomeTeam.GetPlayer(PlayerId)
+            Logger.Debug($"Clicked HOME row {e.RowIndex}, player = {PlayerId}")
+
             ShowPlayerStats(ThisPlayer, "HOME")
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: dgvHomeLineup_CellClick - {ex}")
+            Logger.Error($"dgvHomeLineup_CellClick - {ex}")
         End Try
     End Sub
 
@@ -1021,7 +1037,7 @@ Public Class MlbScoreboards
             frmPlayerStats.AwayOrHome = TeamSide
             frmPlayerStats.Show()
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: ShowPlayerStats - {ex}")
+            Logger.Error($"ShowPlayerStats - {ex}")
         End Try
     End Sub
 
@@ -1034,7 +1050,7 @@ Public Class MlbScoreboards
             frmPlaySummary.Game = Me.mCurrentGame
             frmPlaySummary.ShowDialog()
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: PlayRecapToolStripMenuItem_Click - {ex}")
+            Logger.Error($"PlayRecapToolStripMenuItem_Click - {ex}")
         End Try
     End Sub
 
@@ -1045,7 +1061,7 @@ Public Class MlbScoreboards
             frmStandings.Year = year
             frmStandings.ShowDialog()
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: StandingsToolStripMenuItem_Click - {ex}")
+            Logger.Error($"StandingsToolStripMenuItem_Click - {ex}")
         End Try
     End Sub
 
@@ -1055,7 +1071,7 @@ Public Class MlbScoreboards
             frmBoxscore.Game = Me.mCurrentGame
             frmBoxscore.ShowDialog()
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: BoxscoreToolStripMenuItem_Click - {ex}")
+            Logger.Error($"BoxscoreToolStripMenuItem_Click - {ex}")
         End Try
     End Sub
 
@@ -1070,7 +1086,7 @@ Public Class MlbScoreboards
             Me.mAllGames.Clear()
             Me.RunScoreboards()
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: btnFindGames_Click - {ex}")
+            Logger.Error($"btnFindGames_Click - {ex}")
         End Try
     End Sub
 
@@ -1080,7 +1096,7 @@ Public Class MlbScoreboards
             frmBroadcasts.Game = Me.mCurrentGame
             frmBroadcasts.ShowDialog()
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: btnFindGames_Click - {ex}")
+            Logger.Error($"btnFindGames_Click - {ex}")
         End Try
     End Sub
 
