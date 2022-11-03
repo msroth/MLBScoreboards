@@ -1032,12 +1032,13 @@ Partial Class MlbStandings
         '
         Me.Label13.AutoSize = True
         Me.Label13.BackColor = System.Drawing.Color.Yellow
+        Me.Label13.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.Label13.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.Label13.ForeColor = System.Drawing.SystemColors.ActiveCaptionText
         Me.Label13.Location = New System.Drawing.Point(343, 28)
         Me.Label13.Name = "Label13"
         Me.Label13.Padding = New System.Windows.Forms.Padding(2)
-        Me.Label13.Size = New System.Drawing.Size(115, 21)
+        Me.Label13.Size = New System.Drawing.Size(117, 23)
         Me.Label13.TabIndex = 22
         Me.Label13.Text = "World Series  " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10)
         '

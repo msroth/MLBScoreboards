@@ -1,4 +1,11 @@
-﻿Imports System.IO
+﻿' =========================================================================================================
+' (C) 2022 MSRoth
+'
+' Released under XXX license.
+' =========================================================================================================
+
+Imports System.IO
+Imports System.Security.Cryptography
 Imports System.Text
 Imports Newtonsoft.Json.Linq
 Imports NLog
@@ -195,7 +202,7 @@ Public Class MlbGame
                     Next
                 Next
             Catch ex As Exception
-                Logger.Error($"ERROR: Innings - {ex}")
+                Logger.Error(ex)
             End Try
             Return dt
         End Get
@@ -280,7 +287,6 @@ Public Class MlbGame
     End Sub
 
     Private Sub RefreshMLBData()
-        ' call API and parse Json into various data packages
         Try
             mData = mAPI.ReturnLiveFeedData(Me.mGamePk)
             mLiveData = mData.SelectToken("liveData")
@@ -290,7 +296,7 @@ Public Class MlbGame
             mAllPlaysData = mLiveData.SelectToken("plays")
             mCurrentPlayData = mLiveData.SelectToken("plays.currentPlay")
         Catch ex As Exception
-            Logger.Error($"ERROR: RefreshMLBData - {ex}")
+            Logger.Error(ex)
         End Try
     End Sub
 
@@ -400,11 +406,11 @@ Public Class MlbGame
             If mProperties.GetProperty(mProperties.mKEEP_DATA_FILES_KEY, "0") = "1" Then
                 Dim DataRoot As String = mProperties.GetProperty(mProperties.mDATA_FILES_PATH_KEY)
                 File.WriteAllText($"{DataRoot}\\{Me.GamePk()}-{Me.AwayTeam.Abbr}-{Me.HomeTeam.Abbr}_data.json", mData.ToString())
-                Logger.Info($"Game data written to {DataRoot}\\{Me.GamePk()}-{Me.AwayTeam.Abbr}-{Me.HomeTeam.Abbr}_data.json")
+                Logger.Info($"Writing data file: {DataRoot}\\{Me.GamePk()}-{Me.AwayTeam.Abbr}-{Me.HomeTeam.Abbr}_data.json")
             End If
 
         Catch ex As Exception
-            Logger.Error($"ERROR: LoadGameData - {ex}")
+            Logger.Error(ex)
         End Try
     End Sub
 
@@ -500,7 +506,7 @@ Public Class MlbGame
                 Next
             End If
         Catch ex As Exception
-            Logger.Error($"ERROR: LoadInnings - {ex}")
+            Logger.Error(ex)
         End Try
     End Sub
 
@@ -530,7 +536,7 @@ Public Class MlbGame
                 Me.mRHE.Rows(1).Item("E") = Me.mLineData.SelectToken("teams.home.errors").ToString()
             End If
         Catch ex As Exception
-            Logger.Error($"ERROR: LoadRHE - {ex}")
+            Logger.Error(ex)
         End Try
     End Sub
 
@@ -549,7 +555,7 @@ Public Class MlbGame
             PitchCount = Me.BoxScoreData.SelectToken($"teams.{AwayOrHome}.players.ID{pitcherId}.stats.pitching.pitchesThrown")
 
         Catch ex As Exception
-            Logger.Error($"ERROR: GetPitchCount - {ex}")
+            Logger.Error(ex)
         End Try
 
         Return PitchCount
@@ -578,7 +584,7 @@ Public Class MlbGame
             Dim homePitchingStats As String = GetPitchingStats(Me.HomeScheduledPitcherId(), Me.HomeTeam())
             matchup = String.Format("Preview: {0} {1} vs. {2} {3}", awayPitcherName, awayPitchingStats, homePitcherName, homePitchingStats)
         Catch ex As Exception
-            Logger.Error($"ERROR: GetPitchingMatchup - {ex}")
+            Logger.Error(ex)
         End Try
         Return matchup
     End Function
@@ -605,7 +611,7 @@ Public Class MlbGame
                 End If
             Next
         Catch ex As Exception
-            Logger.Error($"ERROR: GetPitchingStats - {ex}")
+            Logger.Error(ex)
         End Try
         Return pitchingStats
     End Function
@@ -632,7 +638,7 @@ Public Class MlbGame
                 End If
             Next
         Catch ex As Exception
-            Logger.Error($"ERROR: GetBatterStats - {ex}")
+            Logger.Error(ex)
         End Try
         Return batterStats
     End Function
@@ -642,7 +648,7 @@ Public Class MlbGame
             Dim batterId As String = Me.mCurrentPlayData.SelectToken("matchup.batter.id").ToString
             Return batterId
         Catch ex As Exception
-            Logger.Error($"ERROR: GetCurrentBatterId - {ex}")
+            Logger.Error(ex)
         End Try
         Return ""
     End Function
@@ -652,7 +658,7 @@ Public Class MlbGame
             Dim pitcherId As String = Me.mCurrentPlayData.SelectToken("matchup.pitcher.id").ToString
             Return pitcherId
         Catch ex As Exception
-            Logger.Error($"ERROR: GetCurrentPitcherId - {ex}")
+            Logger.Error(ex)
         End Try
         Return ""
     End Function
@@ -699,6 +705,7 @@ Public Class MlbGame
 
                 ' get last batter id
                 lastBatterId = allPlayData.SelectToken(jsonPath)
+                Logger.Debug($"due ups:  last batter = {lastBatterId}")
 
                 ' find last batter position in list of batting order players
                 For Each key In battingTeam.Lineup.Keys
@@ -712,21 +719,23 @@ Public Class MlbGame
                 ' result in first three batters due up
                 LastBattingPosition = 9  ' zero-based array
             End If
-
+            Logger.Debug($"due ups: last batter position = {LastBattingPosition}")
 
             ' figure out next three batters
-            For DueUpPosition As Integer = LastBattingPosition + 1 To LastBattingPosition + 3
+            For i As Integer = 1 To 3
+                'For DueUpPosition As Integer = LastBattingPosition + 1 To LastBattingPosition + 3
+                Dim DueUpPosition As Integer = LastBattingPosition + i
                 If DueUpPosition > 9 Then
                     DueUpPosition -= 9
                 End If
 
                 sb.Append($"  {battingTeam.Lineup.Item(DueUpPosition).FullName} {Me.GetBatterStats(battingTeam.Lineup.Item(DueUpPosition).Id, battingTeam)}")
                 sb.Append(vbCr)
-
+                Logger.Debug($"due ups:  next batter = {battingTeam.Lineup.Item(DueUpPosition).Id}")
             Next
 
         Catch ex As Exception
-            Logger.Error($"ERROR: GetDueUpBatters - {ex}")
+            Logger.Error(ex)
         End Try
 
         Return sb.ToString()
@@ -757,7 +766,7 @@ Public Class MlbGame
                 desc = $"Pitch #{pitchNum}: {pitchType} - {pitchCall}  (Start {startSpeed}mph, End {endSpeed}mph)"
             End If
         Catch ex As Exception
-            Logger.Error($"ERROR: GetLastPitchDescription - {ex}")
+            Logger.Error(ex)
         End Try
         Return desc
     End Function
@@ -785,7 +794,7 @@ Public Class MlbGame
             End If
 
         Catch ex As Exception
-            Logger.Error($"ERROR: GetLastPlayDescription - {ex}")
+            Logger.Error(ex)
         End Try
         Return desc
     End Function
@@ -793,6 +802,7 @@ Public Class MlbGame
 
     Public Function GetPitcherBatterMatchup() As String
         Dim matchup As String = ""
+
         Try
             Dim playData As JObject = Me.CurrentPlayData()
 
@@ -817,21 +827,25 @@ Public Class MlbGame
             matchup = $"Pitcher: {pitcherName} {pitcherStats} - Batter: {batterName} {batterStats}"
 
         Catch ex As Exception
-            Logger.Error($"ERROR: UpdatePitcherBatterMatchup - {ex}")
+            Logger.Error(ex)
         End Try
         Return matchup
     End Function
 
     Public Function LastPlayScorebookEntry() As String
         Dim Scorebook As String = ""
-        Dim currentPlayIdx As Integer = Me.LiveData.SelectToken("plays.currentPlay.atBatIndex")
-        currentPlayIdx -= 1
-        If currentPlayIdx <= 0 Then
-            Return ""
-        Else
-            Scorebook = CreateScorebookEntry(currentPlayIdx)
-        End If
-        Logger.Debug($"Last play: {Scorebook}")
+        Try
+            Dim currentPlayIdx As Integer = Me.LiveData.SelectToken("plays.currentPlay.atBatIndex")
+            currentPlayIdx -= 1
+            If currentPlayIdx <= 0 Then
+                Return ""
+            Else
+                Scorebook = CreateScorebookEntry(currentPlayIdx)
+            End If
+            Logger.Debug($"Last play: {Scorebook}")
+        Catch ex As Exception
+            Logger.Error(ex)
+        End Try
         Return Scorebook
 
     End Function
@@ -861,7 +875,6 @@ Public Class MlbGame
 
                     Next
                 End If
-
             Next
 
             If EventName.ToUpper.Contains("STRIKEOUT") Then
@@ -954,7 +967,7 @@ Public Class MlbGame
 
             Logger.Info($"Official Scoring = {ScorebookEntry}")
         Catch ex As Exception
-            Logger.Error($"ERROR: CreateScorebookEntry - {ex}")
+            Logger.Error(ex)
         End Try
         Return ScorebookEntry
 
@@ -964,26 +977,16 @@ Public Class MlbGame
 
         Dim dt As DataTable = New DataTable()
 
-        Try
-            Dim col As New DataColumn()
-            col.ColumnName = "Index"
+        ' init cols
+        Dim ColNames As String() = {"Index", "Inning", "Half", "Out", "Scorebook", "Commentary"}
+        For Each name As String In ColNames
+            Dim col As DataColumn = New DataColumn()
+            col.ColumnName = name
             dt.Columns.Add(col)
-            col = New DataColumn()
-            col.ColumnName = "Inning"
-            dt.Columns.Add(col)
-            col = New DataColumn()
-            col.ColumnName = "Half"
-            dt.Columns.Add(col)
-            col = New DataColumn()
-            col.ColumnName = "Out"
-            dt.Columns.Add(col)
-            col = New DataColumn()
-            col.ColumnName = "Scorebook"
-            dt.Columns.Add(col)
-            col = New DataColumn()
-            col.ColumnName = "Commentary"
-            dt.Columns.Add(col)
+        Next
 
+        ' get play summary data
+        Try
             For Each play As JObject In Me.AllPlaysData.SelectToken("allPlays")
                 Dim Inning As String = play.SelectToken("about.inning")
                 Dim Half As String = play.SelectToken("about.halfInning")
@@ -1003,11 +1006,125 @@ Public Class MlbGame
                 dt.Rows.Add(row)
             Next
         Catch ex As Exception
-            Logger.Error($"ERROR: GetPlaySummary - {ex}")
+            Logger.Error(ex)
         End Try
         Return dt
 
     End Function
+
+    Public Function GetBoxscorePitchingNotes() As List(Of String)
+        Dim notes As New List(Of String)
+
+        Try
+            ' pitching notes
+            Dim PitchingNotes As JArray = Me.BoxScoreData.SelectToken("pitchingNotes")
+            For i As Integer = 0 To PitchingNotes.Count - 1
+                notes.Add($"{PitchingNotes.Item(i)}")
+            Next
+        Catch ex As Exception
+            Logger.Error(ex)
+        End Try
+
+        Return notes
+    End Function
+
+    Public Function GetBoxscoreGameNotes() As Dictionary(Of String, String)
+        Dim notes As New Dictionary(Of String, String)
+
+        Try
+            Dim GameInfo As JArray = Me.BoxScoreData.SelectToken("info")
+            For i As Integer = 0 To GameInfo.Count - 1
+                Dim info As JObject = GameInfo.Item(i)
+                notes.Add($"{info.SelectToken("label")}", $"{info.SelectToken("value")}")
+            Next
+        Catch ex As Exception
+            Logger.Error(ex)
+        End Try
+
+        Return notes
+    End Function
+
+    Public Function GetBoxscoreBattingNotes(AwayOrHome As String) As List(Of String)
+        Dim notes As New List(Of String)
+
+        Try
+            Dim data As JArray = BoxScoreData.SelectToken($"teams.{AwayOrHome}.note")
+            For Each note As JObject In data
+                Dim label As String = note.SelectToken("label")
+                Dim value As String = note.SelectToken("value")
+                notes.Add($"{label} - {value}")
+            Next
+        Catch ex As Exception
+            Logger.Error(ex)
+        End Try
+        Return notes
+    End Function
+
+    Public Function GetBoxscoreFieldingNotes(AwayOrHome) As Dictionary(Of String, List(Of String))
+        Dim notes As New Dictionary(Of String, List(Of String))
+
+        Try
+            Dim Data As JArray = BoxScoreData.SelectToken($"teams.{AwayOrHome}.info")
+            For Each info As JObject In Data
+                Dim title As String = info.SelectToken("title")
+                Dim fields As JArray = info.SelectToken("fieldList")
+                Dim list As New List(Of String)
+                For Each field As JObject In fields
+                    Dim label As String = field.SelectToken("label")
+                    Dim value As String = field.SelectToken("value")
+                    list.Add($"{label} - {value}")
+                Next
+                notes.Add(title, list)
+            Next
+
+        Catch ex As Exception
+            Logger.Error(ex)
+        End Try
+        Return notes
+    End Function
+    Public Function GetPlayerGameBattingStats(PlayerId As String, AwayOrHome As String) As Dictionary(Of String, String)
+        Return GetPlayerGameStats(PlayerId, AwayOrHome, "batting")
+    End Function
+
+    Public Function GetPlayerGamePitchingStats(PlayerId As String, AwayOrHome As String) As Dictionary(Of String, String)
+        Return GetPlayerGameStats(PlayerId, AwayOrHome, "pitching")
+    End Function
+
+    Public Function GetPlayerGameFieldingStats(PlayerId As String, AwayOrHome As String) As Dictionary(Of String, Dictionary(Of String, String))
+        ' TODO - a player could play multiple positions in a single game
+        ' right now hard coded until example data can be found
+        Dim stats As New Dictionary(Of String, Dictionary(Of String, String))
+        Dim statDic As Dictionary(Of String, String)
+        Try
+            statDic = GetPlayerGameStats(PlayerId, AwayOrHome, "fielding")
+            Dim position As String = BoxScoreData.SelectToken($"teams.{AwayOrHome}.players.ID{PlayerId}.position.abbreviation")
+            stats.Add(position, statDic)
+        Catch ex As Exception
+            Logger.Error(ex)
+        End Try
+
+        Return stats
+    End Function
+
+    Private Function GetPlayerGameStats(PlayerId As String, AwayOrHome As String, group As String) As Dictionary(Of String, String)
+        ' group = batting, fielding, pitching
+        Dim stats As New Dictionary(Of String, String)
+        Dim TypeStats As JObject = BoxScoreData.SelectToken($"teams.{AwayOrHome}.players.ID{PlayerId}.stats.{group}")
+
+        Try
+            If TypeStats IsNot Nothing Then
+                For Each stat As JProperty In TypeStats.Properties
+                    stats.Add(stat.Name, stat.Value)
+                Next
+            End If
+
+        Catch ex As Exception
+            Logger.Error(ex)
+        End Try
+
+        Return stats
+    End Function
+
 
 End Class
 

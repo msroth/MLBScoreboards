@@ -1,4 +1,10 @@
-﻿Imports System.IO
+﻿' =========================================================================================================
+' (C) 2022 MSRoth
+'
+' Released under XXX license.
+' =========================================================================================================
+
+Imports System.IO
 Imports System.Numerics
 Imports System.Text
 Imports Newtonsoft.Json.Linq
@@ -92,15 +98,14 @@ Public Class MlbTeam
                     If mProps.GetProperty(mProps.mKEEP_DATA_FILES_KEY) = 1 Then
                         Dim DataRoot = mProps.GetProperty(mProps.mDATA_FILES_PATH_KEY)
                         File.WriteAllText($"{DataRoot}\\{mAbbr}-teamdata.json", Team.ToString())
-                        Logger.Info($"Team data file written to {DataRoot}\\{mAbbr}-teamdata.json")
+                        Logger.Info($"Writing data file: {DataRoot}\\{mAbbr}-teamdata.json")
                     End If
                     Exit For
                 End If
             Next
-
             Logger.Debug($"New Team object created for id={TeamId}")
         Catch ex As Exception
-            Logger.Error($"ERROR: New Team - {ex}")
+            Logger.Error(ex)
         End Try
     End Sub
 
@@ -120,7 +125,6 @@ Public Class MlbTeam
         End If
 
         Me.LoadRoster(ThisGame)
-
         Me.LoadLineup(ThisGame)
 
         End Sub
@@ -152,7 +156,7 @@ Public Class MlbTeam
                 pName = pName.Substring(pName.IndexOf(" ") + 1) + ", " + pName.Substring(0, 1)
                 Dim pPosition As String = Player.Value.Item("position").Item("abbreviation")
 
-                ' load lite player object of refresh takes too long
+                ' load lite player object or refresh takes too long
                 Dim aPlayer As MlbPlayer = New MlbPlayer(pId, pNum, pName, pPosition)
 
                 ' add player to roster
@@ -160,7 +164,7 @@ Public Class MlbTeam
             Next
 
         Catch ex As Exception
-            Logger.Error($"ERROR: LoadRoster - {ex}")
+            Logger.Error(ex)
         End Try
     End Sub
 
@@ -202,14 +206,12 @@ Public Class MlbTeam
                 currentPitcherId = pitchingOrder.Item(pitchingOrder.Count - 1)
             End If
 
-
             ' load batters - which is everyone in the game
             Dim battersOrder As List(Of String) = New List(Of String)
             Dim battersOrderData As JArray = ThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.batters")
             For i As Integer = 0 To battersOrderData.Count - 1
                 battersOrder.Add(battersOrderData.Item(i).ToString)
             Next
-
 
             For Each batterId As String In battersOrder
                 Dim json As String = $"teams.{AwayOrHome}.players.ID{batterId}"
@@ -222,7 +224,6 @@ Public Class MlbTeam
 
                 ' load lite player object of refresh takes too long
                 Dim aPlayer As MlbPlayer = New MlbPlayer(pId, pNum, pName, pPosition)
-
 
                 ' add player to lineup
                 Dim pitcherOffset As Integer = 20
@@ -238,7 +239,7 @@ Public Class MlbTeam
             Next
 
         Catch ex As Exception
-            Logger.Error($"ERROR: LoadPlayerData - {ex}")
+            Logger.Error(ex)
         End Try
     End Sub
 
@@ -285,7 +286,7 @@ Public Class MlbTeam
                 dt.Rows.Add(row)
             Next
         Catch ex As Exception
-            Logger.Error($"ERROR: GetLineup - {ex}")
+            Logger.Error(ex)
         End Try
 
         Return dt
@@ -310,13 +311,14 @@ Public Class MlbTeam
             Next
 
         Catch ex As Exception
-            Logger.Error($"ERROR: GetRoster - {ex}")
+            Logger.Error(ex)
         End Try
 
         ' sort table by position
         dt = dt.Select("", "Position").CopyToDataTable()
         Return dt
     End Function
+
 End Class
 
 '<SDG><

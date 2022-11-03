@@ -1,9 +1,14 @@
-﻿
+﻿' =========================================================================================================
+' (C) 2022 MSRoth
+'
+' Released under XXX license.
+' =========================================================================================================
 
 Imports System.ComponentModel
 Imports System.Net
 Imports System.Net.Http
 Imports Newtonsoft.Json.Linq
+Imports NLog
 
 Public Class MlbApi
 
@@ -14,10 +19,11 @@ Public Class MlbApi
     Private API_SCHEDULE_URL As String = API_BASE_URL + "/v1/schedule?sportId=1&date={0}&hydrate=broadcasts"
     Private API_MULTIPLE_PERSON_DATA_URL As String = API_BASE_URL + "/v1/people?personIds={0}"
     Private API_SINGLE_PERSON_DATA_URL As String = API_BASE_URL + "/v1/people/{0}"
-    'Private API_PERSON_STATS_URL = API_BASE_URL + "/v1/people/{0}/stats/game/{1}"
-    Private API_PERSON_STATS_URL As String = API_BASE_URL + "/v1/people/{0}?hydrate=stats(group={1},type={2}),currentTeam"
+    Private API_PERSON_STATS_URL As String = API_BASE_URL + "/v1/people/{0}?hydrate=stats(group={1},type={2})"
     Private API_STANDINGS_URL As String = API_BASE_URL + "/v1/standings?leagueId=103,104&season={0}&standingsTypes=regularSeason&hydrate=team(division)&fields=records,standingsType,teamRecords,team,name,division,id,nameShort,abbreviation,divisionRank,gamesBack,wildCardRank,wildCardGamesBack,wildCardEliminationNumber,divisionGamesBack,clinched,eliminationNumber,winningPercentage,type,wins,losses,leagueRank,sportRank"
     Private API_POSTSEASON_STANDINGS_URL As String = API_BASE_URL + "/v1/schedule/postseason/series?season={0}"
+
+    Shared ReadOnly Logger As Logger = LogManager.GetCurrentClassLogger()
 
 
     'Shared client As HttpClient = New HttpClient()
@@ -90,14 +96,14 @@ Public Class MlbApi
     ' ========================
 
     Function GetData(url)
+        Logger.Debug($"API URL: {url}")
         Dim result As String = ""
         Try
             Using client As New WebClient()
                 result = client.DownloadString(url)
             End Using
-            'Trace.WriteLine(url)
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: GetData - {ex}")
+            Logger.Error(ex)
         End Try
         Return result
     End Function

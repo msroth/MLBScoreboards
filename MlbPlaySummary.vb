@@ -14,15 +14,24 @@ Public Class MlbPlaySummary
     End Property
 
     Private Sub PlaySummary_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        Logger.Debug($"Loaded {Me.Name}")
+        Logger.Debug($"Loading {Me.Name}")
+
+        Me.Cursor = Cursors.WaitCursor
 
         ' set game title
         SetGameTitle()
 
-        ' display play summary
-        dgvPlays.DataSource = Me.mCurrentGame.GetPlaySummary()
+        Try
+            ' display play summary
+            dgvPlays.DataSource = Me.mCurrentGame.GetPlaySummary()
+        Catch ex As Exception
+            Logger.Debug(ex)
+        End Try
+
         dgvPlays.ColumnHeadersDefaultCellStyle.Font = New Font(dgvPlays.DefaultFont, FontStyle.Bold)
         dgvPlays.ClearSelection()
+
+        Me.Cursor = Cursors.Default
 
     End Sub
 
@@ -43,7 +52,7 @@ Public Class MlbPlaySummary
                 End If
             Next
         Catch ex As Exception
-            Trace.WriteLine($"ERROR: Paint - {ex}")
+            Logger.Debug(ex)
         End Try
     End Sub
 

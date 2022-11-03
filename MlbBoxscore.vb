@@ -2,9 +2,12 @@
 Imports System.Security.Cryptography
 Imports System.Text
 Imports Newtonsoft.Json.Linq
+Imports NLog
 
 Public Class MlbBoxscore
     Private mThisGame As MlbGame
+
+    Shared ReadOnly Logger As Logger = LogManager.GetCurrentClassLogger()
 
     WriteOnly Property Game() As MlbGame
         Set(game As MlbGame)
@@ -13,6 +16,7 @@ Public Class MlbBoxscore
     End Property
 
     Private Sub MlbBoxscore_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        Logger.debug($"Loading {Me.Name}")
 
         If mThisGame Is Nothing Then
             Return
@@ -21,7 +25,6 @@ Public Class MlbBoxscore
         Me.Cursor = Cursors.WaitCursor
 
         ' set titles
-        'Me.lblTitle.Text = $"{Me.mThisGame.AwayTeam.FullName} @ {Me.mThisGame.HomeTeam.FullName} (Game: {Me.mThisGame.GamePk})"
         Me.lblTitle.Text = Me.mThisGame.GameTitleFull()
 
         ' init batting tables
@@ -65,6 +68,7 @@ Public Class MlbBoxscore
         dgvHomePitchers.ClearSelection()
 
         Me.Cursor = Cursors.Default
+
     End Sub
 
     Private Sub LoadPitchingStats(team As MlbTeam)
@@ -84,28 +88,31 @@ Public Class MlbBoxscore
             thisTeam = Me.mThisGame.HomeTeam
         End If
 
-        Dim pitcherIds As JArray = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.pitchers")
-        For i As Integer = 0 To pitcherIds.Count - 1
-            Dim pId As String = pitcherIds(i)
-            Dim PitcherStats As JObject = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.players.ID{pId}.stats.pitching")
-            row = dt.NewRow()
+        Try
+            Dim pitcherIds As JArray = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.pitchers")
+            For i As Integer = 0 To pitcherIds.Count - 1
+                Dim pId As String = pitcherIds(i)
+                Dim PitcherStats As JObject = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.players.ID{pId}.stats.pitching")
+                Dim PitcherSeasonStats As JObject = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.players.ID{pId}.seasonStats.pitching")
+                Dim PitcherName As String = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.players.ID{pId}.person.fullName")
+                row = dt.NewRow()
 
-            ' get this player obj
-            Dim thisPlayer As MlbPlayer = thisTeam.GetPlayer(pId)
-            row.Item("Id") = pId
-            row.Item(1) = thisPlayer.ShortName
-            row.Item("IP") = PitcherStats.Item("inningsPitched")
-            row.Item("H") = PitcherStats.Item("hits")
-            row.Item("R") = PitcherStats.Item("runs")
-            row.Item("ER") = PitcherStats.Item("earnedRuns")
-            row.Item("B") = PitcherStats.Item("balls")
-            row.Item("K") = PitcherStats.Item("strikes")
-            row.Item("HR") = PitcherStats.Item("homeRuns")
-            row.Item("ERA") = thisPlayer.ERA
-            dt.Rows.Add(row)
+                row.Item("Id") = pId
+                row.Item(1) = PitcherName
+                row.Item("IP") = PitcherStats.Item("inningsPitched")
+                row.Item("H") = PitcherStats.Item("hits")
+                row.Item("R") = PitcherStats.Item("runs")
+                row.Item("ER") = PitcherStats.Item("earnedRuns")
+                row.Item("B") = PitcherStats.Item("balls")
+                row.Item("K") = PitcherStats.Item("strikes")
+                row.Item("HR") = PitcherStats.Item("homeRuns")
+                row.Item("ERA") = PitcherSeasonStats.Item("era")
+                dt.Rows.Add(row)
 
-        Next
-
+            Next
+        Catch ex As Exception
+            Logger.Error(ex)
+        End Try
     End Sub
 
     Private Sub LoadBattingStats(team As MlbTeam)
@@ -128,74 +135,75 @@ Public Class MlbBoxscore
             thisTeam = Me.mThisGame.HomeTeam
         End If
 
-        ' load sorted dic with batter ids in batting order order, including subs
-        Dim dicBattingOrder = New SortedDictionary(Of String, String)
-        Dim playerData As JObject = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.players")
-        For Each player In playerData
-            Dim id As String = player.Key.Replace("ID", "")
-            Dim BattingOrderId As String = player.Value.Item("battingOrder")
-            If BattingOrderId IsNot Nothing And BattingOrderId <> "" Then
-                dicBattingOrder.Add(BattingOrderId, id)
-            End If
-        Next
-
-        ' get batting stats for all playes in sorted dic
-        For Each bId As String In dicBattingOrder.Keys
-            Dim pId As String = dicBattingOrder(bId)
-            Dim BattingStats As JObject = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.players.ID{pId}.stats.batting")
-            row = dt.NewRow()
-
-            ' get this player obj
-            Dim thisPlayer As MlbPlayer = thisTeam.GetPlayer(pId)
-            row.Item("Id") = bId
-
-            ' if the batting order number does not end in "0", then a sub
-            ' if AB = 0, pinch runner and note is number, else pinch hitter and note is letter
-            Dim PlayerName As String = $"{thisPlayer.ShortName} ({thisPlayer.ShortPosition})"
-            If bId.Substring(bId.Length - 1, 1) <> "0" Then
-                Dim noteId As String = ""
-                If Integer.Parse(BattingStats.Item("atBats")) = 0 Then
-                    row.Item(1) = $"   {NoteLabelNumbersIndex}-{PlayerName}"
-                    NoteLabelNumbersIndex += 1
-                Else
-                    row.Item(1) = $"   {Chr(96 + NoteLabelLettersIndex)}-{PlayerName}"
-                    NoteLabelLettersIndex += 1
+        Try
+            ' load sorted dic with batter ids in batting order order, including subs
+            Dim dicBattingOrder = New SortedDictionary(Of String, String)
+            Dim playerData As JObject = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.players")
+            For Each player In playerData
+                Dim id As String = player.Key.Replace("ID", "")
+                Dim BattingOrderId As String = player.Value.Item("battingOrder")
+                If BattingOrderId IsNot Nothing And BattingOrderId <> "" Then
+                    dicBattingOrder.Add(BattingOrderId, id)
                 End If
-            Else
-                row.Item(1) = PlayerName
-            End If
+            Next
 
-            row.Item("AB") = BattingStats.Item("atBats")
-            row.Item("R") = BattingStats.Item("runs")
-            row.Item("H") = BattingStats.Item("hits")
-            row.Item("RBI") = BattingStats.Item("rbi")
-            row.Item("BB") = BattingStats.Item("baseOnBalls")
-            row.Item("K") = BattingStats.Item("strikeOuts")
-            row.Item("LOB") = BattingStats.Item("leftOnBase")
-            'row.Item("AVG") = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.players.ID{pId}.seasonStats.batting.avg")
-            'row.Item("OPS") = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.players.ID{pId}.seasonStats.batting.ops")
-            row.Item("AVG") = thisPlayer.Avg
-            row.Item("OPS") = thisPlayer.OPS
+            ' get batting stats for all playes in sorted dic
+            For Each bId As String In dicBattingOrder.Keys
+                Dim pId As String = dicBattingOrder(bId)
+                Dim BattingStats As JObject = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.players.ID{pId}.stats.batting")
+                row = dt.NewRow()
+
+                ' get this player obj
+                Dim thisPlayer As MlbPlayer = thisTeam.GetPlayer(pId)
+                row.Item("Id") = bId
+
+                ' if the batting order number does not end in "0", then a sub
+                ' if AB = 0, pinch runner and note is number, else pinch hitter and note is letter
+                Dim PlayerName As String = $"{thisPlayer.ShortName} ({thisPlayer.ShortPosition})"
+                If bId.Substring(bId.Length - 1, 1) <> "0" Then
+                    Dim noteId As String = ""
+                    If Integer.Parse(BattingStats.Item("atBats")) = 0 Then
+                        row.Item(1) = $"   {NoteLabelNumbersIndex}-{PlayerName}"
+                        NoteLabelNumbersIndex += 1
+                    Else
+                        row.Item(1) = $"   {Chr(96 + NoteLabelLettersIndex)}-{PlayerName}"
+                        NoteLabelLettersIndex += 1
+                    End If
+                Else
+                    row.Item(1) = PlayerName
+                End If
+
+                row.Item("AB") = BattingStats.Item("atBats")
+                row.Item("R") = BattingStats.Item("runs")
+                row.Item("H") = BattingStats.Item("hits")
+                row.Item("RBI") = BattingStats.Item("rbi")
+                row.Item("BB") = BattingStats.Item("baseOnBalls")
+                row.Item("K") = BattingStats.Item("strikeOuts")
+                row.Item("LOB") = BattingStats.Item("leftOnBase")
+                row.Item("AVG") = thisPlayer.Avg
+                row.Item("OPS") = thisPlayer.OPS
+                dt.Rows.Add(row)
+            Next
+
+            ' team totals
+            row = dt.NewRow()
+            Dim TeamBattingStats As JObject = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.teamStats.batting")
+            row.Item(0) = ""
+            row.Item(1) = "Team Totals"
+            row.Item("AB") = TeamBattingStats.Item("atBats")
+            row.Item("R") = TeamBattingStats.Item("runs")
+            row.Item("H") = TeamBattingStats.Item("hits")
+            row.Item("RBI") = TeamBattingStats.Item("rbi")
+            row.Item("BB") = TeamBattingStats.Item("baseOnBalls")
+            row.Item("K") = TeamBattingStats.Item("strikeOut")
+            row.Item("LOB") = TeamBattingStats.Item("leftOnBase")
+            row.Item("AVG") = TeamBattingStats.Item("avg")
+            row.Item("OPS") = TeamBattingStats.Item("ops")
             dt.Rows.Add(row)
-        Next
 
-
-        ' team totals
-        row = dt.NewRow()
-        Dim TeamBattingStats As JObject = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.teamStats.batting")
-        row.Item(0) = ""
-        row.Item(1) = "Team Totals"
-        row.Item("AB") = TeamBattingStats.Item("atBats")
-        row.Item("R") = TeamBattingStats.Item("runs")
-        row.Item("H") = TeamBattingStats.Item("hits")
-        row.Item("RBI") = TeamBattingStats.Item("rbi")
-        row.Item("BB") = TeamBattingStats.Item("baseOnBalls")
-        row.Item("K") = TeamBattingStats.Item("strikeOut")
-        row.Item("LOB") = TeamBattingStats.Item("leftOnBase")
-        row.Item("AVG") = TeamBattingStats.Item("avg")
-        row.Item("OPS") = TeamBattingStats.Item("ops")
-        dt.Rows.Add(row)
-
+        Catch ex As Exception
+            Logger.Error(ex)
+        End Try
     End Sub
 
     Private Sub LoadBattingAndFieldingInfo(team As MlbTeam)
@@ -215,38 +223,37 @@ Public Class MlbBoxscore
             thisTeam = Me.mThisGame.HomeTeam
         End If
 
-        ' load batting notes
-        Dim data As JArray = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.note")
-        For Each note As JObject In data
-            Dim label As String = note.SelectToken("label")
-            Dim value As String = note.SelectToken("value")
-            sb.Append($"{label} - {value}")
-            sb.Append(vbCr)
-        Next
-
-        ' loading fielding and baserunning info
-        sb.Append(vbCr)
-        data = Me.mThisGame.BoxScoreData.SelectToken($"teams.{AwayOrHome}.info")
-        For Each info As JObject In data
-            Dim title As String = info.SelectToken("title")
-            sb.Append(vbCr)
-            sb.Append(title)
-            sb.Append(vbCr)
-            Dim fields As JArray = info.SelectToken("fieldList")
-            For Each field As JObject In fields
-                Dim label As String = field.SelectToken("label")
-                Dim value As String = field.SelectToken("value")
-                sb.Append($"{label} - {value}")
+        Try
+            ' load batting notes
+            Dim BattingNotes As List(Of String) = Me.mThisGame.GetBoxscoreBattingNotes(AwayOrHome)
+            For Each note As String In BattingNotes
+                sb.Append(note)
                 sb.Append(vbCr)
             Next
-        Next
+            sb.Append(vbCr)
+
+            ' loading fielding and batting notes
+            Dim FieldingNotes As Dictionary(Of String, List(Of String)) = Me.mThisGame.GetBoxscoreFieldingNotes(AwayOrHome)
+            For Each title As String In FieldingNotes.Keys()
+                sb.Append(vbCr)
+                sb.Append(title)
+                sb.Append(vbCr)
+                Dim notes As List(Of String) = FieldingNotes(title)
+                For Each note As String In notes
+                    sb.Append(note)
+                    sb.Append(vbCr)
+                Next
+            Next
+
+        Catch ex As Exception
+            Logger.Error(ex)
+        End Try
+
         rtb.Text = sb.ToString()
     End Sub
 
-
     Private Function InitBattingStatsTable(team As String) As DataTable
         Dim dt As DataTable = New DataTable()
-        'Dim col As DataColumn = New DataColumn()
         Dim colNames As String() = {"Id", "Batters", "AB", "R", "H", "RBI", "BB", "K", "LOB", "AVG", "OPS"}
 
         For Each name As String In colNames
@@ -259,7 +266,6 @@ Public Class MlbBoxscore
 
     Private Function InitPitchingStatsTable(team As String) As DataTable
         Dim dt As DataTable = New DataTable()
-        'Dim col As DataColumn = New DataColumn()
         Dim colNames As String() = {"Id", "Pitchers", "IP", "H", "R", "ER", "B", "K", "HR", "ERA"}
 
         For Each name As String In colNames
@@ -274,18 +280,16 @@ Public Class MlbBoxscore
         Dim sb As StringBuilder = New StringBuilder()
         Dim BoxData As JObject = mThisGame.BoxScoreData()
 
-        ' pitching notes
-        Dim PitchingNotes As JArray = BoxData.SelectToken("pitchingNotes")
-        For i As Integer = 0 To PitchingNotes.Count - 1
-            sb.Append($"{PitchingNotes.Item(i)}")
+        Dim PitchingNotes As List(Of String) = mThisGame.GetBoxscorePitchingNotes()
+        For Each note As String In PitchingNotes
+            sb.Append(note)
             sb.Append(vbCr)
         Next
+        sb.Append(vbCr)
 
-        ' info
-        Dim GameInfo As JArray = BoxData.SelectToken("info")
-        For i As Integer = 0 To GameInfo.Count - 1
-            Dim info As JObject = GameInfo.Item(i)
-            sb.Append($"{info.SelectToken("label")}: {info.SelectToken("value")}")
+        Dim GameNotes As Dictionary(Of String, String) = mThisGame.GetBoxscoreGameNotes()
+        For Each key As String In GameNotes.Keys()
+            sb.Append($"{key}: {GameNotes(key)}")
             sb.Append(vbCr)
         Next
 
