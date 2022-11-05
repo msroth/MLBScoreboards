@@ -32,6 +32,7 @@ Partial Class MlbPlayerStats
         Me.Pitching = New System.Windows.Forms.TabPage()
         Me.dgvPitchingStats = New System.Windows.Forms.DataGridView()
         Me.lblPlayerID = New System.Windows.Forms.Label()
+        Me.LinkLabel1 = New System.Windows.Forms.LinkLabel()
         Me.TabControl1.SuspendLayout()
         Me.Batting.SuspendLayout()
         CType(Me.dgvBattingStats, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -178,12 +179,23 @@ Partial Class MlbPlayerStats
         '
         Me.lblPlayerID.AutoSize = True
         Me.lblPlayerID.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        Me.lblPlayerID.Location = New System.Drawing.Point(697, 19)
+        Me.lblPlayerID.Location = New System.Drawing.Point(606, 14)
         Me.lblPlayerID.Name = "lblPlayerID"
         Me.lblPlayerID.Size = New System.Drawing.Size(51, 15)
         Me.lblPlayerID.TabIndex = 4
         Me.lblPlayerID.Text = "PlayerId"
-        Me.lblPlayerID.TextAlign = System.Drawing.ContentAlignment.TopRight
+        Me.lblPlayerID.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'LinkLabel1
+        '
+        Me.LinkLabel1.AutoSize = True
+        Me.LinkLabel1.Location = New System.Drawing.Point(606, 45)
+        Me.LinkLabel1.Name = "LinkLabel1"
+        Me.LinkLabel1.Size = New System.Drawing.Size(164, 15)
+        Me.LinkLabel1.TabIndex = 5
+        Me.LinkLabel1.TabStop = True
+        Me.LinkLabel1.Text = "www.Baseball-Reference.com"
+        Me.LinkLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
         'MlbPlayerStats
         '
@@ -191,6 +203,7 @@ Partial Class MlbPlayerStats
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(814, 600)
+        Me.Controls.Add(Me.LinkLabel1)
         Me.Controls.Add(Me.lblPlayerID)
         Me.Controls.Add(Me.TabControl1)
         Me.Controls.Add(Me.lblPosition)
@@ -221,4 +234,5 @@ Partial Class MlbPlayerStats
     Friend WithEvents Pitching As TabPage
     Friend WithEvents dgvPitchingStats As DataGridView
     Friend WithEvents lblPlayerID As Label
+    Friend WithEvents LinkLabel1 As LinkLabel
 End Class

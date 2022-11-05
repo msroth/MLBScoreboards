@@ -432,6 +432,12 @@ Public Class MlbPlayerStats
 
     End Sub
 
+    Private Sub LinkLabel1_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles LinkLabel1.LinkClicked
+        Dim NewProcess As Diagnostics.ProcessStartInfo = New Diagnostics.ProcessStartInfo("http://www.baseball-reference.com/players/")
+        NewProcess.UseShellExecute = True
+        Process.Start(NewProcess)
+
+    End Sub
 End Class
 
 '<SDG><

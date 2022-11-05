@@ -46,8 +46,8 @@ Public Class MlbScoreboards
             splash.Refresh()
 
             ' load all games for today's date
-            Dim gameDate As String = Me.calDatePicker.Value.ToString("MM/dd/yyyy")
-            Me.mAllGames = Me.LoadAllGamesData(gameDate)
+            'Dim gameDate As String = Me.calDatePicker.Value.ToString("MM/dd/yyyy")
+            'Me.mAllGames = Me.LoadAllGamesData(gameDate)
 
             ' set scoreboard timer for every 60 sec or as configured, and start it
             ' this time updates the list of games
@@ -62,10 +62,10 @@ Public Class MlbScoreboards
             Me.Cursor = Cursors.Default
 
             ' if a favorite team specified, find game and load it
-            Me.SetCurrentGame()
+            'Me.SetCurrentGame()
 
             ' start the update timer
-            Me.GameUpdateTimer.Start()
+            'Me.GameUpdateTimer.Start()
 
             ' run the scoreboard
             ResetScreenControls()
@@ -313,15 +313,15 @@ Public Class MlbScoreboards
                 'update base runners image
                 Me.UpdateBaseRunners()
 
-                    ' load team lineups
-                    Me.LoadTeamLineupGrids()
+                ' load team lineups
+                Me.LoadTeamLineupGrids()
 
-                    ' if mid inning or end inning show due ups
-                    If Me.mCurrentGame.CurrentInningState() = "END" Or Me.mCurrentGame.CurrentInningState() = "MIDDLE" Then
-                        Me.tbxCommentary.Text += Me.mCurrentGame.GetDueUpBatters()
-                    End If
-                Else
-                    Logger.Warn($"Unknown game state: {status}")
+                ' if mid inning or end inning show due ups
+                If Me.mCurrentGame.CurrentInningState() = "END" Or Me.mCurrentGame.CurrentInningState() = "MIDDLE" Then
+                    Me.tbxCommentary.Text += Me.mCurrentGame.GetDueUpBatters()
+                End If
+            Else
+                Logger.Warn($"Unknown game state: {status}")
             End If
 
             ' redraw all controls
@@ -418,7 +418,7 @@ Public Class MlbScoreboards
             Dim duration As String = Me.mCurrentGame.GameData.SelectToken("gameInfo.gameDurationMinutes")
             Dim delay As String = Me.mCurrentGame.GameData.SelectToken("gameInfo.delayDurationMinutes")
 
-            ' format attndance
+            ' format attendance
             If attendance IsNot Nothing Then
                 If attendance.Length > 0 Then
                     Dim a As Integer = Integer.Parse(attendance)
@@ -846,7 +846,7 @@ Public Class MlbScoreboards
     End Sub
 
     Private Sub ScoreboardUpdateTimer_Tick(sender As Object, e As EventArgs) Handles ScoreboardUpdateTimer.Tick
-        Logger.Debug($"Scoreboard timer tick called {DateTime.Now()}")
+        Logger.Info($"Scoreboard timer tick called {DateTime.Now()}")
         Dim gameDate As DateTime = DateTime.Parse(Me.calDatePicker.Value.ToString("MM/dd/yyyy"))
         Dim today As DateTime = DateTime.Today().Date()
 
@@ -961,9 +961,11 @@ Public Class MlbScoreboards
 
     Private Sub ConfigureToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ConfigureToolStripMenuItem.Click
         Try
+            Me.Cursor = Cursors.WaitCursor
             ' show config form
             Dim frmConfig = New SBConfigure
             frmConfig.ShowDialog()
+            Me.Cursor = Cursors.Default
 
             ' reset timer if value changed in dialog
             SetScoreboardTimerInterval(Convert.ToInt32(mProperties.GetProperty(mProperties.mGAME_TIMER_KEY, "60")))
@@ -999,7 +1001,7 @@ Public Class MlbScoreboards
     End Sub
 
     Private Sub GameUpdateTimer_Tick(sender As Object, e As EventArgs) Handles GameUpdateTimer.Tick
-        Logger.Debug($"Game timer tick called {DateTime.Now()}")
+        Logger.Info($"Game timer tick called {DateTime.Now()}")
         ' run the game, which will force an update
         Me.RunGame()
     End Sub

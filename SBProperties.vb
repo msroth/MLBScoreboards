@@ -1,5 +1,7 @@
 ﻿
 Imports System.IO
+Imports NLog
+
 
 Public Class SBProperties
 
@@ -11,20 +13,28 @@ Public Class SBProperties
     Public mDATA_FILES_PATH_KEY As String = "data_files"
     Public mPROPERTIES_FILE As String = "config.mlb"
 
+    Shared ReadOnly Logger As Logger = LogManager.GetCurrentClassLogger()
+
     Public Sub New()
-        ' open file
-        Dim fi As FileInfo = New FileInfo(mPROPERTIES_FILE)
-        If Not fi.Exists() Then
-            File.WriteAllText(mPROPERTIES_FILE, $"{mGAME_TIMER_KEY}=30 {vbCr} {mSCOREBOARD_TIMER_KEY}=60 {vbCr} \
+        Try
+            ' open file
+            Dim fi As FileInfo = New FileInfo(mPROPERTIES_FILE)
+            If Not fi.Exists() Then
+                File.WriteAllText(mPROPERTIES_FILE, $"{mGAME_TIMER_KEY}=30 {vbCr} {mSCOREBOARD_TIMER_KEY}=60 {vbCr} \
                                                   {mFAVORITE_TEAM_KEY}=WSH {vbCr} {mKEEP_DATA_FILES_KEY}=0 {vbCr} \
                                                   {mDATA_FILES_PATH_KEY}=/data")
-        End If
+            End If
 
-        Dim sr As New StreamReader(mPROPERTIES_FILE)
+            Dim sr As New StreamReader(mPROPERTIES_FILE)
 
-        ' load properties
-        Load(sr)
-        sr.Close()
+            ' load properties
+            Load(sr)
+            sr.Close()
+
+        Catch ex As Exception
+            Logger.Debug(ex)
+        End Try
+
     End Sub
 
     Public Sub Add(ByVal key As String, ByVal value As String)
@@ -41,22 +51,27 @@ Public Class SBProperties
         Dim key As String
         Dim value As String
 
-        Do While sr.Peek <> -1
-            line = sr.ReadLine
-            If line = Nothing OrElse line.Length = 0 OrElse line.StartsWith("#") Then
-                Continue Do
-            End If
+        Try
+            Do While sr.Peek <> -1
+                line = sr.ReadLine
+                If line = Nothing OrElse line.Length = 0 OrElse line.StartsWith("#") Then
+                    Continue Do
+                End If
 
-            key = line.Split("=")(0)
-            value = line.Split("=")(1)
+                key = line.Split("=")(0)
+                value = line.Split("=")(1)
 
-            Me.Add(key, value)
-            'Trace.WriteLine($"read prop {key} = {value}")
-        Loop
+                Me.Add(key, value)
+                'Logger.Debug($"read prop {key} = {value}")
+            Loop
+        Catch ex As Exception
+            Logger.Debug(ex)
+        End Try
 
     End Sub
 
     Public Function GetProperty(ByVal key As String)
+        Logger.Debug($"Got property {key} = {GetProperty(key, "")}")
         Return GetProperty(key, "")
     End Function
 
@@ -66,19 +81,24 @@ Public Class SBProperties
         If value Is Nothing Then
             value = defValue
         End If
-        'Trace.WriteLine($"got property {key}={value}")
         Return value
     End Function
 
     Public Sub Write()
-        Dim sw As New StreamWriter(mPROPERTIES_FILE)
-        For Each key As String In m_Properties.Keys()
-            If Not key Is Nothing Then
-                sw.WriteLine($"{key}={GetProperty(key)}")
-                Trace.WriteLine($"propery {key} saved as {GetProperty(key)}")
-            End If
-        Next
-        sw.Close()
+        Try
+            Dim sw As New StreamWriter(mPROPERTIES_FILE)
+            For Each key As String In m_Properties.Keys()
+                If Not key Is Nothing Then
+                    sw.WriteLine($"{key}={GetProperty(key)}")
+                    Logger.Debug($"propery {key} saved as {GetProperty(key)}")
+                End If
+            Next
+            sw.Close()
+        Catch ex As Exception
+            Logger.Debug(ex)
+        End Try
+
     End Sub
 End Class
 
+'<SDG><

@@ -978,7 +978,7 @@ Public Class MlbGame
         Dim dt As DataTable = New DataTable()
 
         ' init cols
-        Dim ColNames As String() = {"Index", "Inning", "Half", "Out", "Scorebook", "Commentary"}
+        Dim ColNames As String() = {"Index", "Inning", "Half", "Out", "Score", "Scorebook", "Commentary"}
         For Each name As String In ColNames
             Dim col As DataColumn = New DataColumn()
             col.ColumnName = name
@@ -994,12 +994,14 @@ Public Class MlbGame
                 Dim Commentary As String = play.SelectToken("result.description")
                 Dim Index As String = play.SelectToken("about.atBatIndex")
                 Dim Scorebook As String = Me.CreateScorebookEntry(Convert.ToInt32(Index))
+                Dim Score As String = $"{play.SelectToken("result.awayScore")} - {play.SelectToken("result.homeScore")}"
 
                 Dim row As DataRow = dt.NewRow()
                 row.Item("Index") = Index
                 row.Item("Inning") = Inning
                 row.Item("Half") = Half.ToUpper()
                 row.Item("Out") = Out
+                row.Item("Score") = Score
                 row.Item("Scorebook") = Scorebook
                 row.Item("Commentary") = Commentary
 
