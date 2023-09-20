@@ -56,7 +56,7 @@ Public Class MlbScoreboards
 
             ' set game time for every 30 sec or as configured - do not start it yet
             ' this time updates all the controls for the currently selected game
-            Dim GameUpdateSeconds As Integer = Convert.ToInt32(mProperties.GetProperty(mProperties.mGAME_TIMER_KEY, "30"))
+            Dim GameUpdateSeconds As Integer = Convert.ToInt32(mProperties.GetProperty(mProperties.mGAME_TIMER_KEY, "25"))
             SetGameUpdateTimerInterval(GameUpdateSeconds, False)
 
             Me.Cursor = Cursors.Default
@@ -195,8 +195,8 @@ Public Class MlbScoreboards
                 Me.LoadTeamRosterGrids()
 
                 ' load pitcher match up
-                lblMatchup.Text = Me.mCurrentGame.GetPitchingMatchup()
-                lblMatchup.Visible = True
+                lblMatchupPitcher.Text = Me.mCurrentGame.GetPitchingMatchup()
+                lblMatchupPitcher.Visible = True
 
                 ' stop game update timer
                 Me.GameUpdateTimer.Stop()
@@ -217,7 +217,7 @@ Public Class MlbScoreboards
                 lblWeather.Visible = False
                 lblAwayWinnerLoser.Visible = True
                 lblHomeWinnerLoser.Visible = True
-                lblMatchup.Visible = False
+                lblMatchupPitcher.Visible = False
 
                 ' turn on/off menu items
                 Me.PlayRecapToolStripMenuItem.Enabled = True
@@ -299,7 +299,11 @@ Public Class MlbScoreboards
                 Me.lblPitchCount.Text = $"Pitch Count: {Me.mCurrentGame.PitchCount()}"
 
                 ' update pitcher-batter matchup
-                Me.lblMatchup.Text = Me.mCurrentGame.GetPitcherBatterMatchup()
+                Dim matchup As String = Me.mCurrentGame.GetPitcherBatterMatchup()
+                Dim pitcher As String = matchup.Substring(0, matchup.IndexOf(" - "))
+                Dim batter As String = matchup.Substring(matchup.IndexOf(" - ") + 3, matchup.Length - pitcher.Length - 3)
+                lblMatchupPitcher.Text = pitcher
+                lblMatchupBatter.Text = batter
 
                 ' update last play
                 Me.UpdatePlayCommentary()
@@ -349,8 +353,8 @@ Public Class MlbScoreboards
         lblPitchCount.Visible = True
         lblGameTitle.Text = "Away @ Home - mm/dd/yyyy (gamePk)"
         lblGameTitle.Visible = True
-        lblMatchup.Text = "Match up"
-        lblMatchup.Visible = True
+        lblMatchupPitcher.Text = "Match up"
+        lblMatchupPitcher.Visible = True
         imgDiamond.Image = My.Resources.diamond
         imgDiamond.Visible = True
         imgAwayLogo.Image = My.Resources.MLB

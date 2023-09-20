@@ -581,7 +581,7 @@ Public Class MlbGame
             End If
 
             Dim awayPitchingStats As String = Me.GetPitchingStats(Me.AwayScheduledPitcherId(), Me.AwayTeam())
-            Dim homePitchingStats As String = GetPitchingStats(Me.HomeScheduledPitcherId(), Me.HomeTeam())
+            Dim homePitchingStats As String = Me.GetPitchingStats(Me.HomeScheduledPitcherId(), Me.HomeTeam())
             matchup = String.Format("Preview: {0} {1} vs. {2} {3}", awayPitcherName, awayPitchingStats, homePitcherName, homePitchingStats)
         Catch ex As Exception
             Logger.Error(ex)
@@ -856,13 +856,13 @@ Public Class MlbGame
         Try
             Dim allPlaysData As JArray = Me.LiveData.SelectToken("plays.allPlays")
             Dim lastPlayData = allPlaysData(PlayIndex)
+            Dim Details As New List(Of String)
 
             Dim EventName As String = lastPlayData.SelectToken("result.event")
             If EventName = "" Then
                 Return ""
             End If
 
-            Dim Details As New List(Of String)
             For r As Integer = 0 To lastPlayData.SelectToken("runners").Count - 1
                 Dim RunnersData As JObject = lastPlayData.SelectToken("runners").Item(r)
                 Dim Credits As JArray = RunnersData.SelectToken("credits")
@@ -872,8 +872,8 @@ Public Class MlbGame
                         Dim PositionCode As String = Credits.Item(c).SelectToken("position.code")
                         Dim CreditType As String = Credits.Item(c).SelectToken("credit")
                         Details.Add(PositionCode)
-
                     Next
+                    Details.Reverse()
                 End If
             Next
 

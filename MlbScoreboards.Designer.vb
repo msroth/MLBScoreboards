@@ -23,12 +23,12 @@ Partial Class MlbScoreboards
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
-        Dim DataGridViewCellStyle7 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle8 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle9 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle10 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle11 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle12 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle4 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle5 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle6 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.StatusStrip1 = New System.Windows.Forms.StatusStrip()
         Me.AllGamesUpdateData = New System.Windows.Forms.ToolStripStatusLabel()
         Me.AllGamesUpdateProgressBar = New System.Windows.Forms.ToolStripProgressBar()
@@ -43,6 +43,7 @@ Partial Class MlbScoreboards
         Me.PlayRecapToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.StandingsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.BoxscoreToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.BroadcastsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AboutToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
         Me.calDatePicker = New System.Windows.Forms.DateTimePicker()
         Me.dgvInnings = New System.Windows.Forms.DataGridView()
@@ -57,7 +58,7 @@ Partial Class MlbScoreboards
         Me.dgvHomeLineup = New System.Windows.Forms.DataGridView()
         Me.lblAwayLineup = New System.Windows.Forms.Label()
         Me.lblHomeLineup = New System.Windows.Forms.Label()
-        Me.lblMatchup = New System.Windows.Forms.Label()
+        Me.lblMatchupPitcher = New System.Windows.Forms.Label()
         Me.dgvGames = New System.Windows.Forms.DataGridView()
         Me.lblGamePk = New System.Windows.Forms.Label()
         Me.lblStatus = New System.Windows.Forms.Label()
@@ -70,7 +71,7 @@ Partial Class MlbScoreboards
         Me.GameUpdateTimer = New System.Windows.Forms.Timer(Me.components)
         Me.lblPitchCount = New System.Windows.Forms.Label()
         Me.btnFindGames = New System.Windows.Forms.Button()
-        Me.BroadcastsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.lblMatchupBatter = New System.Windows.Forms.Label()
         Me.StatusStrip1.SuspendLayout()
         Me.MenuStrip1.SuspendLayout()
         CType(Me.dgvInnings, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -86,9 +87,9 @@ Partial Class MlbScoreboards
         '
         Me.StatusStrip1.ImageScalingSize = New System.Drawing.Size(20, 20)
         Me.StatusStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.AllGamesUpdateData, Me.AllGamesUpdateProgressBar, Me.ThisGameUpdateData, Me.Spacer})
-        Me.StatusStrip1.Location = New System.Drawing.Point(0, 623)
+        Me.StatusStrip1.Location = New System.Drawing.Point(0, 650)
         Me.StatusStrip1.Name = "StatusStrip1"
-        Me.StatusStrip1.Size = New System.Drawing.Size(1723, 22)
+        Me.StatusStrip1.Size = New System.Drawing.Size(1770, 22)
         Me.StatusStrip1.TabIndex = 0
         Me.StatusStrip1.Text = "StatusStrip1"
         '
@@ -128,7 +129,7 @@ Partial Class MlbScoreboards
         Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem, Me.ViewToolStripMenuItem, Me.AboutToolStripMenuItem1})
         Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
         Me.MenuStrip1.Name = "MenuStrip1"
-        Me.MenuStrip1.Size = New System.Drawing.Size(1723, 24)
+        Me.MenuStrip1.Size = New System.Drawing.Size(1770, 24)
         Me.MenuStrip1.TabIndex = 2
         Me.MenuStrip1.Text = "MenuStrip1"
         '
@@ -181,6 +182,12 @@ Partial Class MlbScoreboards
         Me.BoxscoreToolStripMenuItem.Size = New System.Drawing.Size(131, 22)
         Me.BoxscoreToolStripMenuItem.Text = "Boxscore"
         '
+        'BroadcastsToolStripMenuItem
+        '
+        Me.BroadcastsToolStripMenuItem.Name = "BroadcastsToolStripMenuItem"
+        Me.BroadcastsToolStripMenuItem.Size = New System.Drawing.Size(131, 22)
+        Me.BroadcastsToolStripMenuItem.Text = "Broadcasts"
+        '
         'AboutToolStripMenuItem1
         '
         Me.AboutToolStripMenuItem1.Name = "AboutToolStripMenuItem1"
@@ -204,25 +211,24 @@ Partial Class MlbScoreboards
         Me.dgvInnings.AllowUserToResizeRows = False
         Me.dgvInnings.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
         Me.dgvInnings.BackgroundColor = System.Drawing.Color.Green
-        Me.dgvInnings.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.dgvInnings.CausesValidation = False
-        DataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
-        DataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle7.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        DataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.WindowText
-        DataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.dgvInnings.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle7
+        DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle1.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+        DataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.dgvInnings.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle1
         Me.dgvInnings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        DataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
-        DataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Window
-        DataGridViewCellStyle8.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        DataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.ControlText
-        DataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Window
-        DataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.ControlText
-        DataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
-        Me.dgvInnings.DefaultCellStyle = DataGridViewCellStyle8
+        DataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window
+        DataGridViewCellStyle2.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+        DataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText
+        DataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Window
+        DataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.ControlText
+        DataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.dgvInnings.DefaultCellStyle = DataGridViewCellStyle2
         Me.dgvInnings.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
         Me.dgvInnings.Location = New System.Drawing.Point(480, 193)
         Me.dgvInnings.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
@@ -266,7 +272,7 @@ Partial Class MlbScoreboards
         Me.imgDiamond.Image = Global.MLBScoreBoard.My.Resources.Resources.diamond
         Me.imgDiamond.ImageLocation = ""
         Me.imgDiamond.InitialImage = Global.MLBScoreBoard.My.Resources.Resources.diamond
-        Me.imgDiamond.Location = New System.Drawing.Point(477, 350)
+        Me.imgDiamond.Location = New System.Drawing.Point(480, 367)
         Me.imgDiamond.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.imgDiamond.Name = "imgDiamond"
         Me.imgDiamond.Size = New System.Drawing.Size(166, 142)
@@ -281,7 +287,7 @@ Partial Class MlbScoreboards
         Me.lblBalls.AutoSize = True
         Me.lblBalls.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.lblBalls.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.lblBalls.Location = New System.Drawing.Point(488, 501)
+        Me.lblBalls.Location = New System.Drawing.Point(491, 518)
         Me.lblBalls.Name = "lblBalls"
         Me.lblBalls.Size = New System.Drawing.Size(62, 17)
         Me.lblBalls.TabIndex = 18
@@ -292,7 +298,7 @@ Partial Class MlbScoreboards
         Me.lblStrikes.AutoSize = True
         Me.lblStrikes.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.lblStrikes.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.lblStrikes.Location = New System.Drawing.Point(488, 515)
+        Me.lblStrikes.Location = New System.Drawing.Point(491, 535)
         Me.lblStrikes.Name = "lblStrikes"
         Me.lblStrikes.Size = New System.Drawing.Size(77, 17)
         Me.lblStrikes.TabIndex = 19
@@ -303,7 +309,7 @@ Partial Class MlbScoreboards
         Me.lblOuts.AutoSize = True
         Me.lblOuts.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.lblOuts.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.lblOuts.Location = New System.Drawing.Point(488, 531)
+        Me.lblOuts.Location = New System.Drawing.Point(491, 552)
         Me.lblOuts.Name = "lblOuts"
         Me.lblOuts.Size = New System.Drawing.Size(61, 17)
         Me.lblOuts.TabIndex = 20
@@ -323,16 +329,16 @@ Partial Class MlbScoreboards
         Me.dgvAwayLineup.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.dgvAwayLineup.CausesValidation = False
         Me.dgvAwayLineup.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        DataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle9.BackColor = System.Drawing.SystemColors.Window
-        DataGridViewCellStyle9.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        DataGridViewCellStyle9.ForeColor = System.Drawing.SystemColors.ControlText
-        DataGridViewCellStyle9.SelectionBackColor = System.Drawing.SystemColors.Window
-        DataGridViewCellStyle9.SelectionForeColor = System.Drawing.SystemColors.ControlText
-        DataGridViewCellStyle9.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
-        Me.dgvAwayLineup.DefaultCellStyle = DataGridViewCellStyle9
+        DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window
+        DataGridViewCellStyle3.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+        DataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlText
+        DataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Window
+        DataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.ControlText
+        DataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.dgvAwayLineup.DefaultCellStyle = DataGridViewCellStyle3
         Me.dgvAwayLineup.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
-        Me.dgvAwayLineup.Location = New System.Drawing.Point(1131, 84)
+        Me.dgvAwayLineup.Location = New System.Drawing.Point(1186, 84)
         Me.dgvAwayLineup.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.dgvAwayLineup.MultiSelect = False
         Me.dgvAwayLineup.Name = "dgvAwayLineup"
@@ -357,16 +363,16 @@ Partial Class MlbScoreboards
         Me.dgvHomeLineup.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.dgvHomeLineup.CausesValidation = False
         Me.dgvHomeLineup.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        DataGridViewCellStyle10.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle10.BackColor = System.Drawing.SystemColors.Window
-        DataGridViewCellStyle10.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        DataGridViewCellStyle10.ForeColor = System.Drawing.SystemColors.ControlText
-        DataGridViewCellStyle10.SelectionBackColor = System.Drawing.SystemColors.Window
-        DataGridViewCellStyle10.SelectionForeColor = System.Drawing.SystemColors.ControlText
-        DataGridViewCellStyle10.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
-        Me.dgvHomeLineup.DefaultCellStyle = DataGridViewCellStyle10
+        DataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Window
+        DataGridViewCellStyle4.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+        DataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.ControlText
+        DataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Window
+        DataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.ControlText
+        DataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.dgvHomeLineup.DefaultCellStyle = DataGridViewCellStyle4
         Me.dgvHomeLineup.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
-        Me.dgvHomeLineup.Location = New System.Drawing.Point(1420, 84)
+        Me.dgvHomeLineup.Location = New System.Drawing.Point(1475, 84)
         Me.dgvHomeLineup.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.dgvHomeLineup.MultiSelect = False
         Me.dgvHomeLineup.Name = "dgvHomeLineup"
@@ -387,7 +393,7 @@ Partial Class MlbScoreboards
         Me.lblAwayLineup.AutoSize = True
         Me.lblAwayLineup.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.lblAwayLineup.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.lblAwayLineup.Location = New System.Drawing.Point(1131, 58)
+        Me.lblAwayLineup.Location = New System.Drawing.Point(1186, 58)
         Me.lblAwayLineup.Name = "lblAwayLineup"
         Me.lblAwayLineup.Size = New System.Drawing.Size(77, 15)
         Me.lblAwayLineup.TabIndex = 23
@@ -398,22 +404,22 @@ Partial Class MlbScoreboards
         Me.lblHomeLineup.AutoSize = True
         Me.lblHomeLineup.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.lblHomeLineup.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.lblHomeLineup.Location = New System.Drawing.Point(1420, 58)
+        Me.lblHomeLineup.Location = New System.Drawing.Point(1475, 58)
         Me.lblHomeLineup.Name = "lblHomeLineup"
         Me.lblHomeLineup.Size = New System.Drawing.Size(81, 15)
         Me.lblHomeLineup.TabIndex = 24
         Me.lblHomeLineup.Text = "Home Lineup"
         '
-        'lblMatchup
+        'lblMatchupPitcher
         '
-        Me.lblMatchup.AutoSize = True
-        Me.lblMatchup.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
-        Me.lblMatchup.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.lblMatchup.Location = New System.Drawing.Point(480, 308)
-        Me.lblMatchup.Name = "lblMatchup"
-        Me.lblMatchup.Size = New System.Drawing.Size(69, 17)
-        Me.lblMatchup.TabIndex = 25
-        Me.lblMatchup.Text = "Matchup"
+        Me.lblMatchupPitcher.AutoSize = True
+        Me.lblMatchupPitcher.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
+        Me.lblMatchupPitcher.ForeColor = System.Drawing.SystemColors.ControlLightLight
+        Me.lblMatchupPitcher.Location = New System.Drawing.Point(480, 308)
+        Me.lblMatchupPitcher.Name = "lblMatchupPitcher"
+        Me.lblMatchupPitcher.Size = New System.Drawing.Size(126, 17)
+        Me.lblMatchupPitcher.TabIndex = 25
+        Me.lblMatchupPitcher.Text = "Matchup-Pitcher"
         '
         'dgvGames
         '
@@ -425,23 +431,23 @@ Partial Class MlbScoreboards
         Me.dgvGames.BackgroundColor = System.Drawing.Color.Green
         Me.dgvGames.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.dgvGames.CausesValidation = False
-        DataGridViewCellStyle11.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
-        DataGridViewCellStyle11.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle11.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        DataGridViewCellStyle11.ForeColor = System.Drawing.SystemColors.WindowText
-        DataGridViewCellStyle11.SelectionBackColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle11.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle11.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
-        Me.dgvGames.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle11
+        DataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle5.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+        DataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.dgvGames.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle5
         Me.dgvGames.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        DataGridViewCellStyle12.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
-        DataGridViewCellStyle12.BackColor = System.Drawing.SystemColors.Window
-        DataGridViewCellStyle12.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        DataGridViewCellStyle12.ForeColor = System.Drawing.SystemColors.ControlText
-        DataGridViewCellStyle12.SelectionBackColor = System.Drawing.SystemColors.Window
-        DataGridViewCellStyle12.SelectionForeColor = System.Drawing.SystemColors.ControlText
-        DataGridViewCellStyle12.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
-        Me.dgvGames.DefaultCellStyle = DataGridViewCellStyle12
+        DataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Window
+        DataGridViewCellStyle6.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+        DataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.ControlText
+        DataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Window
+        DataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.ControlText
+        DataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.dgvGames.DefaultCellStyle = DataGridViewCellStyle6
         Me.dgvGames.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
         Me.dgvGames.Location = New System.Drawing.Point(10, 84)
         Me.dgvGames.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
@@ -486,7 +492,7 @@ Partial Class MlbScoreboards
         'tbxCommentary
         '
         Me.tbxCommentary.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        Me.tbxCommentary.Location = New System.Drawing.Point(666, 349)
+        Me.tbxCommentary.Location = New System.Drawing.Point(669, 366)
         Me.tbxCommentary.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.tbxCommentary.Name = "tbxCommentary"
         Me.tbxCommentary.Size = New System.Drawing.Size(441, 257)
@@ -564,7 +570,7 @@ Partial Class MlbScoreboards
         Me.lblPitchCount.AutoSize = True
         Me.lblPitchCount.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.lblPitchCount.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.lblPitchCount.Location = New System.Drawing.Point(488, 548)
+        Me.lblPitchCount.Location = New System.Drawing.Point(491, 569)
         Me.lblPitchCount.Name = "lblPitchCount"
         Me.lblPitchCount.Size = New System.Drawing.Size(80, 17)
         Me.lblPitchCount.TabIndex = 36
@@ -580,11 +586,16 @@ Partial Class MlbScoreboards
         Me.btnFindGames.Text = "FindGames"
         Me.btnFindGames.UseVisualStyleBackColor = False
         '
-        'BroadcastsToolStripMenuItem
+        'lblMatchupBatter
         '
-        Me.BroadcastsToolStripMenuItem.Name = "BroadcastsToolStripMenuItem"
-        Me.BroadcastsToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
-        Me.BroadcastsToolStripMenuItem.Text = "Broadcasts"
+        Me.lblMatchupBatter.AutoSize = True
+        Me.lblMatchupBatter.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
+        Me.lblMatchupBatter.ForeColor = System.Drawing.SystemColors.ControlLightLight
+        Me.lblMatchupBatter.Location = New System.Drawing.Point(480, 335)
+        Me.lblMatchupBatter.Name = "lblMatchupBatter"
+        Me.lblMatchupBatter.Size = New System.Drawing.Size(123, 18)
+        Me.lblMatchupBatter.TabIndex = 38
+        Me.lblMatchupBatter.Text = "Matchup-Batter"
         '
         'MlbScoreboards
         '
@@ -592,7 +603,8 @@ Partial Class MlbScoreboards
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.Green
         Me.CausesValidation = False
-        Me.ClientSize = New System.Drawing.Size(1723, 645)
+        Me.ClientSize = New System.Drawing.Size(1770, 672)
+        Me.Controls.Add(Me.lblMatchupBatter)
         Me.Controls.Add(Me.btnFindGames)
         Me.Controls.Add(Me.lblPitchCount)
         Me.Controls.Add(Me.lblHomeWinnerLoser)
@@ -604,7 +616,7 @@ Partial Class MlbScoreboards
         Me.Controls.Add(Me.lblStatus)
         Me.Controls.Add(Me.lblGamePk)
         Me.Controls.Add(Me.dgvGames)
-        Me.Controls.Add(Me.lblMatchup)
+        Me.Controls.Add(Me.lblMatchupPitcher)
         Me.Controls.Add(Me.lblHomeLineup)
         Me.Controls.Add(Me.lblAwayLineup)
         Me.Controls.Add(Me.dgvHomeLineup)
@@ -654,7 +666,7 @@ Partial Class MlbScoreboards
     Friend WithEvents dgvHomeLineup As DataGridView
     Friend WithEvents lblAwayLineup As Label
     Friend WithEvents lblHomeLineup As Label
-    Friend WithEvents lblMatchup As Label
+    Friend WithEvents lblMatchupPitcher As Label
     Friend WithEvents dgvGames As DataGridView
     Friend WithEvents ScoreboardUpdateTimer As Timer
     Friend WithEvents lblGamePk As Label
@@ -679,4 +691,5 @@ Partial Class MlbScoreboards
     Friend WithEvents AllGamesUpdateProgressBar As ToolStripProgressBar
     Friend WithEvents Spacer As ToolStripStatusLabel
     Friend WithEvents BroadcastsToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents lblMatchupBatter As Label
 End Class
