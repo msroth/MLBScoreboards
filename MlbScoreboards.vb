@@ -54,7 +54,7 @@ Public Class MlbScoreboards
             Dim SBUpdateSeconds As Integer = Convert.ToInt32(mProperties.GetProperty(mProperties.mSCOREBOARD_TIMER_KEY, "60"))
             SetScoreboardTimerInterval(SBUpdateSeconds)
 
-            ' set game time for every 30 sec or as configured - do not start it yet
+            ' set game time for every 25 sec or as configured - do not start it yet
             ' this time updates all the controls for the currently selected game
             Dim GameUpdateSeconds As Integer = Convert.ToInt32(mProperties.GetProperty(mProperties.mGAME_TIMER_KEY, "25"))
             SetGameUpdateTimerInterval(GameUpdateSeconds, False)
@@ -197,6 +197,7 @@ Public Class MlbScoreboards
                 ' load pitcher match up
                 lblMatchupPitcher.Text = Me.mCurrentGame.GetPitchingMatchup()
                 lblMatchupPitcher.Visible = True
+                lblMatchupBatter.Visible = False
 
                 ' stop game update timer
                 Me.GameUpdateTimer.Stop()

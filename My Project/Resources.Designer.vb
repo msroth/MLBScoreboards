@@ -63,16 +63,6 @@ Namespace My.Resources
         '''<summary>
         '''  Looks up a localized resource of type System.Drawing.Bitmap.
         '''</summary>
-        Public ReadOnly Property ARI() As System.Drawing.Bitmap
-            Get
-                Dim obj As Object = ResourceManager.GetObject("ARI", resourceCulture)
-                Return CType(obj,System.Drawing.Bitmap)
-            End Get
-        End Property
-        
-        '''<summary>
-        '''  Looks up a localized resource of type System.Drawing.Bitmap.
-        '''</summary>
         Public ReadOnly Property ARI1() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("ARI1", resourceCulture)
@@ -86,6 +76,16 @@ Namespace My.Resources
         Public ReadOnly Property ATL() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("ATL", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Public ReadOnly Property AZ() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("AZ", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
