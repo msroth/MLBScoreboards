@@ -22,71 +22,73 @@ Partial Class Splash
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Me.PictureBox1 = New System.Windows.Forms.PictureBox()
-        Me.Label1 = New System.Windows.Forms.Label()
-        Me.Label2 = New System.Windows.Forms.Label()
-        Me.lblVersion = New System.Windows.Forms.Label()
-        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.SuspendLayout()
-        '
-        'PictureBox1
-        '
-        Me.PictureBox1.ErrorImage = Global.MLBScoreBoard.My.Resources.Resources.diamond
-        Me.PictureBox1.Image = Global.MLBScoreBoard.My.Resources.Resources.diamond
-        Me.PictureBox1.InitialImage = Global.MLBScoreBoard.My.Resources.Resources.diamond
-        Me.PictureBox1.Location = New System.Drawing.Point(21, 21)
-        Me.PictureBox1.Name = "PictureBox1"
-        Me.PictureBox1.Size = New System.Drawing.Size(179, 154)
-        Me.PictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
-        Me.PictureBox1.TabIndex = 0
-        Me.PictureBox1.TabStop = False
-        '
-        'Label1
-        '
-        Me.Label1.AutoSize = True
-        Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 15.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
-        Me.Label1.Location = New System.Drawing.Point(225, 21)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(199, 25)
-        Me.Label1.TabIndex = 1
-        Me.Label1.Text = "MLB Scoreboards"
-        '
-        'Label2
-        '
-        Me.Label2.AutoSize = True
-        Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point)
-        Me.Label2.Location = New System.Drawing.Point(225, 155)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(203, 20)
-        Me.Label2.TabIndex = 2
-        Me.Label2.Text = "Loading MLB game data...  "
-        '
-        'lblVersion
-        '
-        Me.lblVersion.AutoSize = True
-        Me.lblVersion.Location = New System.Drawing.Point(309, 64)
-        Me.lblVersion.Name = "lblVersion"
-        Me.lblVersion.Size = New System.Drawing.Size(34, 15)
-        Me.lblVersion.TabIndex = 3
-        Me.lblVersion.Text = "v0.01"
-        '
-        'Splash
-        '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
-        Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(444, 202)
-        Me.ControlBox = False
-        Me.Controls.Add(Me.lblVersion)
-        Me.Controls.Add(Me.Label2)
-        Me.Controls.Add(Me.Label1)
-        Me.Controls.Add(Me.PictureBox1)
-        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
-        Me.Name = "Splash"
-        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
-        Me.Text = "(C)  MSRoth 2022 - MLB Scoreboards"
-        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.ResumeLayout(False)
-        Me.PerformLayout()
+        PictureBox1 = New PictureBox()
+        Label1 = New Label()
+        Label2 = New Label()
+        lblVersion = New Label()
+        CType(PictureBox1, ComponentModel.ISupportInitialize).BeginInit()
+        SuspendLayout()
+        ' 
+        ' PictureBox1
+        ' 
+        PictureBox1.ErrorImage = My.Resources.Resources.diamond
+        PictureBox1.Image = My.Resources.Resources.diamond
+        PictureBox1.InitialImage = My.Resources.Resources.diamond
+        PictureBox1.Location = New Point(24, 27)
+        PictureBox1.Margin = New Padding(3, 4, 3, 4)
+        PictureBox1.Name = "PictureBox1"
+        PictureBox1.Size = New Size(205, 195)
+        PictureBox1.SizeMode = PictureBoxSizeMode.Zoom
+        PictureBox1.TabIndex = 0
+        PictureBox1.TabStop = False
+        ' 
+        ' Label1
+        ' 
+        Label1.AutoSize = True
+        Label1.Font = New Font("Microsoft Sans Serif", 15.75F, FontStyle.Bold, GraphicsUnit.Point)
+        Label1.Location = New Point(257, 27)
+        Label1.Name = "Label1"
+        Label1.Size = New Size(199, 25)
+        Label1.TabIndex = 1
+        Label1.Text = "MLB Scoreboards"
+        ' 
+        ' Label2
+        ' 
+        Label2.AutoSize = True
+        Label2.Font = New Font("Microsoft Sans Serif", 12F, FontStyle.Italic, GraphicsUnit.Point)
+        Label2.Location = New Point(257, 196)
+        Label2.Name = "Label2"
+        Label2.Size = New Size(203, 20)
+        Label2.TabIndex = 2
+        Label2.Text = "Loading MLB game data...  "
+        ' 
+        ' lblVersion
+        ' 
+        lblVersion.AutoSize = True
+        lblVersion.Location = New Point(353, 81)
+        lblVersion.Name = "lblVersion"
+        lblVersion.Size = New Size(35, 19)
+        lblVersion.TabIndex = 3
+        lblVersion.Text = "v0.2"
+        ' 
+        ' Splash
+        ' 
+        AutoScaleDimensions = New SizeF(8F, 19F)
+        AutoScaleMode = AutoScaleMode.Font
+        ClientSize = New Size(507, 256)
+        ControlBox = False
+        Controls.Add(lblVersion)
+        Controls.Add(Label2)
+        Controls.Add(Label1)
+        Controls.Add(PictureBox1)
+        FormBorderStyle = FormBorderStyle.None
+        Margin = New Padding(3, 4, 3, 4)
+        Name = "Splash"
+        StartPosition = FormStartPosition.CenterScreen
+        Text = "(C)  MSRoth 2022 - MLB Scoreboards"
+        CType(PictureBox1, ComponentModel.ISupportInitialize).EndInit()
+        ResumeLayout(False)
+        PerformLayout()
 
     End Sub
 

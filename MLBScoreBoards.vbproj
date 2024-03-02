@@ -7,6 +7,7 @@
     <StartupObject>MLBScoreBoard.MlbScoreboards</StartupObject>
     <UseWindowsForms>true</UseWindowsForms>
     <MyType>WindowsForms</MyType>
+    <ApplicationIcon>imgs\diamond.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +19,10 @@
     <None Remove="imgs\diamond2-3.jpg" />
     <None Remove="imgs\diamond2.jpg" />
     <None Remove="imgs\diamond3.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="imgs\diamond.ico" />
   </ItemGroup>
 
   <ItemGroup>

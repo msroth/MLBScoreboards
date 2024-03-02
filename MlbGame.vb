@@ -5,6 +5,7 @@
 ' =========================================================================================================
 
 Imports System.IO
+Imports System.Net
 Imports System.Security.Cryptography
 Imports System.Text
 Imports Newtonsoft.Json.Linq
@@ -43,6 +44,7 @@ Public Class MlbGame
     Private mGameData As JObject
     Private mCurrentPlayData As JObject
     Private mAllPlaysData As JObject
+    Private mBroadcastData As DataTable
     Private mAPI As MlbApi = New MlbApi()
     Private mProperties As SBProperties = New SBProperties()
 
@@ -256,6 +258,12 @@ Public Class MlbGame
         End Get
     End Property
 
+    Public ReadOnly Property BroadcastData() As DataTable
+        Get
+            Return Me.mBroadcastData
+        End Get
+    End Property
+
     Public ReadOnly Property Balls() As String
         Get
             Return Me.mBalls
@@ -335,6 +343,9 @@ Public Class MlbGame
 
             ' load innings
             Me.LoadInnings()
+
+            ' load broadcast data
+            Me.LoadBroadcastData()
 
             'current game
             If MlbGame.CheckGameStatus(Me.GameStatus) = MlbGame.mGAME_STATUS_PRESENT Then
@@ -982,6 +993,9 @@ Public Class MlbGame
         For Each name As String In ColNames
             Dim col As DataColumn = New DataColumn()
             col.ColumnName = name
+            If name = "Index" Then
+                col.DataType = GetType(Int32)
+            End If
             dt.Columns.Add(col)
         Next
 
@@ -992,7 +1006,7 @@ Public Class MlbGame
                 Dim Half As String = play.SelectToken("about.halfInning")
                 Dim Out As String = play.SelectToken("count.outs")
                 Dim Commentary As String = play.SelectToken("result.description")
-                Dim Index As String = play.SelectToken("about.atBatIndex")
+                Dim Index As Int32 = Convert.ToInt32(play.SelectToken("about.atBatIndex"))  ' need int so it sorts properly
                 Dim Scorebook As String = Me.CreateScorebookEntry(Convert.ToInt32(Index))
                 Dim Score As String = $"{play.SelectToken("result.awayScore")} - {play.SelectToken("result.homeScore")}"
 
@@ -1126,6 +1140,88 @@ Public Class MlbGame
 
         Return stats
     End Function
+
+    Private Sub LoadBroadcastData()
+
+        Logger.Debug($"Loading broadcast data for gamePk {Me.GamePk}")
+        Dim dt As DataTable = New DataTable()
+
+        ' setup table columns
+        Dim ColNames As String() = {"Type", "Call Sign", "Name", "Language", "Side", "Scope"}
+        For Each name As String In ColNames
+            Dim col As DataColumn = New DataColumn()
+            col.ColumnName = name
+            dt.Columns.Add(col)
+        Next
+
+        ' setup language dictionary
+        Dim Languages As Dictionary(Of String, String) = New Dictionary(Of String, String)
+        Languages.Add("ar", "Arabic")
+        Languages.Add("bn", "Bengali")
+        Languages.Add("zn", "Chinese")
+        Languages.Add("en", "English")
+        Languages.Add("fr", "French")
+        Languages.Add("hi", "Hindi")
+        Languages.Add("in", "Indonesian")
+        Languages.Add("pt", "Portuguese")
+        Languages.Add("ru", "Russian")
+        Languages.Add("es", "Spansih")
+
+        ' get broadcast data from schedule
+        Try
+            ' get JSON data from API
+            Dim gamedate = DateTime.Parse(Me.GameDateTime()).ToString("MM/dd/yyyy")
+            Dim schedule As JObject = Me.mAPI.ReturnScheduleData(gamedate)
+            Dim gameDates As JArray = schedule.SelectToken("dates")
+
+            ' process data looking for this game
+            For Each gDate As JObject In gameDates
+                Dim games As JArray = gDate.SelectToken("games")
+
+                For Each game As JObject In games
+                    If Me.GamePk = Convert.ToInt32(game.SelectToken("gamePk").ToString()) Then
+                        Dim Broadcasters As JArray = game.SelectToken("broadcasts")
+
+                        For i As Integer = 0 To Broadcasters.Count - 1
+                            Dim broadcast As JObject = Broadcasters.Item(i)
+
+                            Dim name As String = broadcast.SelectToken("name")
+                            Dim type As String = broadcast.SelectToken("type")
+                            Dim language As String = broadcast.SelectToken("language")
+                            Dim side As String = broadcast.SelectToken("homeAway")
+                            Dim national As String = broadcast.SelectToken("isNational")
+                            Dim callsign As String = broadcast.SelectToken("callSign")
+
+                            Dim row As DataRow = dt.NewRow()
+                            row("Name") = name
+                            row("Type") = type.ToUpper()
+                            If Languages.ContainsKey(language) Then
+                                row("Language") = Languages(language)
+                            Else
+                                row("Langauge") = language.ToUpper()
+                            End If
+                            row("Side") = side.ToUpper()
+                            If national Is Nothing Then
+                                row("Scope") = "Local"
+                            Else
+                                row("Scope") = "National"
+                            End If
+                            row("Call Sign") = callsign
+
+                            dt.Rows.Add(row)
+                            Logger.Debug($"loaded broadcaster {callsign}")
+                        Next
+                    End If
+                Next
+            Next
+
+            Me.mBroadcastData = dt
+
+        Catch ex As Exception
+            Logger.Error(ex)
+        End Try
+
+    End Sub
 
 
 End Class

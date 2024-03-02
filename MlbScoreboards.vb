@@ -17,33 +17,39 @@ Public Class MlbScoreboards
 
     Shared ReadOnly Logger As Logger = LogManager.GetCurrentClassLogger()
 
+    Public Sub MlbScoreboards()
+
+        ' config logger
+        Dim config = New Config.LoggingConfiguration()
+        Dim logfile = New Targets.FileTarget("logfile")
+        logfile.FileName = ".\\logs\\MLBScoreboards.log"
+        logfile.ArchiveFileName = ".\\logs\\MLBScoreboard" + "{####}.log"
+        logfile.ArchiveAboveSize = 10000000
+        logfile.ArchiveNumbering = Targets.ArchiveNumberingMode.Sequence
+        logfile.MaxArchiveFiles = 3
+        Dim logconsole = New Targets.ConsoleTarget("logconsole")
+        Dim outputconsole = New Targets.DebuggerTarget()
+        config.AddRule(LogLevel.Debug, LogLevel.Fatal, logconsole)
+        config.AddRule(LogLevel.Debug, LogLevel.Fatal, logfile)
+        config.AddRule(LogLevel.Debug, LogLevel.Fatal, outputconsole)
+        LogManager.Configuration = config
+
+        Logger.Info($"*** Application Started ***")
+    End Sub
+
 
     Private Sub MLBScoreboards_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        SuspendLayout()
+
+        Me.Cursor = Cursors.WaitCursor
+
+        ' show splash screen
+        Dim splash As New Splash
+        splash.Show()
+        splash.Refresh()
+
         Try
 
-            ' config logger
-            Dim config = New Config.LoggingConfiguration()
-            Dim logfile = New Targets.FileTarget("logfile")
-            logfile.FileName = ".\\logs\\MLBScoreboards.log"
-            logfile.ArchiveFileName = ".\\logs\\MLBScoreboard" + "{####}.log"
-            logfile.ArchiveAboveSize = 1000000000
-            logfile.ArchiveNumbering = Targets.ArchiveNumberingMode.Sequence
-            logfile.MaxArchiveFiles = 3
-            Dim logconsole = New Targets.ConsoleTarget("logconsole")
-            Dim outputconsole = New Targets.DebuggerTarget()
-            config.AddRule(LogLevel.Debug, LogLevel.Fatal, logconsole)
-            config.AddRule(LogLevel.Debug, LogLevel.Fatal, logfile)
-            config.AddRule(LogLevel.Debug, LogLevel.Fatal, outputconsole)
-            LogManager.Configuration = config
-
-            Logger.Info($"*** Application Started ***")
-
-            Me.Cursor = Cursors.WaitCursor
-
-            ' show splash screen
-            Dim splash As New Splash
-            splash.Show()
-            splash.Refresh()
 
             ' load all games for today's date
             'Dim gameDate As String = Me.calDatePicker.Value.ToString("MM/dd/yyyy")
@@ -71,12 +77,15 @@ Public Class MlbScoreboards
             ResetScreenControls()
             RunScoreboards()
 
-            ' close splash screen
-            splash.Close()
-
         Catch ex As Exception
             Logger.Error(ex)
+        Finally
+            ' close splash screen
+            splash.Close()
         End Try
+
+        ResumeLayout()
+
     End Sub
 
     Private Sub RunScoreboards()
@@ -99,13 +108,13 @@ Public Class MlbScoreboards
 
             ' set menu options accordingly
             If Me.mCurrentGame Is Nothing Then
-                PlayRecapToolStripMenuItem.Enabled = False
+                'PlayRecapToolStripMenuItem.Enabled = False
                 BoxscoreToolStripMenuItem.Enabled = False
             ElseIf MlbGame.CheckGameStatus(Me.mCurrentGame.GameStatus) = MlbGame.mGAME_STATUS_FUTURE Then
-                PlayRecapToolStripMenuItem.Enabled = False
+                'PlayRecapToolStripMenuItem.Enabled = False
                 BoxscoreToolStripMenuItem.Enabled = False
             Else
-                PlayRecapToolStripMenuItem.Enabled = True
+                'PlayRecapToolStripMenuItem.Enabled = True
                 BoxscoreToolStripMenuItem.Enabled = True
             End If
 
@@ -127,8 +136,8 @@ Public Class MlbScoreboards
         Try
             ' set menu options accordingly
             If Me.mCurrentGame Is Nothing Then
-                Me.PlayRecapToolStripMenuItem.Enabled = False
-                Me.BroadcastsToolStripMenuItem.Enabled = False
+                'Me.PlayRecapToolStripMenuItem.Enabled = False
+                'Me.BroadcastsToolStripMenuItem.Enabled = False
                 Return
             Else
 
@@ -143,7 +152,7 @@ Public Class MlbScoreboards
                 Me.ThisGameUpdateData.Text = $"  Current Game ({Me.mCurrentGame.AwayTeam.Abbr} @ {Me.mCurrentGame.HomeTeam.Abbr}) Data Updated {Date.Now}"
 
                 ' enable menu item
-                Me.PlayRecapToolStripMenuItem.Enabled = True
+                'Me.PlayRecapToolStripMenuItem.Enabled = True
 
                 ' load team players
                 Me.mCurrentGame.AwayTeam.LoadPlayerData(Me.mCurrentGame)
@@ -165,13 +174,17 @@ Public Class MlbScoreboards
             ' load weather
             Me.lblWeather.Text = Me.mCurrentGame.VenueWeather()
 
+            ' update broadcast control
+            Me.UpdateBroadcasts()
+
             ' set game status
             Dim status As String = Me.mCurrentGame.GameStatus
             Logger.Debug($"Game status is {status}")
 
             ' set screen controls for future game
             If MlbGame.CheckGameStatus(status) = MlbGame.mGAME_STATUS_FUTURE Then
-                tbxCommentary.Visible = False
+                'tbxCommentary.Visible = False
+                'lblCommentary.Visible = False
                 dgvAwayLineup.Visible = True
                 dgvHomeLineup.Visible = True
                 lblAwayLineup.Visible = True
@@ -185,10 +198,12 @@ Public Class MlbScoreboards
                 imgDiamond.Image = My.Resources.diamond
                 lblAwayWinnerLoser.Visible = False
                 lblHomeWinnerLoser.Visible = False
+                'lblPlaySummary.Visible = False
+                'dgvPlaySummary.Visible = False
 
                 ' turn on/off menu items
-                Me.PlayRecapToolStripMenuItem.Enabled = False
-                Me.BroadcastsToolStripMenuItem.Enabled = True
+                'Me.PlayRecapToolStripMenuItem.Enabled = False
+                'Me.BroadcastsToolStripMenuItem.Enabled = True
                 Me.BoxscoreToolStripMenuItem.Enabled = False
 
                 ' load team roster
@@ -205,6 +220,7 @@ Public Class MlbScoreboards
                 ' set screen controls for past game
             ElseIf MlbGame.CheckGameStatus(status) = MlbGame.mGAME_STATUS_PAST Then
                 tbxCommentary.Visible = True
+                lblCommentary.Visible = True
                 lblBalls.Visible = False
                 lblStrikes.Visible = False
                 lblOuts.Visible = False
@@ -219,10 +235,13 @@ Public Class MlbScoreboards
                 lblAwayWinnerLoser.Visible = True
                 lblHomeWinnerLoser.Visible = True
                 lblMatchupPitcher.Visible = False
+                lblPlaySummary.Visible = True
+                dgvPlaySummary.Visible = True
+                lblMatchupBatter.Visible = False
 
                 ' turn on/off menu items
-                Me.PlayRecapToolStripMenuItem.Enabled = True
-                Me.BroadcastsToolStripMenuItem.Enabled = False
+                'Me.PlayRecapToolStripMenuItem.Enabled = True
+                'Me.BroadcastsToolStripMenuItem.Enabled = False
                 Me.BoxscoreToolStripMenuItem.Enabled = True
 
                 ' load winning - losing pitchers
@@ -254,6 +273,9 @@ Public Class MlbScoreboards
                 ' load team rosters
                 Me.LoadTeamRosterGrids()
 
+                ' update play summary control
+                Me.UpdatePlaySummary()
+
                 ' stop game update timer
                 Me.GameUpdateTimer.Stop()
 
@@ -275,8 +297,8 @@ Public Class MlbScoreboards
                 lblAwayWinnerLoser.Visible = False
 
                 ' turn on/off menu items
-                Me.PlayRecapToolStripMenuItem.Enabled = True
-                Me.BroadcastsToolStripMenuItem.Enabled = True
+                'Me.PlayRecapToolStripMenuItem.Enabled = True
+                'Me.BroadcastsToolStripMenuItem.Enabled = True
                 Me.BoxscoreToolStripMenuItem.Enabled = True
 
                 ' update inning label in inning table
@@ -329,10 +351,11 @@ Public Class MlbScoreboards
                 Logger.Warn($"Unknown game state: {status}")
             End If
 
+            ' update play summary control
+            Me.UpdatePlaySummary()
+
             ' redraw all controls
             Me.Refresh()
-
-            'Logger.Debug(Me.mCurrentGame.ToString())
 
         Catch ex As Exception
             Logger.Error(ex)
@@ -363,7 +386,8 @@ Public Class MlbScoreboards
         imgHomeLogo.Image = My.Resources.MLB
         imgHomeLogo.Visible = True
         tbxCommentary.Text = ""
-        tbxCommentary.Visible = False
+        tbxCommentary.Visible = True
+        lblCommentary.Visible = True
         dgvAwayLineup.DataSource = Nothing
         dgvHomeLineup.DataSource = Nothing
         dgvInnings.DataSource = InitBlankInningsTable()
@@ -380,8 +404,12 @@ Public Class MlbScoreboards
         Me.mCurrentGame = Nothing
         dgvGames.DataSource = Nothing
         BoxscoreToolStripMenuItem.Enabled = False
-        PlayRecapToolStripMenuItem.Enabled = False
+        'PlayRecapToolStripMenuItem.Enabled = False
         StandingsToolStripMenuItem.Enabled = True
+        lblPlaySummary.Visible = True
+        dgvPlaySummary.DataSource = Nothing
+        lblBroadcasters.Visible = True
+        dgvBroadcasters.DataSource = Nothing
 
     End Sub
 
@@ -836,10 +864,10 @@ Public Class MlbScoreboards
 
             ' disable menu items not applicable to future games
             If MlbGame.CheckGameStatus(Me.mCurrentGame.GameStatus) = MlbGame.mGAME_STATUS_FUTURE Then
-                PlayRecapToolStripMenuItem.Enabled = False
+                'PlayRecapToolStripMenuItem.Enabled = False
                 BoxscoreToolStripMenuItem.Enabled = False
             Else
-                PlayRecapToolStripMenuItem.Enabled = True
+                'PlayRecapToolStripMenuItem.Enabled = True
                 BoxscoreToolStripMenuItem.Enabled = True
             End If
 
@@ -959,6 +987,33 @@ Public Class MlbScoreboards
         End Try
     End Sub
 
+    Private Sub UpdateBroadcasts()
+        ' update broadcast control
+        dgvBroadcasters.DataSource = Me.mCurrentGame.BroadcastData
+        dgvBroadcasters.ColumnHeadersDefaultCellStyle.Font = New Font(dgvBroadcasters.DefaultFont, FontStyle.Bold)
+        dgvBroadcasters.ClearSelection()
+    End Sub
+
+    Private Sub UpdatePlaySummary()
+
+        Dim dt As DataTable = Me.mCurrentGame.GetPlaySummary()
+        Dim dtv As DataView = dt.AsDataView()
+        dtv.Sort = "Index DESC"
+        dt = dtv.ToTable()
+
+        dgvPlaySummary.DataSource = dt
+        dgvPlaySummary.ColumnHeadersDefaultCellStyle.Font = New Font(dgvPlaySummary.DefaultFont, FontStyle.Bold)
+
+        For Each row As DataGridViewRow In dgvPlaySummary.Rows
+            If row.Cells("Half").Value.ToString.ToUpper() = "BOTTOM" Then
+                row.DefaultCellStyle.BackColor = Color.LightBlue
+            Else
+                row.DefaultCellStyle.BackColor = Color.White
+            End If
+        Next
+        dgvPlaySummary.ClearSelection()
+    End Sub
+
     Private Sub QuitToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles QuitToolStripMenuItem.Click
         Logger.Info("*** Application Ended by User")
         Application.Exit()
@@ -1047,19 +1102,19 @@ Public Class MlbScoreboards
         Me.Cursor = Cursors.Default
     End Sub
 
-    Private Sub PlayRecapToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles PlayRecapToolStripMenuItem.Click
+    Private Sub PlayRecapToolStripMenuItem_Click(sender As Object, e As EventArgs)
         Try
-            If Me.mCurrentGame Is Nothing Or MlbGame.CheckGameStatus(Me.mCurrentGame.GameStatus) = MlbGame.mGAME_STATUS_FUTURE Then
+            If mCurrentGame Is Nothing Or MlbGame.CheckGameStatus(mCurrentGame.GameStatus) = MlbGame.mGAME_STATUS_FUTURE Then
                 Return
             End If
-            Me.Cursor = Cursors.WaitCursor
-            Dim frmPlaySummary = New MlbPlaySummary()
-            frmPlaySummary.Game = Me.mCurrentGame
+            Cursor = Cursors.WaitCursor
+            Dim frmPlaySummary = New MlbPlaySummary
+            frmPlaySummary.Game = mCurrentGame
             frmPlaySummary.ShowDialog()
         Catch ex As Exception
             Logger.Error(ex)
         End Try
-        Me.Cursor = Cursors.Default
+        Cursor = Cursors.Default
     End Sub
 
     Private Sub StandingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StandingsToolStripMenuItem.Click
@@ -1087,7 +1142,31 @@ Public Class MlbScoreboards
         Me.Cursor = Cursors.Default
     End Sub
 
-    Private Sub btnFindGames_Click(sender As Object, e As EventArgs) Handles btnFindGames.Click
+    Private Sub btnFindGames_Click(sender As Object, e As EventArgs)
+        Try
+            GameUpdateTimer.Stop()
+            mCurrentGame = Nothing
+            ResetScreenControls()
+            Refresh()
+            ThisGameUpdateData.Text = ""
+            mAllGames.Clear()
+            RunScoreboards()
+        Catch ex As Exception
+            Logger.Error(ex)
+        End Try
+    End Sub
+
+    Private Sub BroadcastsToolStripMenuItem_Click(sender As Object, e As EventArgs)
+        Try
+            Dim frmBroadcasts = New MlbBroadcasters
+            frmBroadcasts.Game = mCurrentGame
+            frmBroadcasts.ShowDialog()
+        Catch ex As Exception
+            Logger.Error(ex)
+        End Try
+    End Sub
+
+    Private Sub calDatePicker_ValueChanged(sender As Object, e As EventArgs) Handles calDatePicker.ValueChanged
         Try
             Me.GameUpdateTimer.Stop()
             Me.mCurrentGame = Nothing
@@ -1101,15 +1180,6 @@ Public Class MlbScoreboards
         End Try
     End Sub
 
-    Private Sub BroadcastsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles BroadcastsToolStripMenuItem.Click
-        Try
-            Dim frmBroadcasts As MlbBroadcasters = New MlbBroadcasters
-            frmBroadcasts.Game = Me.mCurrentGame
-            frmBroadcasts.ShowDialog()
-        Catch ex As Exception
-            Logger.Error(ex)
-        End Try
-    End Sub
 
 
 
