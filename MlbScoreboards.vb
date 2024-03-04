@@ -1,5 +1,5 @@
 ﻿' =========================================================================================================
-' (C) 2022 MSRoth
+' (C) 2022-2024 MSRoth
 '
 ' Released under XXX license.
 ' =========================================================================================================
@@ -10,35 +10,41 @@ Imports NLog
 
 Public Class MlbScoreboards
 
-    Private mAPI As MlbApi = New MlbApi()
-    Private mProperties As SBProperties = New SBProperties()
+    Private mAPI As MlbApi
+    Private mProperties As MlbScoreboardsProperties
     Private mCurrentGame As MlbGame = Nothing
     Private mAllGames As Dictionary(Of String, MlbGame) = New Dictionary(Of String, MlbGame)
 
-    Shared ReadOnly Logger As Logger = LogManager.GetCurrentClassLogger()
+    Shared Logger As Logger = LogManager.GetCurrentClassLogger()
 
     Public Sub MlbScoreboards()
 
         ' config logger
-        Dim config = New Config.LoggingConfiguration()
-        Dim logfile = New Targets.FileTarget("logfile")
-        logfile.FileName = ".\\logs\\MLBScoreboards.log"
-        logfile.ArchiveFileName = ".\\logs\\MLBScoreboard" + "{####}.log"
-        logfile.ArchiveAboveSize = 10000000
-        logfile.ArchiveNumbering = Targets.ArchiveNumberingMode.Sequence
-        logfile.MaxArchiveFiles = 3
-        Dim logconsole = New Targets.ConsoleTarget("logconsole")
-        Dim outputconsole = New Targets.DebuggerTarget()
-        config.AddRule(LogLevel.Debug, LogLevel.Fatal, logconsole)
-        config.AddRule(LogLevel.Debug, LogLevel.Fatal, logfile)
-        config.AddRule(LogLevel.Debug, LogLevel.Fatal, outputconsole)
-        LogManager.Configuration = config
+        'Dim config = New Config.LoggingConfiguration()
+        'Dim logfile = New Targets.FileTarget("logfile")
+        'logfile.FileName = ".\\logs\\MLBScoreboards.log"
+        'logfile.ArchiveFileName = ".\\logs\\MLBScoreboard" + "{####}.log"
+        'logfile.ArchiveAboveSize = 10000000
+        'logfile.ArchiveNumbering = Targets.ArchiveNumberingMode.Sequence
+        'logfile.MaxArchiveFiles = 3
+        'Dim logconsole = New Targets.ConsoleTarget("logconsole")
+        'Dim outputconsole = New Targets.DebuggerTarget()
+        'config.AddRule(LogLevel.Debug, LogLevel.Fatal, logconsole)
+        'config.AddRule(LogLevel.Debug, LogLevel.Fatal, logfile)
+        'config.AddRule(LogLevel.Debug, LogLevel.Fatal, outputconsole)
+        'LogManager.Configuration = config
 
-        Logger.Info($"*** Application Started ***")
+
     End Sub
 
 
     Private Sub MLBScoreboards_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
+        Logger.Info($"*** Application Started ***")
+        mProperties = New MlbScoreboardsProperties()
+        mAPI = New MlbApi()
+
+        Me.Visible = False
         SuspendLayout()
 
         Me.Cursor = Cursors.WaitCursor
@@ -85,6 +91,7 @@ Public Class MlbScoreboards
         End Try
 
         ResumeLayout()
+        Me.Visible = True
 
     End Sub
 
@@ -107,16 +114,26 @@ Public Class MlbScoreboards
             Me.SetCurrentGame()
 
             ' set menu options accordingly
-            If Me.mCurrentGame Is Nothing Then
+            If Me.mCurrentGame Is Nothing Or MlbGame.CheckGameStatus(Me.mCurrentGame.GameStatus) = MlbGame.mGAME_STATUS_FUTURE Then
                 'PlayRecapToolStripMenuItem.Enabled = False
                 BoxscoreToolStripMenuItem.Enabled = False
-            ElseIf MlbGame.CheckGameStatus(Me.mCurrentGame.GameStatus) = MlbGame.mGAME_STATUS_FUTURE Then
+                GameUpdateTimer.Enabled = False
+                'ElseIf MlbGame.CheckGameStatus(Me.mCurrentGame.GameStatus) = MlbGame.mGAME_STATUS_FUTURE Then
                 'PlayRecapToolStripMenuItem.Enabled = False
-                BoxscoreToolStripMenuItem.Enabled = False
-            Else
+                'BoxscoreToolStripMenuItem.Enabled = False
+                'GameUpdateTimer.Stop()
+            ElseIf MlbGame.CheckGameStatus(Me.mCurrentGame.GameStatus) = MlbGame.mGAME_STATUS_PAST Then
                 'PlayRecapToolStripMenuItem.Enabled = True
                 BoxscoreToolStripMenuItem.Enabled = True
+                GameUpdateTimer.Enabled = False
+            Else
+                BoxscoreToolStripMenuItem.Enabled = True
+                If GameUpdateTimer.Enabled = False Then
+                    GameUpdateTimer.Enabled = True
+                    GameUpdateTimer.Start()
+                End If
             End If
+
 
             ' update status bar
             Me.AllGamesUpdateData.Text = $"All Games Data Updated {Date.Now}  "
@@ -363,6 +380,7 @@ Public Class MlbScoreboards
     End Sub
 
     Private Sub ResetScreenControls()
+        SuspendLayout()
         lblAwayLineup.Text = "Away Roster"
         lblAwayLineup.Visible = False
         lblHomeLineup.Text = "Home Roster"
@@ -410,7 +428,7 @@ Public Class MlbScoreboards
         dgvPlaySummary.DataSource = Nothing
         lblBroadcasters.Visible = True
         dgvBroadcasters.DataSource = Nothing
-
+        ResumeLayout()
     End Sub
 
     Private Function InitBlankInningsTable() As DataTable
@@ -547,7 +565,7 @@ Public Class MlbScoreboards
 
             ' patch up the grid view
             dgvInnings.ClearSelection()
-            dgvInnings.ColumnHeadersDefaultCellStyle.Font = New Font(dgvInnings.DefaultFont, FontStyle.Bold)
+            dgvInnings.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
         Catch ex As Exception
             Logger.Error(ex)
         End Try
@@ -642,8 +660,8 @@ Public Class MlbScoreboards
             lblHomeLineup.Text = Me.mCurrentGame.HomeTeam.ShortName() + " Lineup"
 
             ' format grids
-            dgvAwayLineup.ColumnHeadersDefaultCellStyle.Font = New Font(dgvAwayLineup.DefaultFont, FontStyle.Bold)
-            dgvHomeLineup.ColumnHeadersDefaultCellStyle.Font = New Font(dgvHomeLineup.DefaultFont, FontStyle.Bold)
+            dgvAwayLineup.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
+            dgvHomeLineup.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
 
             ' hid unnecessary columns
             dgvAwayLineup.Columns("Id").Visible = False
@@ -669,8 +687,8 @@ Public Class MlbScoreboards
             lblHomeLineup.Text = Me.mCurrentGame.HomeTeam.ShortName() + " Roster"
 
             ' format grids
-            dgvAwayLineup.ColumnHeadersDefaultCellStyle.Font = New Font(dgvAwayLineup.DefaultFont, FontStyle.Bold)
-            dgvHomeLineup.ColumnHeadersDefaultCellStyle.Font = New Font(dgvHomeLineup.DefaultFont, FontStyle.Bold)
+            dgvAwayLineup.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
+            dgvHomeLineup.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
 
             ' hide unnecesary columns
             dgvAwayLineup.Columns("Id").Visible = False
@@ -748,24 +766,28 @@ Public Class MlbScoreboards
     End Function
 
     Private Sub SetCurrentGame()
-        Try
-            Dim FaveTeam As String = mProperties.GetProperty(mProperties.mFAVORITE_TEAM_KEY, "")
-            Logger.Debug($"Favorite team = {FaveTeam}")
+        If mCurrentGame Is Nothing Then
+            Try
 
-            If Not FaveTeam = String.Empty Then
-                Me.mCurrentGame = FindTeamGame(FaveTeam)
-            End If
+                Dim FaveTeam As String = mProperties.GetProperty(mProperties.mFAVORITE_TEAM_KEY, "")
+                Logger.Debug($"Favorite team = {FaveTeam}")
 
-            ' if no favorite team or team isn't playing today, pick first game in list
-            If Me.mCurrentGame Is Nothing Then
-                If Me.mAllGames.Count > 0 Then
-                    Me.mCurrentGame = Me.mAllGames(Me.mAllGames.Keys(0))
-                    Logger.Debug($"Using {Me.mCurrentGame.GamePk} as current game")
+                If Not FaveTeam = String.Empty Then
+                    Me.mCurrentGame = FindTeamGame(FaveTeam)
                 End If
-            End If
-        Catch ex As Exception
-            Logger.Error(ex)
-        End Try
+
+                ' if no favorite team or team isn't playing today, pick first game in list
+                If Me.mCurrentGame Is Nothing Then
+                    If Me.mAllGames.Count > 0 Then
+                        Me.mCurrentGame = Me.mAllGames(Me.mAllGames.Keys(0))
+                        Logger.Debug($"Using {Me.mCurrentGame.GamePk} as current game")
+                    End If
+                End If
+            Catch ex As Exception
+                Logger.Error(ex)
+            End Try
+        End If
+
     End Sub
 
     Sub HighlightCurrentInning()
@@ -829,7 +851,7 @@ Public Class MlbScoreboards
             ' hide id column and sort by id
             dgvGames.DataSource = dt
             dgvGames.Columns("Id").Visible = False
-            dgvGames.ColumnHeadersDefaultCellStyle.Font = New Font(dgvGames.DefaultFont, FontStyle.Bold)
+            dgvGames.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
             dgvGames.ClearSelection()
 
             Me.AllGamesUpdateProgressBar.Visible = False
@@ -846,6 +868,9 @@ Public Class MlbScoreboards
             If e.RowIndex < 0 Then
                 Return
             End If
+
+            ' invlide current game
+            mCurrentGame = Nothing
 
             ' get the gamePk for the clicked row
             Dim id As String = dgvGames.Rows(e.RowIndex).Cells("Id").Value.ToString
@@ -990,7 +1015,7 @@ Public Class MlbScoreboards
     Private Sub UpdateBroadcasts()
         ' update broadcast control
         dgvBroadcasters.DataSource = Me.mCurrentGame.BroadcastData
-        dgvBroadcasters.ColumnHeadersDefaultCellStyle.Font = New Font(dgvBroadcasters.DefaultFont, FontStyle.Bold)
+        dgvBroadcasters.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
         dgvBroadcasters.ClearSelection()
     End Sub
 
@@ -1002,7 +1027,7 @@ Public Class MlbScoreboards
         dt = dtv.ToTable()
 
         dgvPlaySummary.DataSource = dt
-        dgvPlaySummary.ColumnHeadersDefaultCellStyle.Font = New Font(dgvPlaySummary.DefaultFont, FontStyle.Bold)
+        dgvPlaySummary.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
 
         For Each row As DataGridViewRow In dgvPlaySummary.Rows
             If row.Cells("Half").Value.ToString.ToUpper() = "BOTTOM" Then
@@ -1023,7 +1048,7 @@ Public Class MlbScoreboards
         Try
             Me.Cursor = Cursors.WaitCursor
             ' show config form
-            Dim frmConfig = New SBConfigure
+            Dim frmConfig = New MlbScoreboardsConfigure
             frmConfig.ShowDialog()
             Me.Cursor = Cursors.Default
 
@@ -1044,6 +1069,7 @@ Public Class MlbScoreboards
     Private Sub SetScoreboardTimerInterval(interval As Integer)
         ' set scoreboard timer to interval value and restart it
         ScoreboardUpdateTimer.Stop()
+        ScoreboardUpdateTimer.Enabled = True
         ScoreboardUpdateTimer.Interval = interval * 1000
         ScoreboardUpdateTimer.Start()
         Logger.Debug($"Scoreboard timer interval set to {interval}")
@@ -1055,9 +1081,12 @@ Public Class MlbScoreboards
         GameUpdateTimer.Stop()
         GameUpdateTimer.Interval = interval * 1000
         If start Then
+            GameUpdateTimer.Enabled = True
             GameUpdateTimer.Start()
+        Else
+            GameUpdateTimer.Enabled = False
         End If
-        Logger.Debug($"Game timer interval set to {interval}")
+        Logger.Debug($"Game timer interval set to {interval} (start={start})")
     End Sub
 
     Private Sub GameUpdateTimer_Tick(sender As Object, e As EventArgs) Handles GameUpdateTimer.Tick
@@ -1095,7 +1124,7 @@ Public Class MlbScoreboards
             frmPlayerStats.Player = ThisPlayer
             frmPlayerStats.Game = Me.mCurrentGame
             frmPlayerStats.AwayOrHome = TeamSide
-            frmPlayerStats.Show()
+            frmPlayerStats.ShowDialog()
         Catch ex As Exception
             Logger.Error(ex)
         End Try
@@ -1179,6 +1208,9 @@ Public Class MlbScoreboards
             Logger.Error(ex)
         End Try
     End Sub
+
+
+
 
 
 

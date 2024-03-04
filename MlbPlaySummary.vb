@@ -28,7 +28,7 @@ Public Class MlbPlaySummary
             Logger.Debug(ex)
         End Try
 
-        dgvPlays.ColumnHeadersDefaultCellStyle.Font = New Font(dgvPlays.DefaultFont, FontStyle.Bold)
+        dgvPlays.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
         dgvPlays.ClearSelection()
 
         Me.Cursor = Cursors.Default

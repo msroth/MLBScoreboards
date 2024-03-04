@@ -168,18 +168,18 @@ Partial Class MlbScoreboards
         ' ToolStripSeparator1
         ' 
         ToolStripSeparator1.Name = "ToolStripSeparator1"
-        ToolStripSeparator1.Size = New Size(177, 6)
+        ToolStripSeparator1.Size = New Size(135, 6)
         ' 
         ' StandingsToolStripMenuItem
         ' 
         StandingsToolStripMenuItem.Name = "StandingsToolStripMenuItem"
-        StandingsToolStripMenuItem.Size = New Size(180, 24)
+        StandingsToolStripMenuItem.Size = New Size(138, 24)
         StandingsToolStripMenuItem.Text = "Standings"
         ' 
         ' BoxscoreToolStripMenuItem
         ' 
         BoxscoreToolStripMenuItem.Name = "BoxscoreToolStripMenuItem"
-        BoxscoreToolStripMenuItem.Size = New Size(180, 24)
+        BoxscoreToolStripMenuItem.Size = New Size(138, 24)
         BoxscoreToolStripMenuItem.Text = "Boxscore"
         ' 
         ' AboutToolStripMenuItem1

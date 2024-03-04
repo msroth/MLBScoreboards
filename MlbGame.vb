@@ -46,7 +46,7 @@ Public Class MlbGame
     Private mAllPlaysData As JObject
     Private mBroadcastData As DataTable
     Private mAPI As MlbApi = New MlbApi()
-    Private mProperties As SBProperties = New SBProperties()
+    Private mProperties As MlbScoreboardsProperties = New MlbScoreboardsProperties()
 
     Shared ReadOnly mGAME_STATUS_FUTURE_LABELS As String() = {"SCHEDULED", "PRE-GAME", "DELAYED", "POSTPONED"}
     Shared ReadOnly mGAME_STATUS_PRESENT_LABLES As String() = {"WARMUP", "IN PROGRESS", "MANAGER", "OFFICIAL"}
@@ -391,10 +391,14 @@ Public Class MlbGame
                 Me.mHomeTeamRuns = mLineData.SelectToken("teams.home.runs")
 
                 ' winning pitcher id
-                Me.mWinningPitcherId = mLiveData.SelectToken("decisions.winner.id").ToString()
+                If mLiveData.SelectToken("decisions.winner.id") IsNot Nothing Then
+                    Me.mWinningPitcherId = mLiveData.SelectToken("decisions.winner.id").ToString()
+                End If
 
                 ' losing pitcher id
-                Me.mLosingPitcherId = mLiveData.SelectToken("decisions.loser.id").ToString()
+                If mLiveData.SelectToken("decisions.loser.id") IsNot Nothing Then
+                    Me.mLosingPitcherId = mLiveData.SelectToken("decisions.loser.id").ToString()
+                End If
 
                 ' saving pitcher id
                 If mLiveData.SelectToken("decisions.save.id") IsNot Nothing Then
@@ -976,7 +980,7 @@ Public Class MlbGame
 
             ScorebookEntry = $"{ScorebookEntry}"
 
-            Logger.Info($"Official Scoring = {ScorebookEntry}")
+            'Logger.Debug($"Official Scoring ({PlayIndex})= {ScorebookEntry}")
         Catch ex As Exception
             Logger.Error(ex)
         End Try
@@ -1182,35 +1186,37 @@ Public Class MlbGame
                     If Me.GamePk = Convert.ToInt32(game.SelectToken("gamePk").ToString()) Then
                         Dim Broadcasters As JArray = game.SelectToken("broadcasts")
 
-                        For i As Integer = 0 To Broadcasters.Count - 1
-                            Dim broadcast As JObject = Broadcasters.Item(i)
+                        If Broadcasters IsNot Nothing Then
+                            For i As Integer = 0 To Broadcasters.Count - 1
+                                Dim broadcast As JObject = Broadcasters.Item(i)
 
-                            Dim name As String = broadcast.SelectToken("name")
-                            Dim type As String = broadcast.SelectToken("type")
-                            Dim language As String = broadcast.SelectToken("language")
-                            Dim side As String = broadcast.SelectToken("homeAway")
-                            Dim national As String = broadcast.SelectToken("isNational")
-                            Dim callsign As String = broadcast.SelectToken("callSign")
+                                Dim name As String = broadcast.SelectToken("name")
+                                Dim type As String = broadcast.SelectToken("type")
+                                Dim language As String = broadcast.SelectToken("language")
+                                Dim side As String = broadcast.SelectToken("homeAway")
+                                Dim national As String = broadcast.SelectToken("isNational")
+                                Dim callsign As String = broadcast.SelectToken("callSign")
 
-                            Dim row As DataRow = dt.NewRow()
-                            row("Name") = name
-                            row("Type") = type.ToUpper()
-                            If Languages.ContainsKey(language) Then
-                                row("Language") = Languages(language)
-                            Else
-                                row("Langauge") = language.ToUpper()
-                            End If
-                            row("Side") = side.ToUpper()
-                            If national Is Nothing Then
-                                row("Scope") = "Local"
-                            Else
-                                row("Scope") = "National"
-                            End If
-                            row("Call Sign") = callsign
+                                Dim row As DataRow = dt.NewRow()
+                                row("Name") = name
+                                row("Type") = type.ToUpper()
+                                If Languages.ContainsKey(language) Then
+                                    row("Language") = Languages(language)
+                                Else
+                                    row("Langauge") = language.ToUpper()
+                                End If
+                                row("Side") = side.ToUpper()
+                                If national Is Nothing Then
+                                    row("Scope") = "Local"
+                                Else
+                                    row("Scope") = "National"
+                                End If
+                                row("Call Sign") = callsign
 
-                            dt.Rows.Add(row)
-                            Logger.Debug($"loaded broadcaster {callsign}")
-                        Next
+                                dt.Rows.Add(row)
+                                Logger.Debug($"loaded broadcaster {callsign}")
+                            Next
+                        End If
                     End If
                 Next
             Next

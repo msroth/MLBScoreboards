@@ -22,8 +22,8 @@ Public Class MlbPlayer
     Dim mEra As String  ' season
 
     Private mAPI As MlbApi = New MlbApi()
-    Private mProps As SBProperties = New SBProperties()
-    Private mProperties As SBProperties = New SBProperties()
+    Private mProps As MlbScoreboardsProperties = New MlbScoreboardsProperties()
+    Private mProperties As MlbScoreboardsProperties = New MlbScoreboardsProperties()
 
     Shared ReadOnly Logger As Logger = LogManager.GetCurrentClassLogger()
 

@@ -21,7 +21,7 @@ Public Class MlbTeam
     Private mLineup As SortedDictionary(Of Integer, MlbPlayer) = New SortedDictionary(Of Integer, MlbPlayer)
     Private mRoster As List(Of MlbPlayer) = New List(Of MlbPlayer)
     Private mAPI As MlbApi = New MlbApi()
-    Private mProps As SBProperties = New SBProperties()
+    Private mProps As MlbScoreboardsProperties = New MlbScoreboardsProperties()
 
     Shared ReadOnly Logger As Logger = LogManager.GetCurrentClassLogger()
 

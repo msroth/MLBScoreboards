@@ -73,7 +73,7 @@ Partial Class AboutBox
         'LogoPictureBox
         '
         Me.LogoPictureBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.LogoPictureBox.Image = Global.MLBScoreBoard.My.Resources.Resources.diamond
+        Me.LogoPictureBox.Image = My.Resources.Resources.diamond
         Me.LogoPictureBox.Location = New System.Drawing.Point(5, 4)
         Me.LogoPictureBox.Margin = New System.Windows.Forms.Padding(5, 4, 5, 4)
         Me.LogoPictureBox.Name = "LogoPictureBox"

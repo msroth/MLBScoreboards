@@ -1,5 +1,5 @@
 ﻿
-Imports System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder
+
 Imports Newtonsoft.Json.Linq
 Imports NLog
 
@@ -95,12 +95,12 @@ Public Class MlbStandings
             Next
 
             ' format data grids
-            dgvALEast.ColumnHeadersDefaultCellStyle.Font = New Font(dgvALEast.DefaultFont, FontStyle.Bold)
-            dgvALCentral.ColumnHeadersDefaultCellStyle.Font = New Font(dgvALCentral.DefaultFont, FontStyle.Bold)
-            dgvALWest.ColumnHeadersDefaultCellStyle.Font = New Font(dgvALWest.DefaultFont, FontStyle.Bold)
-            dgvNLEast.ColumnHeadersDefaultCellStyle.Font = New Font(dgvNLEast.DefaultFont, FontStyle.Bold)
-            dgvNLCentral.ColumnHeadersDefaultCellStyle.Font = New Font(dgvNLCentral.DefaultFont, FontStyle.Bold)
-            dgvNLWest.ColumnHeadersDefaultCellStyle.Font = New Font(dgvNLWest.DefaultFont, FontStyle.Bold)
+            dgvALEast.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
+            dgvALCentral.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
+            dgvALWest.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
+            dgvNLEast.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
+            dgvNLCentral.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
+            dgvNLWest.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
 
         Catch ex As Exception
             Logger.Debug(ex)
@@ -194,12 +194,12 @@ Public Class MlbStandings
             Next
 
             ' format data grids
-            dgvALWC.ColumnHeadersDefaultCellStyle.Font = New Font(dgvALWC.DefaultFont, FontStyle.Bold)
-            dgvNLWC.ColumnHeadersDefaultCellStyle.Font = New Font(dgvNLWC.DefaultFont, FontStyle.Bold)
-            dgvALDS.ColumnHeadersDefaultCellStyle.Font = New Font(dgvALDS.DefaultFont, FontStyle.Bold)
-            dgvNLDS.ColumnHeadersDefaultCellStyle.Font = New Font(dgvNLDS.DefaultFont, FontStyle.Bold)
-            dgvALCS.ColumnHeadersDefaultCellStyle.Font = New Font(dgvALCS.DefaultFont, FontStyle.Bold)
-            dgvNLCS.ColumnHeadersDefaultCellStyle.Font = New Font(dgvNLCS.DefaultFont, FontStyle.Bold)
+            dgvALWC.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
+            dgvNLWC.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
+            dgvALDS.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
+            dgvNLDS.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
+            dgvALCS.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
+            dgvNLCS.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
 
         Catch ex As Exception
             Logger.Debug(ex)
@@ -260,7 +260,7 @@ Public Class MlbStandings
                 End If
             Next
 
-            dgvWS.ColumnHeadersDefaultCellStyle.Font = New Font(dgvWS.DefaultFont, FontStyle.Bold)
+            dgvWS.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
         Catch ex As Exception
             Logger.Debug(ex)
         End Try

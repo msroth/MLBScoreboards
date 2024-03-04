@@ -58,12 +58,12 @@ Public Class MlbBoxscore
         LoadGameInfo()
 
         ' format data grids
-        dgvAwayBatting.ColumnHeadersDefaultCellStyle.Font = New Font(dgvAwayBatting.DefaultFont, FontStyle.Bold)
-        dgvHomeBatting.ColumnHeadersDefaultCellStyle.Font = New Font(dgvHomeBatting.DefaultFont, FontStyle.Bold)
+        dgvAwayBatting.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
+        dgvHomeBatting.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
         dgvAwayBatting.ClearSelection()
         dgvHomeBatting.ClearSelection()
-        dgvAwayPitchers.ColumnHeadersDefaultCellStyle.Font = New Font(dgvAwayPitchers.DefaultFont, FontStyle.Bold)
-        dgvHomePitchers.ColumnHeadersDefaultCellStyle.Font = New Font(dgvHomePitchers.DefaultFont, FontStyle.Bold)
+        dgvAwayPitchers.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
+        dgvHomePitchers.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
         dgvAwayPitchers.ClearSelection()
         dgvHomePitchers.ClearSelection()
 

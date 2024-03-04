@@ -2,9 +2,9 @@
 Imports Newtonsoft.Json.Linq
 Imports NLog
 
-Public Class SBConfigure
+Public Class MlbScoreboardsConfigure
     Private mMLB_API As MlbApi = New MlbApi()
-    Private mProps As SBProperties = New SBProperties()
+    Private mProps As MlbScoreboardsProperties = New MlbScoreboardsProperties()
     Private mAllTeams As Dictionary(Of String, MlbTeam)
 
     Shared ReadOnly Logger As Logger = LogManager.GetCurrentClassLogger()

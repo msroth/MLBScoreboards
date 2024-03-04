@@ -5,6 +5,7 @@
 ' =========================================================================================================
 
 Imports System.IO
+Imports System.Net
 Imports Newtonsoft.Json.Linq
 Imports NLog
 
@@ -72,6 +73,20 @@ Public Class MlbPlayerStats
 
         Me.Cursor = Cursors.WaitCursor
 
+
+
+
+        ' TODO move to API class
+
+        Using wc As New WebClient()
+            'PictureBox1.Image = Image.FromStream(wc.OpenRead($"https://img.mlbstatic.com/mlb-photos/image/upload/v1/people/{mThisPlayer.Id}/action/hero/current"))
+            picHeadshot.Image = Image.FromStream(wc.OpenRead($"https://img.mlbstatic.com/mlb-photos/image/upload/v1/people/{mThisPlayer.Id}/headshot/67/current"))
+        End Using
+
+
+
+
+
         ' set labels
         Me.lblPlayer.Text = $"{Me.mThisPlayer.FullName} (#{Me.mThisPlayer.Number})"
         Me.lblPosition.Text = Me.mThisPlayer.FullPosition
@@ -104,9 +119,9 @@ Public Class MlbPlayerStats
         dgvBattingStats.Columns("key").Visible = False
         dgvFieldingStats.Columns("key").Visible = False
         dgvPitchingStats.Columns("key").Visible = False
-        dgvBattingStats.ColumnHeadersDefaultCellStyle.Font = New Font(dgvBattingStats.DefaultFont, FontStyle.Bold)
-        dgvFieldingStats.ColumnHeadersDefaultCellStyle.Font = New Font(dgvFieldingStats.DefaultFont, FontStyle.Bold)
-        dgvPitchingStats.ColumnHeadersDefaultCellStyle.Font = New Font(dgvPitchingStats.DefaultFont, FontStyle.Bold)
+        dgvBattingStats.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
+        dgvFieldingStats.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
+        dgvPitchingStats.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
 
         Me.Cursor = Cursors.Default
     End Sub
@@ -433,7 +448,7 @@ Public Class MlbPlayerStats
     End Sub
 
     Private Sub LinkLabel1_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles LinkLabel1.LinkClicked
-        Dim NewProcess As Diagnostics.ProcessStartInfo = New Diagnostics.ProcessStartInfo("http://www.baseball-reference.com/players/")
+        Dim NewProcess As Diagnostics.ProcessStartInfo = New Diagnostics.ProcessStartInfo($"http://www.mlb.com/player/{mThisPlayer.Id}")
         NewProcess.UseShellExecute = True
         Process.Start(NewProcess)
 

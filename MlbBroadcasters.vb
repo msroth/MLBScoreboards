@@ -93,7 +93,7 @@ Public Class MlbBroadcasters
 
         ' set data on data grid
         dgvBroadcasters.DataSource = mTable
-        dgvBroadcasters.ColumnHeadersDefaultCellStyle.Font = New Font(dgvBroadcasters.DefaultFont, FontStyle.Bold)
+        dgvBroadcasters.ColumnHeadersDefaultCellStyle.Font = New Font(DefaultFont, FontStyle.Bold)
         dgvBroadcasters.ClearSelection()
 
         Me.Cursor = Cursors.Default

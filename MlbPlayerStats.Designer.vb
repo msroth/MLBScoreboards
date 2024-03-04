@@ -22,206 +22,213 @@ Partial Class MlbPlayerStats
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Me.lblPlayer = New System.Windows.Forms.Label()
-        Me.lblPosition = New System.Windows.Forms.Label()
-        Me.TabControl1 = New System.Windows.Forms.TabControl()
-        Me.Batting = New System.Windows.Forms.TabPage()
-        Me.dgvBattingStats = New System.Windows.Forms.DataGridView()
-        Me.Fielding = New System.Windows.Forms.TabPage()
-        Me.dgvFieldingStats = New System.Windows.Forms.DataGridView()
-        Me.Pitching = New System.Windows.Forms.TabPage()
-        Me.dgvPitchingStats = New System.Windows.Forms.DataGridView()
-        Me.lblPlayerID = New System.Windows.Forms.Label()
-        Me.LinkLabel1 = New System.Windows.Forms.LinkLabel()
-        Me.TabControl1.SuspendLayout()
-        Me.Batting.SuspendLayout()
-        CType(Me.dgvBattingStats, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.Fielding.SuspendLayout()
-        CType(Me.dgvFieldingStats, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.Pitching.SuspendLayout()
-        CType(Me.dgvPitchingStats, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.SuspendLayout()
-        '
-        'lblPlayer
-        '
-        Me.lblPlayer.AutoSize = True
-        Me.lblPlayer.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
-        Me.lblPlayer.ForeColor = System.Drawing.SystemColors.ControlText
-        Me.lblPlayer.Location = New System.Drawing.Point(28, 14)
-        Me.lblPlayer.Name = "lblPlayer"
-        Me.lblPlayer.Size = New System.Drawing.Size(58, 20)
-        Me.lblPlayer.TabIndex = 1
-        Me.lblPlayer.Text = "Player"
-        '
-        'lblPosition
-        '
-        Me.lblPosition.AutoSize = True
-        Me.lblPosition.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        Me.lblPosition.ForeColor = System.Drawing.SystemColors.ControlText
-        Me.lblPosition.Location = New System.Drawing.Point(28, 41)
-        Me.lblPosition.Name = "lblPosition"
-        Me.lblPosition.Size = New System.Drawing.Size(65, 20)
-        Me.lblPosition.TabIndex = 2
-        Me.lblPosition.Text = "Position"
-        '
-        'TabControl1
-        '
-        Me.TabControl1.Controls.Add(Me.Batting)
-        Me.TabControl1.Controls.Add(Me.Fielding)
-        Me.TabControl1.Controls.Add(Me.Pitching)
-        Me.TabControl1.Location = New System.Drawing.Point(28, 76)
-        Me.TabControl1.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.TabControl1.Name = "TabControl1"
-        Me.TabControl1.SelectedIndex = 0
-        Me.TabControl1.Size = New System.Drawing.Size(746, 505)
-        Me.TabControl1.TabIndex = 3
-        '
-        'Batting
-        '
-        Me.Batting.Controls.Add(Me.dgvBattingStats)
-        Me.Batting.Location = New System.Drawing.Point(4, 24)
-        Me.Batting.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.Batting.Name = "Batting"
-        Me.Batting.Padding = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.Batting.Size = New System.Drawing.Size(738, 477)
-        Me.Batting.TabIndex = 0
-        Me.Batting.Text = "Batting"
-        Me.Batting.UseVisualStyleBackColor = True
-        '
-        'dgvBattingStats
-        '
-        Me.dgvBattingStats.AllowUserToAddRows = False
-        Me.dgvBattingStats.AllowUserToDeleteRows = False
-        Me.dgvBattingStats.AllowUserToOrderColumns = True
-        Me.dgvBattingStats.AllowUserToResizeColumns = False
-        Me.dgvBattingStats.AllowUserToResizeRows = False
-        Me.dgvBattingStats.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
-        Me.dgvBattingStats.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvBattingStats.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
-        Me.dgvBattingStats.Location = New System.Drawing.Point(17, 23)
-        Me.dgvBattingStats.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.dgvBattingStats.MultiSelect = False
-        Me.dgvBattingStats.Name = "dgvBattingStats"
-        Me.dgvBattingStats.ReadOnly = True
-        Me.dgvBattingStats.RowHeadersVisible = False
-        Me.dgvBattingStats.RowHeadersWidth = 51
-        Me.dgvBattingStats.RowTemplate.Height = 29
-        Me.dgvBattingStats.Size = New System.Drawing.Size(699, 431)
-        Me.dgvBattingStats.TabIndex = 1
-        '
-        'Fielding
-        '
-        Me.Fielding.Controls.Add(Me.dgvFieldingStats)
-        Me.Fielding.Location = New System.Drawing.Point(4, 24)
-        Me.Fielding.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.Fielding.Name = "Fielding"
-        Me.Fielding.Padding = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.Fielding.Size = New System.Drawing.Size(738, 477)
-        Me.Fielding.TabIndex = 1
-        Me.Fielding.Text = "Fielding"
-        Me.Fielding.UseVisualStyleBackColor = True
-        '
-        'dgvFieldingStats
-        '
-        Me.dgvFieldingStats.AllowUserToAddRows = False
-        Me.dgvFieldingStats.AllowUserToDeleteRows = False
-        Me.dgvFieldingStats.AllowUserToOrderColumns = True
-        Me.dgvFieldingStats.AllowUserToResizeColumns = False
-        Me.dgvFieldingStats.AllowUserToResizeRows = False
-        Me.dgvFieldingStats.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
-        Me.dgvFieldingStats.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvFieldingStats.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
-        Me.dgvFieldingStats.Location = New System.Drawing.Point(17, 23)
-        Me.dgvFieldingStats.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.dgvFieldingStats.MultiSelect = False
-        Me.dgvFieldingStats.Name = "dgvFieldingStats"
-        Me.dgvFieldingStats.ReadOnly = True
-        Me.dgvFieldingStats.RowHeadersVisible = False
-        Me.dgvFieldingStats.RowHeadersWidth = 51
-        Me.dgvFieldingStats.RowTemplate.Height = 29
-        Me.dgvFieldingStats.Size = New System.Drawing.Size(699, 431)
-        Me.dgvFieldingStats.TabIndex = 2
-        '
-        'Pitching
-        '
-        Me.Pitching.Controls.Add(Me.dgvPitchingStats)
-        Me.Pitching.Location = New System.Drawing.Point(4, 24)
-        Me.Pitching.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.Pitching.Name = "Pitching"
-        Me.Pitching.Padding = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.Pitching.Size = New System.Drawing.Size(738, 477)
-        Me.Pitching.TabIndex = 2
-        Me.Pitching.Text = "Pitching"
-        Me.Pitching.UseVisualStyleBackColor = True
-        '
-        'dgvPitchingStats
-        '
-        Me.dgvPitchingStats.AllowUserToAddRows = False
-        Me.dgvPitchingStats.AllowUserToDeleteRows = False
-        Me.dgvPitchingStats.AllowUserToOrderColumns = True
-        Me.dgvPitchingStats.AllowUserToResizeColumns = False
-        Me.dgvPitchingStats.AllowUserToResizeRows = False
-        Me.dgvPitchingStats.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
-        Me.dgvPitchingStats.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvPitchingStats.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
-        Me.dgvPitchingStats.Location = New System.Drawing.Point(17, 23)
-        Me.dgvPitchingStats.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.dgvPitchingStats.MultiSelect = False
-        Me.dgvPitchingStats.Name = "dgvPitchingStats"
-        Me.dgvPitchingStats.ReadOnly = True
-        Me.dgvPitchingStats.RowHeadersVisible = False
-        Me.dgvPitchingStats.RowHeadersWidth = 51
-        Me.dgvPitchingStats.RowTemplate.Height = 29
-        Me.dgvPitchingStats.Size = New System.Drawing.Size(699, 431)
-        Me.dgvPitchingStats.TabIndex = 2
-        '
-        'lblPlayerID
-        '
-        Me.lblPlayerID.AutoSize = True
-        Me.lblPlayerID.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        Me.lblPlayerID.Location = New System.Drawing.Point(606, 14)
-        Me.lblPlayerID.Name = "lblPlayerID"
-        Me.lblPlayerID.Size = New System.Drawing.Size(51, 15)
-        Me.lblPlayerID.TabIndex = 4
-        Me.lblPlayerID.Text = "PlayerId"
-        Me.lblPlayerID.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
-        'LinkLabel1
-        '
-        Me.LinkLabel1.AutoSize = True
-        Me.LinkLabel1.Location = New System.Drawing.Point(606, 45)
-        Me.LinkLabel1.Name = "LinkLabel1"
-        Me.LinkLabel1.Size = New System.Drawing.Size(164, 15)
-        Me.LinkLabel1.TabIndex = 5
-        Me.LinkLabel1.TabStop = True
-        Me.LinkLabel1.Text = "www.Baseball-Reference.com"
-        Me.LinkLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
-        'MlbPlayerStats
-        '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
-        Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.BackColor = System.Drawing.SystemColors.Control
-        Me.ClientSize = New System.Drawing.Size(814, 600)
-        Me.Controls.Add(Me.LinkLabel1)
-        Me.Controls.Add(Me.lblPlayerID)
-        Me.Controls.Add(Me.TabControl1)
-        Me.Controls.Add(Me.lblPosition)
-        Me.Controls.Add(Me.lblPlayer)
-        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
-        Me.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.Name = "MlbPlayerStats"
-        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent
-        Me.Text = "Player Stats"
-        Me.TabControl1.ResumeLayout(False)
-        Me.Batting.ResumeLayout(False)
-        CType(Me.dgvBattingStats, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.Fielding.ResumeLayout(False)
-        CType(Me.dgvFieldingStats, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.Pitching.ResumeLayout(False)
-        CType(Me.dgvPitchingStats, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.ResumeLayout(False)
-        Me.PerformLayout()
+        lblPlayer = New Label()
+        lblPosition = New Label()
+        TabControl1 = New TabControl()
+        Batting = New TabPage()
+        dgvBattingStats = New DataGridView()
+        Fielding = New TabPage()
+        dgvFieldingStats = New DataGridView()
+        Pitching = New TabPage()
+        dgvPitchingStats = New DataGridView()
+        lblPlayerID = New Label()
+        LinkLabel1 = New LinkLabel()
+        picHeadshot = New PictureBox()
+        TabControl1.SuspendLayout()
+        Batting.SuspendLayout()
+        CType(dgvBattingStats, ComponentModel.ISupportInitialize).BeginInit()
+        Fielding.SuspendLayout()
+        CType(dgvFieldingStats, ComponentModel.ISupportInitialize).BeginInit()
+        Pitching.SuspendLayout()
+        CType(dgvPitchingStats, ComponentModel.ISupportInitialize).BeginInit()
+        CType(picHeadshot, ComponentModel.ISupportInitialize).BeginInit()
+        SuspendLayout()
+        ' 
+        ' lblPlayer
+        ' 
+        lblPlayer.AutoSize = True
+        lblPlayer.Font = New Font("Microsoft Sans Serif", 12F, FontStyle.Bold, GraphicsUnit.Point)
+        lblPlayer.ForeColor = SystemColors.ControlText
+        lblPlayer.Location = New Point(32, 18)
+        lblPlayer.Name = "lblPlayer"
+        lblPlayer.Size = New Size(58, 20)
+        lblPlayer.TabIndex = 1
+        lblPlayer.Text = "Player"
+        ' 
+        ' lblPosition
+        ' 
+        lblPosition.AutoSize = True
+        lblPosition.Font = New Font("Microsoft Sans Serif", 12F, FontStyle.Regular, GraphicsUnit.Point)
+        lblPosition.ForeColor = SystemColors.ControlText
+        lblPosition.Location = New Point(32, 52)
+        lblPosition.Name = "lblPosition"
+        lblPosition.Size = New Size(65, 20)
+        lblPosition.TabIndex = 2
+        lblPosition.Text = "Position"
+        ' 
+        ' TabControl1
+        ' 
+        TabControl1.Controls.Add(Batting)
+        TabControl1.Controls.Add(Fielding)
+        TabControl1.Controls.Add(Pitching)
+        TabControl1.Location = New Point(32, 96)
+        TabControl1.Name = "TabControl1"
+        TabControl1.SelectedIndex = 0
+        TabControl1.Size = New Size(853, 640)
+        TabControl1.TabIndex = 3
+        ' 
+        ' Batting
+        ' 
+        Batting.Controls.Add(dgvBattingStats)
+        Batting.Location = New Point(4, 28)
+        Batting.Name = "Batting"
+        Batting.Padding = New Padding(3)
+        Batting.Size = New Size(845, 608)
+        Batting.TabIndex = 0
+        Batting.Text = "Batting"
+        Batting.UseVisualStyleBackColor = True
+        ' 
+        ' dgvBattingStats
+        ' 
+        dgvBattingStats.AllowUserToAddRows = False
+        dgvBattingStats.AllowUserToDeleteRows = False
+        dgvBattingStats.AllowUserToOrderColumns = True
+        dgvBattingStats.AllowUserToResizeColumns = False
+        dgvBattingStats.AllowUserToResizeRows = False
+        dgvBattingStats.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells
+        dgvBattingStats.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        dgvBattingStats.EditMode = DataGridViewEditMode.EditProgrammatically
+        dgvBattingStats.Location = New Point(19, 29)
+        dgvBattingStats.MultiSelect = False
+        dgvBattingStats.Name = "dgvBattingStats"
+        dgvBattingStats.ReadOnly = True
+        dgvBattingStats.RowHeadersVisible = False
+        dgvBattingStats.RowHeadersWidth = 51
+        dgvBattingStats.RowTemplate.Height = 29
+        dgvBattingStats.Size = New Size(799, 546)
+        dgvBattingStats.TabIndex = 1
+        ' 
+        ' Fielding
+        ' 
+        Fielding.Controls.Add(dgvFieldingStats)
+        Fielding.Location = New Point(4, 28)
+        Fielding.Name = "Fielding"
+        Fielding.Padding = New Padding(3)
+        Fielding.Size = New Size(845, 608)
+        Fielding.TabIndex = 1
+        Fielding.Text = "Fielding"
+        Fielding.UseVisualStyleBackColor = True
+        ' 
+        ' dgvFieldingStats
+        ' 
+        dgvFieldingStats.AllowUserToAddRows = False
+        dgvFieldingStats.AllowUserToDeleteRows = False
+        dgvFieldingStats.AllowUserToOrderColumns = True
+        dgvFieldingStats.AllowUserToResizeColumns = False
+        dgvFieldingStats.AllowUserToResizeRows = False
+        dgvFieldingStats.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells
+        dgvFieldingStats.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        dgvFieldingStats.EditMode = DataGridViewEditMode.EditProgrammatically
+        dgvFieldingStats.Location = New Point(19, 29)
+        dgvFieldingStats.MultiSelect = False
+        dgvFieldingStats.Name = "dgvFieldingStats"
+        dgvFieldingStats.ReadOnly = True
+        dgvFieldingStats.RowHeadersVisible = False
+        dgvFieldingStats.RowHeadersWidth = 51
+        dgvFieldingStats.RowTemplate.Height = 29
+        dgvFieldingStats.Size = New Size(799, 546)
+        dgvFieldingStats.TabIndex = 2
+        ' 
+        ' Pitching
+        ' 
+        Pitching.Controls.Add(dgvPitchingStats)
+        Pitching.Location = New Point(4, 28)
+        Pitching.Name = "Pitching"
+        Pitching.Padding = New Padding(3)
+        Pitching.Size = New Size(845, 608)
+        Pitching.TabIndex = 2
+        Pitching.Text = "Pitching"
+        Pitching.UseVisualStyleBackColor = True
+        ' 
+        ' dgvPitchingStats
+        ' 
+        dgvPitchingStats.AllowUserToAddRows = False
+        dgvPitchingStats.AllowUserToDeleteRows = False
+        dgvPitchingStats.AllowUserToOrderColumns = True
+        dgvPitchingStats.AllowUserToResizeColumns = False
+        dgvPitchingStats.AllowUserToResizeRows = False
+        dgvPitchingStats.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells
+        dgvPitchingStats.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        dgvPitchingStats.EditMode = DataGridViewEditMode.EditProgrammatically
+        dgvPitchingStats.Location = New Point(19, 29)
+        dgvPitchingStats.MultiSelect = False
+        dgvPitchingStats.Name = "dgvPitchingStats"
+        dgvPitchingStats.ReadOnly = True
+        dgvPitchingStats.RowHeadersVisible = False
+        dgvPitchingStats.RowHeadersWidth = 51
+        dgvPitchingStats.RowTemplate.Height = 29
+        dgvPitchingStats.Size = New Size(799, 546)
+        dgvPitchingStats.TabIndex = 2
+        ' 
+        ' lblPlayerID
+        ' 
+        lblPlayerID.AutoSize = True
+        lblPlayerID.Font = New Font("Microsoft Sans Serif", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        lblPlayerID.Location = New Point(693, 18)
+        lblPlayerID.Name = "lblPlayerID"
+        lblPlayerID.Size = New Size(51, 15)
+        lblPlayerID.TabIndex = 4
+        lblPlayerID.Text = "PlayerId"
+        lblPlayerID.TextAlign = ContentAlignment.MiddleLeft
+        ' 
+        ' LinkLabel1
+        ' 
+        LinkLabel1.AutoSize = True
+        LinkLabel1.Location = New Point(693, 36)
+        LinkLabel1.Name = "LinkLabel1"
+        LinkLabel1.Size = New Size(181, 19)
+        LinkLabel1.TabIndex = 5
+        LinkLabel1.TabStop = True
+        LinkLabel1.Text = "https://www.mlb.com/player"
+        LinkLabel1.TextAlign = ContentAlignment.MiddleLeft
+        ' 
+        ' picHeadshot
+        ' 
+        picHeadshot.BorderStyle = BorderStyle.FixedSingle
+        picHeadshot.Location = New Point(604, 18)
+        picHeadshot.Name = "picHeadshot"
+        picHeadshot.Size = New Size(70, 87)
+        picHeadshot.SizeMode = PictureBoxSizeMode.Zoom
+        picHeadshot.TabIndex = 6
+        picHeadshot.TabStop = False
+        ' 
+        ' MlbPlayerStats
+        ' 
+        AutoScaleDimensions = New SizeF(8F, 19F)
+        AutoScaleMode = AutoScaleMode.Font
+        BackColor = SystemColors.Control
+        ClientSize = New Size(930, 760)
+        Controls.Add(picHeadshot)
+        Controls.Add(LinkLabel1)
+        Controls.Add(lblPlayerID)
+        Controls.Add(TabControl1)
+        Controls.Add(lblPosition)
+        Controls.Add(lblPlayer)
+        FormBorderStyle = FormBorderStyle.FixedSingle
+        Name = "MlbPlayerStats"
+        StartPosition = FormStartPosition.CenterParent
+        Text = "Player Stats"
+        TopMost = True
+        TabControl1.ResumeLayout(False)
+        Batting.ResumeLayout(False)
+        CType(dgvBattingStats, ComponentModel.ISupportInitialize).EndInit()
+        Fielding.ResumeLayout(False)
+        CType(dgvFieldingStats, ComponentModel.ISupportInitialize).EndInit()
+        Pitching.ResumeLayout(False)
+        CType(dgvPitchingStats, ComponentModel.ISupportInitialize).EndInit()
+        CType(picHeadshot, ComponentModel.ISupportInitialize).EndInit()
+        ResumeLayout(False)
+        PerformLayout()
 
     End Sub
     Friend WithEvents lblPlayer As Label
@@ -235,4 +242,5 @@ Partial Class MlbPlayerStats
     Friend WithEvents dgvPitchingStats As DataGridView
     Friend WithEvents lblPlayerID As Label
     Friend WithEvents LinkLabel1 As LinkLabel
+    Friend WithEvents picHeadshot As PictureBox
 End Class

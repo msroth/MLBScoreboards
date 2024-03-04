@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MLBScoreBoards": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
