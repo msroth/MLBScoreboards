@@ -55,12 +55,6 @@ Public Class MlbScoreboards
         splash.Refresh()
 
         Try
-
-
-            ' load all games for today's date
-            'Dim gameDate As String = Me.calDatePicker.Value.ToString("MM/dd/yyyy")
-            'Me.mAllGames = Me.LoadAllGamesData(gameDate)
-
             ' set scoreboard timer for every 60 sec or as configured, and start it
             ' this time updates the list of games
             Dim SBUpdateSeconds As Integer = Convert.ToInt32(mProperties.GetProperty(mProperties.mSCOREBOARD_TIMER_KEY, "60"))
@@ -72,12 +66,6 @@ Public Class MlbScoreboards
             SetGameUpdateTimerInterval(GameUpdateSeconds, False)
 
             Me.Cursor = Cursors.Default
-
-            ' if a favorite team specified, find game and load it
-            'Me.SetCurrentGame()
-
-            ' start the update timer
-            'Me.GameUpdateTimer.Start()
 
             ' run the scoreboard
             ResetScreenControls()
@@ -115,15 +103,10 @@ Public Class MlbScoreboards
 
             ' set menu options accordingly
             If Me.mCurrentGame Is Nothing Or MlbGame.CheckGameStatus(Me.mCurrentGame.GameStatus) = MlbGame.mGAME_STATUS_FUTURE Then
-                'PlayRecapToolStripMenuItem.Enabled = False
                 BoxscoreToolStripMenuItem.Enabled = False
                 GameUpdateTimer.Enabled = False
-                'ElseIf MlbGame.CheckGameStatus(Me.mCurrentGame.GameStatus) = MlbGame.mGAME_STATUS_FUTURE Then
-                'PlayRecapToolStripMenuItem.Enabled = False
-                'BoxscoreToolStripMenuItem.Enabled = False
-                'GameUpdateTimer.Stop()
+
             ElseIf MlbGame.CheckGameStatus(Me.mCurrentGame.GameStatus) = MlbGame.mGAME_STATUS_PAST Then
-                'PlayRecapToolStripMenuItem.Enabled = True
                 BoxscoreToolStripMenuItem.Enabled = True
                 GameUpdateTimer.Enabled = False
             Else
@@ -133,7 +116,6 @@ Public Class MlbScoreboards
                     GameUpdateTimer.Start()
                 End If
             End If
-
 
             ' update status bar
             Me.AllGamesUpdateData.Text = $"All Games Data Updated {Date.Now}  "
@@ -153,8 +135,6 @@ Public Class MlbScoreboards
         Try
             ' set menu options accordingly
             If Me.mCurrentGame Is Nothing Then
-                'Me.PlayRecapToolStripMenuItem.Enabled = False
-                'Me.BroadcastsToolStripMenuItem.Enabled = False
                 Return
             Else
 
@@ -167,9 +147,6 @@ Public Class MlbScoreboards
 
                 ' update status bar
                 Me.ThisGameUpdateData.Text = $"  Current Game ({Me.mCurrentGame.AwayTeam.Abbr} @ {Me.mCurrentGame.HomeTeam.Abbr}) Data Updated {Date.Now}"
-
-                ' enable menu item
-                'Me.PlayRecapToolStripMenuItem.Enabled = True
 
                 ' load team players
                 Me.mCurrentGame.AwayTeam.LoadPlayerData(Me.mCurrentGame)
@@ -217,10 +194,9 @@ Public Class MlbScoreboards
                 lblHomeWinnerLoser.Visible = False
                 'lblPlaySummary.Visible = False
                 'dgvPlaySummary.Visible = False
+                Me.UpdatePlayCommentary()
 
                 ' turn on/off menu items
-                'Me.PlayRecapToolStripMenuItem.Enabled = False
-                'Me.BroadcastsToolStripMenuItem.Enabled = True
                 Me.BoxscoreToolStripMenuItem.Enabled = False
 
                 ' load team roster
@@ -257,8 +233,6 @@ Public Class MlbScoreboards
                 lblMatchupBatter.Visible = False
 
                 ' turn on/off menu items
-                'Me.PlayRecapToolStripMenuItem.Enabled = True
-                'Me.BroadcastsToolStripMenuItem.Enabled = False
                 Me.BoxscoreToolStripMenuItem.Enabled = True
 
                 ' load winning - losing pitchers
@@ -314,8 +288,6 @@ Public Class MlbScoreboards
                 lblAwayWinnerLoser.Visible = False
 
                 ' turn on/off menu items
-                'Me.PlayRecapToolStripMenuItem.Enabled = True
-                'Me.BroadcastsToolStripMenuItem.Enabled = True
                 Me.BoxscoreToolStripMenuItem.Enabled = True
 
                 ' update inning label in inning table
@@ -362,7 +334,11 @@ Public Class MlbScoreboards
 
                 ' if mid inning or end inning show due ups
                 If Me.mCurrentGame.CurrentInningState() = "END" Or Me.mCurrentGame.CurrentInningState() = "MIDDLE" Then
-                    Me.tbxCommentary.Text += Me.mCurrentGame.GetDueUpBatters()
+                    Me.tbxCommentary.Text = Me.mCurrentGame.GetDueUpBatters()
+                    lblBalls.Text = "Balls: 0"
+                    lblStrikes.Text = "Strikes: 0"
+                    lblOuts.Text = "Outs: 0"
+                    lblPitchCount.Text = "Pitche Count: 0"
                 End If
             Else
                 Logger.Warn($"Unknown game state: {status}")
